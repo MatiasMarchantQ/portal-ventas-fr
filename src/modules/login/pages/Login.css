@@ -1,0 +1,140 @@
+.login-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    font-family: Montserrat, sans-serif;
+}
+
+.login-container {
+    display: flex;
+    flex: 1;
+}
+
+.left-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 1;
+    position: relative;
+}
+
+.left-section img {
+    height: 100%;
+    width: 100%; 
+    object-fit: cover; 
+}
+
+.right-section {
+    margin: 20px;
+    margin-right: 2cap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #99235C;
+    border-radius: 20px 0 20px 0;
+    padding: 10px;
+}
+
+.login-box {
+    color: white;
+    width: 100%;
+    max-width: 400px;
+    padding: 40px;
+    background: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-box h2 {
+    margin-top: 0;
+    text-align: center;
+    font-size: 2rem;
+}
+
+.login-box .form-group {
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.login-box .form-group label {
+    margin-bottom: 0.5rem;
+}
+
+.login-box .form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.login-box .actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.login-box .remember-me {
+    display: flex;
+    align-items: center
+}
+
+.login-box .link-button {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    text-decoration: underline;
+    font: inherit;
+    display: inline;
+}
+
+.login-box .submit-button {
+    margin-top: 2rem;
+    padding: 0.5rem 1rem;
+    background-color: #ffffff;
+    color: #99235C;
+    font-weight: bold;
+    font-size: 1rem;
+    width: 50%;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.login-box .submit-button:hover {
+    background-color: #ffd1e7;
+}
+
+.login-box .signup {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+}
+
+.signup a{
+    color: #ffffff;
+}
+
+@media (max-width: 768px) {
+    .left-section img {
+        display: none;
+    }
+
+    .right-section {
+        margin: 10;
+        padding: 20px;
+        border-radius: 20px 0;
+        width: 100%;
+        max-width: none;
+    }
+
+    .login-box {
+        padding: 20px;
+    }
+}

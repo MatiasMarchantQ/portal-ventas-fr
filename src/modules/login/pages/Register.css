@@ -1,0 +1,185 @@
+.register-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    font-family: Montserrat, sans-serif;
+}
+
+.register-background {
+    flex: 1;
+    background: url('../../../../public/images/poste-camioneta-ingbell.webp') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.register-form {
+    margin: 1rem;
+    background-color: #99235c;
+    padding: 20px;
+    border-radius: 8px;
+    width: 45%;
+    max-width: 800px;
+    color: #fff;
+    border-radius: 50px 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.register-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.form-column {
+    flex: 1;
+    min-width: 200px;
+}
+
+.form-column label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.register-form .form-group input[type="text"],
+.register-form .form-group input[type="email"],
+.register-form .form-group input[type="tel"],
+.register-form .form-group input[type="password"],
+.register-form .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.register-form .form-group input[name="departamento"] {
+    width: 48.5%;
+}
+
+.register-form button {
+    background-color: #ffffff;
+    color: #99235c;
+    font-weight: bold;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    display: block;
+    margin: 20px auto;
+    box-sizing: border-box;
+}
+
+.register-form button:hover {
+    background-color: #f0f0f0;
+}
+
+.password-instructions-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+    
+}
+
+.password-instructions {
+    flex: 1;
+    margin: 0;
+    color: #fff;
+}
+
+.confirm-password-instructions {
+    flex: 1;
+    margin: 0;
+    margin-left: 1rem;
+    text-align: inline;
+    color: #fff;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.login-link a {
+    color: #fff;
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .register-form {
+        width: 95%;
+    }
+
+    .form-row {
+        flex-direction: column;
+    }
+
+    .form-column {
+        min-width: auto;
+    }
+
+    .register-form .form-group input[name="departamento"] {
+        width: 100%;
+    }
+
+    .password-instructions {
+        margin-bottom: 10px;
+    }
+
+    .form-group .password-instructions-container {
+        order: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-form {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .form-row {
+        gap: 10px;
+    }
+
+    .form-column {
+        min-width: 100%;
+    }
+
+    .register-form .form-group input,
+    .register-form .form-group select {
+        width: calc(100% - 20px);
+    }
+
+    .register-form .form-group input[name="departamento"] {
+        width: 100%;
+    }
+
+    .password-instructions-container {
+        gap: 5px;
+    }
+    
+    .form-group .password-instructions-container {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .password-instructions {
+        margin-bottom: 10px;
+    }
+}
