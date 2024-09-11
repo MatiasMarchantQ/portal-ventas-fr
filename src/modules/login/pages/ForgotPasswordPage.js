@@ -2,35 +2,57 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationCircle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import './ChangePassword.css';
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
+  const [emailSent, setEmailSent] = useState(null);
 
-  const handleSubmit = (event) => {
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setEmailSent(null);
     const apiUrl = 'http://localhost:3001/api/auth/forgot-password';
     const formData = { email };
 
     if (!email) {
-      setError('Por favor, ingrese un correo electrónico válido');
+      setError('Por favor, ingrese un correo electrónico');
+      setEmailSent(false);
       return;
     }
 
-    fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    })
-    .then((response) => response.json())
-    .then((data) => {
+    if (!emailRegex.test(email)) {
+      setError('Ingrese un correo electrónico válido');
+      setEmailSent(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Error al enviar el correo electrónico.');
+      }
+
+      const data = await response.json();
       setMessage(data.message);
-    })
-    .catch((error) => {
-      setError(error.message);
-    });
+      setEmailSent(true);
+      setError(null); // Limpia los errores si el correo fue enviado correctamente
+    } catch (error) {
+      console.error('Error sending email:', error.message);
+      setError(error.message || 'No se pudo enviar el correo electrónico. Inténtalo de nuevo más tarde.');
+      setEmailSent(false);
+    }
   };
 
   return (
@@ -54,8 +76,26 @@ const ForgotPasswordPage = () => {
                   required
                 />
               </div>
-              {error && <p style={{ color: 'red' }}>{error}</p>}
-              <button type="submit" className="submit-button">
+              {emailSent === true && (
+                <div className="success-notification">
+                  <FontAwesomeIcon icon={faCheckCircle} />
+                  <span>{message || 'Correo electrónico enviado exitosamente!'}</span>
+                </div>
+              )}
+              {emailSent === false && (
+                <div className="error-notification">
+                  <FontAwesomeIcon icon={faExclamationCircle} />
+                  <span>{error}</span>
+                </div>
+              )}
+              {emailSent === null && (
+                <div></div>
+              )}
+              <button
+                type="submit"
+                className="submit-button"
+                disabled={emailSent === true}
+              >
                 Restablecer contraseña
               </button>
             </form>

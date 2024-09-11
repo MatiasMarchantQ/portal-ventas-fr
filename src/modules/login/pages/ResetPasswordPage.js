@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -8,8 +8,9 @@ import { faExclamationCircle, faCheckCircle } from '@fortawesome/free-solid-svg-
 import './ResetPassword.css'
 
 const ResetPasswordPage = () => {
-  const { token } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
+  const { token } = useParams();
   const [password, setPassword] = useState('');
   const [passwordRequirements, setPasswordRequirements] = useState({
     hasMinLength: false,
@@ -52,16 +53,15 @@ const ResetPasswordPage = () => {
       hasLowercase,
       hasNumber,
     });
+  
+    if (hasMinLength && hasUppercase && hasLowercase && hasNumber) {
+      setError({ ...error, password: '' });
+    }
   };
   
 
   const handleConfirmPasswordChange = (e) => {
     setConfirmPassword(e.target.value);
-    if (e.target.value !== password) {
-      setError({ ...error, confirmPassword: 'Las contraseñas no coinciden' });
-    } else {
-      setError({ ...error, confirmPassword: '' });
-    }
   };
 
   const handleSubmit = (event) => {
@@ -105,6 +105,11 @@ const ResetPasswordPage = () => {
       });
   };
 
+  const handleGoToHome = () => {
+    const newPath = location.pathname.replace(`/${token}`, '');
+    navigate(newPath, { replace: true });
+  };
+
   return (
     <div className="reset-password-page">
       <Header />
@@ -124,6 +129,7 @@ const ResetPasswordPage = () => {
                     value={password}
                     onChange={handlePasswordChange}
                     required
+                    className={error.password ? 'error-input' : ''}
                   />
                   <span className="password-icon" onClick={() => setShowNewPassword(!showNewPassword)}>
                     {showNewPassword ? <FontAwesomeIcon icon={faEyeSlash} /> : <FontAwesomeIcon icon={faEye} />}
@@ -135,7 +141,7 @@ const ResetPasswordPage = () => {
                   </p>
                 )}
                 <p>Tu contraseña debe tener al menos:</p>
-                <ul style={{ listStyle: 'none'}}>
+                <ul style={{ listStyle: 'none' }}>
                   <li>
                     <FontAwesomeIcon icon={passwordRequirements.hasMinLength ? faCheckCircle : faExclamationCircle} />
                     <span style={{ marginLeft: '10px' }}>8 caracteres (20 max.)</span>
@@ -146,7 +152,7 @@ const ResetPasswordPage = () => {
                   </li>
                 </ul>
               </div>
-
+  
               <div className="form-group">
                 <label>Repetir contraseña</label>
                 <div className="input-container">
@@ -155,6 +161,7 @@ const ResetPasswordPage = () => {
                     value={confirmPassword}
                     onChange={handleConfirmPasswordChange}
                     required
+                    className={error.confirmPassword ? 'error-input' : ''}
                   />
                   <span className="password-icon" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                     {showConfirmPassword ? <FontAwesomeIcon icon={faEyeSlash} /> : <FontAwesomeIcon icon={faEye} />}
@@ -165,24 +172,20 @@ const ResetPasswordPage = () => {
                     <FontAwesomeIcon icon={faExclamationCircle} /> {error.confirmPassword}
                   </p>
                 )}
-                <p>Debe coincidir con la contraseña ingresada anteriormente</p>
               </div>
-              {error.global && (
-                <p style={{ color: 'white' }}>
-                  <FontAwesomeIcon icon={faExclamationCircle} /> {error.global}
-                </p>
-              )}
+  
               {message && (
                 <p className="success-message">
                   <FontAwesomeIcon icon={faCheckCircle} /> {message}
                 </p>
               )}
+  
               <button type="submit" className="submit-button">
                 Cambiar contraseña
               </button>
             </form>
             <p className="signup">
-              <Link to="/" className="link-button">
+              <Link to="/" onClick={handleGoToHome} className="link-button">
                 Ir al Inicio
               </Link>
             </p>
