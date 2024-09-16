@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Importa useNavigate
 import './Menu.css';
 
 const Menu = ({ role_id, onMenuClick }) => {
   const [showSubmenu, setShowSubmenu] = useState(false);
+  const navigate = useNavigate(); // Inicializa useNavigate
 
   let menuOptions = [];
   if (role_id === 1) {
@@ -86,8 +88,16 @@ const Menu = ({ role_id, onMenuClick }) => {
   );
 
   function handleLogout() {
-    // Aquí pones el código para cerrar sesión, como limpiar el localStorage y redirigir
-    console.log("Logout triggered"); // Ejemplo de mensaje en consola
+    // Elimina el token del localStorage
+    localStorage.removeItem('token');
+    // Elimina el token del sessionStorage
+    sessionStorage.removeItem('token');
+    // Elimina el token de las cookies
+    document.cookie.split(';').forEach((c) => {
+      document.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
+    });
+    // Redirige al usuario a la página de inicio
+    navigate('/');
   }
 };
 

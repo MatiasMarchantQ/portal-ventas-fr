@@ -16,7 +16,7 @@ const DashboardPage = () => {
   const [selectedOption, setSelectedOption] = useState('Ventas'); // Valor inicial como 'Ventas'
 
   const handleMenuClick = (option) => {
-    setSelectedOption(option); // Actualiza la opción seleccionada
+    setSelectedOption(option);
   };
 
   const content = useMemo(() => {

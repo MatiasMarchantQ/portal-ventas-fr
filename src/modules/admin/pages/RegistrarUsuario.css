@@ -1,0 +1,89 @@
+.registrar-usuario-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: auto;
+}
+
+.registrar-usuario-form-box {
+    padding: 5rem;
+}
+
+.registrar-usuario-form-box h2 {
+    margin-top: -4rem;
+    text-align: center;
+    color: #99235C;
+    font-size: 2rem;
+}
+
+.registrar-usuario-form-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.registrar-usuario-form-group {
+    flex: 1;
+    min-width: 45%;
+    margin-right: 3rem;
+}
+
+.registrar-usuario-form-group:last-of-type {
+    margin-right: 0;
+}
+
+.registrar-usuario-form-group label {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.registrar-usuario-form-group input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.registrar-usuario-form-group select {
+    width: 110%; 
+    padding: 0.75rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.registrar-usuario-form-group input[type="checkbox"] {
+    width: auto;
+    margin-right: 0.5rem;
+}
+
+.registrar-usuario-form-group input[type="password"] {
+    width: 45%; /* adjust the width to match the other fields */
+}
+
+.registrar-usuario-form-group.checkbox-group {
+    display: flex;
+    align-items: center;
+}
+
+.registrar-usuario-form-group.full-width {
+    min-width: 100%;
+}
+
+.registrar-usuario-submit-button {
+    background-color: #99235C;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 50%;
+    margin-top: 1rem;
+}
+
+.registrar-usuario-submit-button:hover {
+    background-color: #0056b3;
+}
