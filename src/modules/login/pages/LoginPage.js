@@ -5,8 +5,7 @@ import Cookies from 'js-cookie';
 import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faEyeSlash, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import './Login.css';
 
 const LoginPage = () => {
@@ -18,13 +17,35 @@ const LoginPage = () => {
   const { setToken } = useContext(UserContext);
   const navigate = useNavigate();
 
+  // Verificar el token almacenado al cargar la página
   useEffect(() => {
-  const storedToken = localStorage.getItem('token');
-  if (storedToken) {
-    setToken(storedToken);
-    navigate('/dashboard');
-  }
-}, [navigate, setToken]);
+    const storedToken = sessionStorage.getItem('token');
+    const storedCookie = Cookies.get('token');
+
+    if (storedCookie) {
+      setToken(storedCookie);
+      navigate('/dashboard');
+    } else if (storedToken) {
+      setToken(storedToken);
+      navigate('/dashboard');
+    }
+  }, [navigate, setToken]);
+
+  // Limpiar token al cerrar la pestaña
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (!rememberMe) {
+        sessionStorage.removeItem('token');
+        Cookies.remove('token');
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [rememberMe]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
@@ -34,7 +55,7 @@ const LoginPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, rememberMe }) // Enviar el estado del checkbox
+        body: JSON.stringify({ email, password, rememberMe }), // Enviar el estado del checkbox
       });
 
       if (!response.ok) {
@@ -46,17 +67,15 @@ const LoginPage = () => {
 
       if (data.message === 'Login exitoso' && data.token) {
         setToken(data.token);
-    
+
         if (rememberMe) {
-          // Store token in localStorage with a longer expiration time
-          const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
-          localStorage.setItem('token', data.token);
-          Cookies.set('token', data.token, { expires: expiresAt });
+          // Almacenar el token en las Cookies con expiración de 2 horas
+          Cookies.set('token', data.token, { expires: 2 / 24 }); // 2 horas en días
         } else {
-          // Store token in sessionStorage
-          localStorage.setItem('token', data.token);
+          // Almacenar el token en sessionStorage
+          sessionStorage.setItem('token', data.token);
         }
-    
+
         navigate('/dashboard');
       } else {
         setError(data.error);
@@ -85,56 +104,64 @@ const LoginPage = () => {
       <Header />
       <div className="login-container">
         <div className="left-section">
-          <img src="images\poste-camioneta-ingbell.webp" alt="Ingbell" />
+          <img src="images/poste-camioneta-ingbell.webp" alt="Ingbell" />
         </div>
         <div className="right-section">
           <div className="login-box">
             <h2>Inicio de sesión</h2>
             <div className="form-group">
-          <label htmlFor="email">Correo electrónico</label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(event) => {
-              setEmail(event.target.value);
-              handleInputChange(); // Add this line
-            }}
-            onKeyPress={handleKeyPress}
-          />
-        </div>
-        <div className="form-group">
-          <label htmlFor="password">Contraseña</label>
-          <div className="password-input">
-            {showPassword ? (
+              <label htmlFor="email">Correo electrónico</label>
               <input
-                type="text"
-                id="password"
-                value={password}
+                type="email"
+                id="email"
+                value={email}
                 onChange={(event) => {
-                  setPassword(event.target.value);
-                  handleInputChange(); // Add this line
+                  setEmail(event.target.value);
+                  handleInputChange();
                 }}
                 onKeyPress={handleKeyPress}
+                required
               />
-            ) : (
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(event) => {
-                  setPassword(event.target.value);
-                  handleInputChange(); // Add this line
-                }}
-                onKeyPress={handleKeyPress}
-              />
-            )}
-            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} onClick={toggleShowPassword} />
-          </div>
-        </div>
+            </div>
+            <div className="form-group">
+              <label htmlFor="password">Contraseña</label>
+              <div className="password-input">
+                {showPassword ? (
+                  <input
+                    type="text"
+                    id="password"
+                    value={password}
+                    onChange={(event) => {
+                      setPassword(event.target.value);
+                      handleInputChange();
+                    }}
+                    onKeyPress={handleKeyPress}
+                    required
+                  />
+                ) : (
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(event) => {
+                      setPassword(event.target.value);
+                      handleInputChange();
+                    }}
+                    onKeyPress={handleKeyPress}
+                    required
+                  />
+                )}
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} onClick={toggleShowPassword} />
+              </div>
+            </div>
             <div className="actions">
               <label className="remember-me">
-                <input type="checkbox" checked={rememberMe} onChange={(event) => setRememberMe(event.target.checked)} /> Recuérdame
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(event) => setRememberMe(event.target.checked)}
+                />{' '}
+                Recuérdame
               </label>
               <Link to="/forgotpassword" className="link-button">
                 ¿Olvidaste tu contraseña?

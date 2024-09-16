@@ -1,58 +1,51 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './Menu.css';
 
-const Menu = ({ role_id }) => {
+const Menu = ({ role_id, onMenuClick }) => {
   const [showSubmenu, setShowSubmenu] = useState(false);
-  const navigate = useNavigate();
 
   let menuOptions = [];
   if (role_id === 1) {
     menuOptions = [
-      { label: 'Ventas', href: '/ventas' },
+      { label: 'Ventas', action: 'Ventas' },
       {
         label: 'Gestión de administración',
-        href: '#',
         submenu: [
-          { label: 'Registrar usuario', href: '/registrar-usuario' },
-          { label: 'Usuarios', href: '/usuarios' },
-          { label: 'Comunas y tarifas', href: '/comunas-tarifas' },
+          { label: 'Registrar usuario', action: 'Registrar usuario' },
+          { label: 'Usuarios', action: 'Usuarios' },
+          { label: 'Comunas y tarifas', action: 'Comunas y tarifas' },
         ],
       },
-      { label: 'Mi perfil', href: '/mi-perfil' },
-      { label: 'Cerrar sesión', href: '#' },
+      { label: 'Mi perfil', action: 'Mi perfil' },
+      { label: 'Cerrar sesión', action: 'Cerrar sesión' },
     ];
   } else if (role_id === 2) {
     menuOptions = [
-      { label: 'Ventas', href: '/ventas' },
-      { label: 'Ingresar Venta', href: '/ingresar-venta' },
-      { label: 'Mi perfil', href: '/mi-perfil' },
-      { label: 'Cerrar sesión', href: '#' },
+      { label: 'Ventas', action: 'Ventas' },
+      {
+        label: 'Gestión de administración',
+        submenu: [
+          { label: 'Registrar usuario', action: 'Registrar usuario' },
+          { label: 'Usuarios', action: 'Usuarios' },
+        ],
+      },
+      { label: 'Mi perfil', action: 'Mi perfil' },
+      { label: 'Cerrar sesión', action: 'Cerrar sesión' },
     ];
   } else if (role_id === 3 || role_id === 4) {
     menuOptions = [
-      { label: 'Ventas', href: '/ventas' },
-      { label: 'Mi perfil', href: '/mi-perfil' },
-      { label: 'Cerrar sesión', href: '#' },
+      { label: 'Ventas', action: 'Ventas' },
+      { label: 'Mi perfil', action: 'Mi perfil' },
+      { label: 'Cerrar sesión', action: 'Cerrar sesión' },
     ];
   } else if (role_id === 5) {
     menuOptions = [
-      { label: 'Ventas', href: '/ventas' },
-      { label: 'Mi perfil', href: '/mi-perfil' },
-      { label: 'Reportes', href: '/reportes' },
-      { label: 'Cerrar sesión', href: '#' },
+      { label: 'Ventas', action: 'Ventas' },
+      { label: 'Mi perfil', action: 'Mi perfil' },
+      { label: 'Reportes', action: 'Reportes' },
+      { label: 'Cerrar sesión', action: 'Cerrar sesión' },
     ];
   }
-
-  const handleLogout = async () => {
-    try {
-      // Lógica para cerrar sesión
-      localStorage.removeItem('token');
-      navigate('/');
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
 
   return (
     <ul className="menu-sidebar">
@@ -61,38 +54,41 @@ const Menu = ({ role_id }) => {
       <br />
       {menuOptions.map((option, index) => (
         <li key={index}>
-          <a
-            href={option.href}
-            className={option.active ? 'active' : ''}
+          <button
             onClick={() => {
               if (option.label === 'Cerrar sesión') {
-                handleLogout();
-              } else if (option.label === 'Gestión de administración') {
+                handleLogout(); // Llama a la función de logout si corresponde
+              } else if (option.submenu) {
                 setShowSubmenu(!showSubmenu);
+              } else {
+                onMenuClick(option.action); // Cambia el contenido según la acción
               }
             }}
           >
             {option.label}
-            <br />
-            {option.submenu && (
-              <span className={`arrow ${showSubmenu ? 'up' : 'down'}`} />
-            )}
-          </a>
+            {option.submenu && <span className={`arrow ${showSubmenu ? 'up' : 'down'}`} />}
+          </button>
           {option.submenu && showSubmenu && (
             <ul>
               {option.submenu.map((submenuOption, submenuIndex) => (
                 <li key={submenuIndex}>
-                  <a href={submenuOption.href}>{submenuOption.label}</a>
+                  <button onClick={() => onMenuClick(submenuOption.action)}>
+                    {submenuOption.label}
+                  </button>
                 </li>
               ))}
             </ul>
           )}
-          <br />
           <hr />
         </li>
       ))}
     </ul>
   );
+
+  function handleLogout() {
+    // Aquí pones el código para cerrar sesión, como limpiar el localStorage y redirigir
+    console.log("Logout triggered"); // Ejemplo de mensaje en consola
+  }
 };
 
 export default Menu;

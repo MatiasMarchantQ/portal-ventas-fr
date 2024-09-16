@@ -1,0 +1,162 @@
+/* Ventas.css */
+
+.ventas-page {
+    padding: 0px;
+    font-family: Montserrat, sans-serif;
+  }
+
+  .ventas-page h1 {
+    text-align: center;
+    color: #99235C;
+  }
+  
+  
+  .search-bar {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  input[type="text"] {
+    padding: 12px;
+    width: 30%;
+    max-width: 400px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    background-color: #e6e6e6;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sales-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sale-card {
+    border: 1px solid #ddd;
+    border-radius: 20px 0;
+    padding: 25px;
+    margin-bottom: 10px;
+  }
+  
+  .sale-card-header {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  
+  .sale-status {
+    flex: 0 0 100px;
+    text-align: left;
+    font-weight: bold;
+    margin-top: calc(6%);
+    margin-left: 3rem;
+  }
+  
+  .sale-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .info-top, .info-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1px;
+  }
+  
+  .info-top {
+    font-size: 20px;
+    color: #99235C;
+    font-weight: bold;
+}
+  
+  .info-bottom {
+    font-size: 13px;
+    color: #777;
+  }
+  
+  .info-item {
+    display: inline-flex;
+    align-items: center;
+    margin-top: auto;
+  }
+  
+  .info-item:not(:last-child)::after {
+    content: ' | ';
+    margin-left: 5px;
+    margin-right: 5px;
+
+  }
+  
+  .info-item.purple {
+    color: #99235C; /* Morado */
+  }
+  
+  .info-item.gray {
+    color: #777; /* Gris */
+  }
+
+  .info-item + .info-item {
+    margin-left: 0; /* Reduce o elimina el margen izquierdo para el siguiente elemento */
+  }
+  
+  .info-item-link {
+    margin-left: 5px; /* Ajusta el valor según sea necesario */
+  }
+  
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  
+  .pagination-button {
+    background-color: transparent;
+    border: 1px solid #99235C;
+    color: #99235C;
+    padding: 8px 16px;
+    margin: 0 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .pagination-button:disabled {
+    color: #ccc;
+    border-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .pagination-numbers {
+    display: flex;
+    align-items: center;
+  }
+  
+  .pagination-number {
+    background-color: transparent;
+    border: none;
+    color: #99235C;
+    padding: 8px 12px;
+    margin: 0 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .pagination-number.active {
+    background-color: #99235C;
+    color: white;
+  }
+  
+  .pagination-number:hover:not(.active) {
+    background-color: #f0f0f0;
+  }
+  
+  .pagination-button{
+    border: none
+  }

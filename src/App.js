@@ -8,6 +8,7 @@ import ChangePasswordPage from './modules/login/pages/ChangePasswordPage';
 import ResetPasswordPage from './modules/login/pages/ResetPasswordPage';
 import DashboardPage from './modules/dashboard/pages/DashboardPage';
 import VentasPage from './modules/ventas/pages/VentasPage';
+import RegistrarUsuarioPage from './modules/admin/pages/RegistrarUsuarioPage';
 import ProtectedRoute from './contexts/ProtectedRoute';
 
 function App() {
@@ -20,8 +21,7 @@ function App() {
           <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
           <Route path="/changepassword" element={<ChangePasswordPage />} />
           <Route path="/resetpassword/:token" element={<ResetPasswordPage />} />
-          <Route path="/dashboard" element={<ProtectedRoute element={DashboardPage} />} />
-          <Route path="/ventas" element={<ProtectedRoute element={VentasPage} />} />
+          <Route path="/dashboard" element={<DashboardPage />}/>
           <Route path="*" element={<div>Not Found</div>} />
         </Routes>
       </Router>
