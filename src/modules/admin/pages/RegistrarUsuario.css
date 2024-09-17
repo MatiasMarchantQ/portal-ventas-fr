@@ -1,3 +1,4 @@
+/* Estilos para la página de registro de usuario */
 .registrar-usuario-page {
     display: flex;
     justify-content: center;
@@ -9,6 +10,7 @@
     padding: 5rem;
 }
 
+/* Estilo del título */
 .registrar-usuario-form-box h2 {
     margin-top: -4rem;
     text-align: center;
@@ -16,61 +18,112 @@
     font-size: 2rem;
 }
 
+/* Estructura para las filas con grid */
 .registrar-usuario-form-row {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
+    gap: 5rem; /* Espacio más amplio entre columnas */
     margin-bottom: 1rem;
+    width: 100%;
 }
 
+/* Estilos para los grupos de formulario */
 .registrar-usuario-form-group {
-    flex: 1;
-    min-width: 45%;
-    margin-right: 3rem;
+    box-sizing: border-box;
 }
 
-.registrar-usuario-form-group:last-of-type {
-    margin-right: 0;
-}
-
+/* Estilos comunes para etiquetas y campos de entrada */
 .registrar-usuario-form-group label {
     display: block;
     font-size: 0.9rem;
     margin-bottom: 0.5rem;
 }
 
-.registrar-usuario-form-group input {
+.registrar-usuario-form-group input,
+.registrar-usuario-form-group textarea,
+.registrar-usuario-form-group input[type="number"],
+.registrar-usuario-form-group input[type="email"]{
     width: 100%;
     padding: 0.75rem;
     font-size: 1rem;
+    background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 4px;
+    box-sizing: border-box;
+    margin-bottom: 1rem;
 }
 
-.registrar-usuario-form-group select {
-    width: 110%; 
+.registrar-usuario-form-group select{
+    width: 100%;
     padding: 0.75rem;
     font-size: 1rem;
+    background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 4px;
+    box-sizing: border-box;
+    margin-bottom: 1rem;
 }
 
-.registrar-usuario-form-group input[type="checkbox"] {
-    width: auto;
-    margin-right: 0.5rem;
-}
 
-.registrar-usuario-form-group input[type="password"] {
-    width: 45%; /* adjust the width to match the other fields */
-}
-
-.registrar-usuario-form-group.checkbox-group {
+.checkbox-group {
     display: flex;
     align-items: center;
+    margin-top: 1rem;
+}
+
+.checkbox-group label {
+    margin-left: 0.5rem;
+    color: #99235C;
+}
+
+.checkbox-group input[type="checkbox"] {
+    height: 1rem;
+    width: 0.8rem;
+    margin-right: 0.3rem;
+    cursor: pointer;
 }
 
 .registrar-usuario-form-group.full-width {
-    min-width: 100%;
+    grid-column: span 2;
 }
+
+.password-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+}
+  
+.password-container input[type="password"] {
+    padding-right: 2.5rem;
+  }
+  
+  .password-container input[type="password"] {
+    width: 43.5%;
+  }
+
+  .password-container input[type="text"]{
+    max-width: 43.5%;
+}
+  
+  .password-random-icon {
+    margin-left: 5px;
+    margin-bottom: 0.9rem;
+    color: #99235C;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+  
+  .password-visibility-icon {
+    position: relative;
+    margin-bottom: 1rem;
+    right: 3.5rem;
+    color: #99235C;
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 1;
+  }
+  
 
 .registrar-usuario-submit-button {
     background-color: #99235C;

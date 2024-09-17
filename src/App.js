@@ -6,20 +6,21 @@ import ForgotPasswordPage from './modules/login/pages/ForgotPasswordPage';
 import ChangePasswordPage from './modules/login/pages/ChangePasswordPage';
 import ResetPasswordPage from './modules/login/pages/ResetPasswordPage';
 import DashboardPage from './modules/dashboard/pages/DashboardPage';
+
 function App() {
   return (
-    <UserProvider>
-      <Router>
+    <Router>
+      <UserProvider>
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
           <Route path="/changepassword" element={<ChangePasswordPage />} />
           <Route path="/resetpassword/:token" element={<ResetPasswordPage />} />
-          <Route path="/dashboard" element={<DashboardPage />}/>
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="*" element={<div>Not Found</div>} />
         </Routes>
-      </Router>
-    </UserProvider>
+      </UserProvider>
+    </Router>
   );
 }
 

@@ -73,7 +73,7 @@ const LoginPage = () => {
           Cookies.set('token', data.token, { expires: 2 / 24 }); // 2 horas en días
         } else {
           // Almacenar el token en sessionStorage
-          sessionStorage.setItem('token', data.token);
+          localStorage.setItem('token', data.token);
         }
 
         navigate('/dashboard');

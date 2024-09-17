@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
+import withAuthorization from '../../../contexts/withAuthorization';
 import './Ventas.css';
 
 const VentasPage = () => {
@@ -196,4 +197,4 @@ const VentasPage = () => {
   );
 };
 
-export default VentasPage;
+export default withAuthorization(VentasPage, [1, 2, 3, 4, 5]);

@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-// Aquí se crea el contexto del usuario
+// Crear el contexto del usuario
 const UserContext = createContext();
 
 // Función para descifrar el token
@@ -14,23 +15,49 @@ const decryptToken = (token) => {
   }
 };
 
-const UserProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
-  const [roleId, setRoleId] = useState(null);
+// Función para verificar la expiración del token
+const isTokenExpired = (token) => {
+  const decryptedToken = decryptToken(token);
+  if (decryptedToken && decryptedToken.exp) {
+    return Date.now() >= decryptedToken.exp * 1000; // Exp en segundos, convertir a milisegundos
+  }
+  return true;
+};
 
-  // Efecto para actualizar el role_id cuando se establece un nuevo token
+// Función para eliminar el token de localStorage, sessionStorage y cookies
+const clearToken = () => {
+  localStorage.removeItem('token');
+  sessionStorage.removeItem('token');
+  document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+};
+
+const UserProvider = ({ children }) => {
+  const [token, setToken] = useState(() => localStorage.getItem('token') || null);
+  const [roleId, setRoleId] = useState(null);
+  const [userId, setUserId] = useState(null); // Nuevo estado para el user_id
+  const navigate = useNavigate();
+
+  // Efecto para actualizar el role_id, user_id y verificar la expiración del token
   useEffect(() => {
-    if (token) {
-      const decryptedToken = decryptToken(token);
+    const storedToken = localStorage.getItem('token');
+    if (storedToken && !isTokenExpired(storedToken)) {
+      setToken(storedToken);
+      const decryptedToken = decryptToken(storedToken);
       if (decryptedToken) {
-        const role_id = decryptedToken.role_id;
-        setRoleId(role_id);
+        setRoleId(decryptedToken.role_id);
+        setUserId(decryptedToken.user_id); // Extraer y establecer el user_id
       }
+    } else {
+      clearToken();
+      setToken(null);
+      setRoleId(null);
+      setUserId(null);
+      navigate('/');
     }
-  }, [token]);
+  }, [navigate]);
 
   return (
-    <UserContext.Provider value={{ token, setToken, roleId }}>
+    <UserContext.Provider value={{ token, setToken, roleId, userId }}>
       {children}
     </UserContext.Provider>
   );

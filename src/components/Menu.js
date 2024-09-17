@@ -7,9 +7,11 @@ const Menu = ({ role_id, onMenuClick }) => {
   const navigate = useNavigate(); // Inicializa useNavigate
 
   let menuOptions = [];
+
   if (role_id === 1) {
     menuOptions = [
       { label: 'Ventas', action: 'Ventas' },
+      { label: 'Ingresar venta', action: 'Ingresar venta'},
       {
         label: 'Gestión de administración',
         submenu: [
@@ -34,7 +36,14 @@ const Menu = ({ role_id, onMenuClick }) => {
       { label: 'Mi perfil', action: 'Mi perfil' },
       { label: 'Cerrar sesión', action: 'Cerrar sesión' },
     ];
-  } else if (role_id === 3 || role_id === 4) {
+  } else if (role_id === 3) {
+    menuOptions = [
+      { label: 'Ventas', action: 'Ventas' },
+      { label: 'Ingresar venta', action: 'Ingresar venta'},
+      { label: 'Mi perfil', action: 'Mi perfil' },
+      { label: 'Cerrar sesión', action: 'Cerrar sesión' },
+    ];
+  } else if (role_id === 4) {
     menuOptions = [
       { label: 'Ventas', action: 'Ventas' },
       { label: 'Mi perfil', action: 'Mi perfil' },
@@ -48,6 +57,7 @@ const Menu = ({ role_id, onMenuClick }) => {
       { label: 'Cerrar sesión', action: 'Cerrar sesión' },
     ];
   }
+  
 
   return (
     <ul className="menu-sidebar">
@@ -88,6 +98,8 @@ const Menu = ({ role_id, onMenuClick }) => {
   );
 
   function handleLogout() {
+    // Limpia la consola
+    console.clear();
     // Elimina el token del localStorage
     localStorage.removeItem('token');
     // Elimina el token del sessionStorage
