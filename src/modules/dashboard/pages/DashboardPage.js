@@ -10,6 +10,7 @@ import UsuariosPage from '../../../modules/admin/pages/UsuariosPage';
 import ComunasTarifasPage from '../../../modules/admin/pages/ComunasTarifasPage';
 import MiPerfilPage from '../../../modules/profile/pages/MiPerfilPage';
 import IngresarVentasPage from '../../../modules/ventas/pages/IngresarVentasPage';
+import DetalleVentaPage from '../../../modules/ventas/pages/DetalleVentaPage';
 import withAuthorization from '../../../contexts/withAuthorization';
 import './Dashboard.css';
 
@@ -25,8 +26,9 @@ const accessControl = {
 
 const DashboardPage = () => {
   const { roleId } = useContext(UserContext);
-  const [selectedOption, setSelectedOption] = useState('Ventas'); // Valor inicial como 'Ventas'
+  const [selectedOption, setSelectedOption] = useState('Ventas');
   const [errorMessage, setErrorMessage] = useState('');
+  const [selectedSaleId, setSelectedSaleId] = useState(null);
 
   const handleMenuClick = (option) => {
     if (accessControl[option]?.includes(roleId)) {
@@ -37,10 +39,24 @@ const DashboardPage = () => {
     }
   };
 
+  const handleSaleClick = (saleId) => {
+    setSelectedSaleId(saleId);  // Almacenar el ID de la venta seleccionada
+    setSelectedOption('Detalle Venta'); // Cambiar la opción seleccionada a "Detalle Venta"
+  };
+
+  const handleBackToSales = () => {
+    setSelectedSaleId(null); // Limpiar el ID de la venta seleccionada
+    setSelectedOption('Ventas'); // Volver a la vista de ventas
+  };
+
   const content = useMemo(() => {
+    if (selectedOption === 'Detalle Venta' && selectedSaleId) {
+      return <DetalleVentaPage saleId={selectedSaleId} onBack={handleBackToSales} />;
+    }
+    
     switch (selectedOption) {
       case 'Ventas':
-        return <VentasPage />;
+        return <VentasPage onSaleClick={handleSaleClick} />;
       case 'Ingresar venta':
         return <IngresarVentasPage />;
       case 'Registrar usuario':
@@ -52,9 +68,9 @@ const DashboardPage = () => {
       case 'Mi perfil':
         return <MiPerfilPage />;
       default:
-        return <VentasPage />;
+        return <VentasPage onSaleClick={handleSaleClick} />;
     }
-  }, [selectedOption]);
+  }, [selectedOption, selectedSaleId]);
 
   return (
     <div className="dashboard-container">

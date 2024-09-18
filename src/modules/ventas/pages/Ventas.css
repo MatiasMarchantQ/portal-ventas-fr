@@ -16,7 +16,38 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
   }
+
+  .search-bar .search-button {
+    color: #ffffff;
+    background: #99235C;
+    border: none;
+    border-radius: 3px;
+    padding: 5px 5px;
+    cursor: pointer;
+    margin-top: 5px;
+    margin-left: 5px;
+  }
+  
+  .clear-button {
+    position: absolute;
+    color: #99235C;
+    right: 23.5rem;
+    top: 0.9rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .clear-button:hover {
+    color: #ff0000;
+  }
+  
+  .clear-button .fa-times {
+    color: #ff0000;
+  }
+  
   
   input[type="text"] {
     padding: 12px;

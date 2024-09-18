@@ -1,9 +1,11 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import withAuthorization from '../../../contexts/withAuthorization';
 import './Ventas.css';
 
-const VentasPage = () => {
+const VentasPage = ({ onSaleClick }) => {
   const { token, roleId } = useContext(UserContext);
   const [sales, setSales] = useState([]);
   const [filteredSales, setFilteredSales] = useState([]);
@@ -48,29 +50,11 @@ const VentasPage = () => {
       }
     };
 
-    console.log("role:" , roleId);
-
     fetchSales();
   }, [token, roleId, currentPage]);
 
-  
-
   useEffect(() => {
-    const filtered = sales.filter(sale => {
-      const searchLower = searchTerm.toLowerCase();
-      const idServicioMatch = sale.service_id && sale.service_id.toString() === searchTerm;
-      const rutMatch = sale.client_rut && sale.client_rut === searchTerm;
-      const nombreClienteMatch = sale.client_first_name && sale.client_last_name &&
-        `${sale.client_first_name} ${sale.client_last_name}`.toLowerCase().includes(searchLower);
-      const celularMatch = sale.client_phone && sale.client_phone.includes(searchTerm);
-      const emailMatch = sale.client_email && sale.client_email === searchTerm;
-      const calleMatch = sale.street && sale.street.toLowerCase().includes(searchLower);
-
-      return idServicioMatch || rutMatch || nombreClienteMatch || celularMatch || emailMatch || calleMatch;
-    });
-
-    setFilteredSales(filtered);
-  }, [searchTerm, sales]);
+  }, [searchTerm, token, limit]);
 
   const cleanSaleData = (sale) => {
     return {
@@ -107,10 +91,48 @@ const VentasPage = () => {
     setSearchTerm(e.target.value);
   };
 
+  const handleSearchClick = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`http://localhost:3001/api/sales/all/search?search=${encodeURIComponent(searchTerm)}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error al buscar ventas: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const cleanedSales = data.map(cleanSaleData);
+      setFilteredSales(cleanedSales);
+      setTotalPages(Math.ceil(cleanedSales.length / limit));
+    } catch (error) {
+      console.error('Error en la búsqueda:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setFilteredSales(sales);
+    setCurrentPage(1);
+    setTotalPages(Math.ceil(sales.length / limit));
+  };
+  
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
     }
+  };
+
+  const handleSaleClick = (saleId) => {
+    onSaleClick(saleId);  // Call the function passed from DashboardPage
   };
 
   return (
@@ -123,12 +145,21 @@ const VentasPage = () => {
           value={searchTerm}
           onChange={handleSearchChange}
         />
+        <button className="search-button" onClick={handleSearchClick}>
+          <FontAwesomeIcon icon={faSearch} />
+          Buscar
+        </button>
+        {searchTerm && (
+          <button className="clear-button" onClick={handleClearSearch}>
+            <FontAwesomeIcon icon={faTimes} />
+          </button>
+        )}
       </div>
       {filteredSales.length > 0 ? (
         <>
           <div className="sales-list">
             {filteredSales.map((sale) => (
-              <div className="sale-card" key={sale.sale_id}>
+              <div className="sale-card" key={sale.sale_id} onClick={() => handleSaleClick(sale.sale_id)}>
                 <div className="sale-card-header">
                   <p className="sale-status">{sale.sale_status_id}</p>
                   <div className="sale-info">
@@ -198,3 +229,4 @@ const VentasPage = () => {
 };
 
 export default withAuthorization(VentasPage, [1, 2, 3, 4, 5]);
+
