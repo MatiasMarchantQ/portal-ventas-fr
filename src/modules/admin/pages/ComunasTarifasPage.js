@@ -1,13 +1,25 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
+import withAuthorization from '../../../contexts/withAuthorization';
+import './ComunasTarifas.css';
 
 const ComunasTarifasPage = () => {
-    const { roleId } = useContext(UserContext);
+    const { token, roleId } = useContext(UserContext);
+
+    useEffect(() => {
+
+        const fetchSales = async () => {
+          };
+      
+          fetchSales();
+        }, [token, roleId]);
 
     return (
         <div>
+            <h1>Comunas y tarifas</h1>
+
         </div>
     );
 };
 
-export default ComunasTarifasPage;
+export default withAuthorization(ComunasTarifasPage, [1]);

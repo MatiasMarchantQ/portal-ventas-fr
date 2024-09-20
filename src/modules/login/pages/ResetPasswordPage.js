@@ -66,7 +66,6 @@ const ResetPasswordPage = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const tokenExpirationTime = 30 * 60 * 1000;
     const tokenPayload = JSON.parse(atob(token.split('.')[1]));
     const tokenExpirationDate = tokenPayload.exp * 1000;
     const currentTime = new Date().getTime();

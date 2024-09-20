@@ -170,11 +170,11 @@ const VentasPage = ({ onSaleClick }) => {
                       {sale.client_phone && <p className="info-item purple">{`Celular: ${sale.client_phone}`}</p>}
                     </div>
                     <div className="info-bottom">
-                      {sale.entry_date && <p className="info-item gray">{`Fecha: ${new Date(sale.entry_date).toLocaleDateString()}`}</p>}
-                      {sale.sales_channel_id && <p className="info-item gray">{`Canal de venta: ${sale.sales_channel_id}`}</p>}
+                      {sale.entry_date && <p className="info-item gray">{`Fecha de ingreso: ${new Date(sale.entry_date).toLocaleDateString()}`}</p>}
+                      {sale.salesChannel.channel_name && <p className="info-item gray">{`Canal de venta: ${sale.salesChannel.channel_name}`}</p>}
                       {sale.client_email && <p className="info-item gray">{`${sale.client_email}`}</p>}
-                      {sale.region_id && <p className="info-item gray">{`Región ${sale.region_id}`}</p>}
-                      {sale.commune_id && <p className="info-item gray">{`Comuna: ${sale.commune_id}`}</p>}
+                      {sale.region.region_name && <p className="info-item gray">{`Región ${sale.region.region_name}`}</p>}
+                      {sale.commune.commune_name && <p className="info-item gray">{`Comuna: ${sale.commune.commune_name}`}</p>}
                       {sale.street && sale.number && <p className="info-item gray">{`${sale.street} ${sale.number}${sale.department_office_floor && sale.department_office_floor.trim() ? ` ${sale.department_office_floor}` : ''}`}</p>}
                       {sale.additional_comments && <p className="info-item gray">{`Comentarios adicionales: ${sale.additional_comments}`}</p>}
                       {sale.geo_reference && (
@@ -185,8 +185,8 @@ const VentasPage = ({ onSaleClick }) => {
                               </a>
                           </p>
                       )}
-                      {sale.promotion_id && <p className="info-item gray">{`Promoción: ${sale.promotion_id}`}</p>}
-                      {sale.installation_amount_id && <p className="info-item gray">{`Monto de instalación: ${sale.installation_amount_id}`}</p>}
+                      {sale.promotion.promotion && <p className="info-item gray">{`Promoción: ${sale.promotion.promotion}`}</p>}
+                      {sale.installationAmount.amount && <p className="info-item gray">{`Monto de instalación: ${sale.installationAmount.amount}`}</p>}
                     </div>
                   </div>
                 </div>

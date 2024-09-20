@@ -11,7 +11,7 @@ const Menu = ({ role_id, onMenuClick }) => {
   if (role_id === 1) {
     menuOptions = [
       { label: 'Ventas', action: 'Ventas' },
-      { label: 'Ingresar venta', action: 'Ingresar venta'},
+      { label: 'Ingresar venta', action: 'Ingresar venta' },
       {
         label: 'Gestión de administración',
         submenu: [
@@ -39,7 +39,7 @@ const Menu = ({ role_id, onMenuClick }) => {
   } else if (role_id === 3) {
     menuOptions = [
       { label: 'Ventas', action: 'Ventas' },
-      { label: 'Ingresar venta', action: 'Ingresar venta'},
+      { label: 'Ingresar venta', action: 'Ingresar venta' },
       { label: 'Mi perfil', action: 'Mi perfil' },
       { label: 'Cerrar sesión', action: 'Cerrar sesión' },
     ];
@@ -57,7 +57,6 @@ const Menu = ({ role_id, onMenuClick }) => {
       { label: 'Cerrar sesión', action: 'Cerrar sesión' },
     ];
   }
-  
 
   return (
     <ul className="menu-sidebar">
@@ -97,19 +96,35 @@ const Menu = ({ role_id, onMenuClick }) => {
     </ul>
   );
 
-  function handleLogout() {
-    // Limpia la consola
-    console.clear();
-    // Elimina el token del localStorage
-    localStorage.removeItem('token');
-    // Elimina el token del sessionStorage
-    sessionStorage.removeItem('token');
-    // Elimina el token de las cookies
-    document.cookie.split(';').forEach((c) => {
-      document.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
-    });
-    // Redirige al usuario a la página de inicio
-    navigate('/');
+  async function handleLogout() {
+    try {
+      // Obtén el token desde el localStorage o sessionStorage
+      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
+      // Realiza la solicitud al endpoint de logout
+      const response = await fetch('http://localhost:3001/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Envía el token en el header
+        }
+      });
+
+      if (response.ok) {
+        // Si la solicitud fue exitosa, elimina el token y redirige
+        console.clear();
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('token');
+        document.cookie.split(';').forEach((c) => {
+          document.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
+        });
+        navigate('/'); // Redirige al usuario a la página de inicio
+      } else {
+        console.error('Error al cerrar sesión');
+      }
+    } catch (error) {
+      console.error('Error al intentar cerrar sesión:', error);
+    }
   }
 };
 

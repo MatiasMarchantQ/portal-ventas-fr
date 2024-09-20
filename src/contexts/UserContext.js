@@ -1,13 +1,13 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-// Crear el contexto del usuario
 const UserContext = createContext();
 
-// Función para descifrar el token
+const publicRoutes = ['/', '/forgotpassword', '/changepassword', '/resetpassword'];
+
 const decryptToken = (token) => {
   try {
-    const decodedToken = JSON.parse(atob(token.split('.')[1])); // Descifrar la parte del token que contiene el payload
+    const decodedToken = JSON.parse(atob(token.split('.')[1]));
     return decodedToken;
   } catch (error) {
     console.error('Error al descifrar el token:', error);
@@ -15,16 +15,14 @@ const decryptToken = (token) => {
   }
 };
 
-// Función para verificar la expiración del token
 const isTokenExpired = (token) => {
   const decryptedToken = decryptToken(token);
   if (decryptedToken && decryptedToken.exp) {
-    return Date.now() >= decryptedToken.exp * 1000; // Exp en segundos, convertir a milisegundos
+    return Date.now() >= decryptedToken.exp * 1000;
   }
   return true;
 };
 
-// Función para eliminar el token de localStorage, sessionStorage y cookies
 const clearToken = () => {
   localStorage.removeItem('token');
   sessionStorage.removeItem('token');
@@ -34,27 +32,48 @@ const clearToken = () => {
 const UserProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem('token') || null);
   const [roleId, setRoleId] = useState(null);
-  const [userId, setUserId] = useState(null); // Nuevo estado para el user_id
+  const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Efecto para actualizar el role_id, user_id y verificar la expiración del token
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
+    const isPublicRoute = publicRoutes.some(route => location.pathname.startsWith(route));
+
     if (storedToken && !isTokenExpired(storedToken)) {
       setToken(storedToken);
       const decryptedToken = decryptToken(storedToken);
       if (decryptedToken) {
         setRoleId(decryptedToken.role_id);
-        setUserId(decryptedToken.user_id); // Extraer y establecer el user_id
+        setUserId(decryptedToken.user_id);
+      }
+      
+      // Monitorear la expiración del token
+      const expirationTime = decryptedToken.exp * 1000 - Date.now();
+      const warningTime = 5 * 60 * 1000; // 5 minutos antes de expirar
+
+      if (expirationTime > 0 && expirationTime < warningTime) {
+        const timer = setTimeout(() => {
+          alert('Tu sesión ha expirado. Haz clic en "Aceptar" para ser redirigido.');
+          clearToken();
+          setToken(null);
+          setRoleId(null);
+          setUserId(null);
+          navigate('/');
+        }, expirationTime);
+
+        return () => clearTimeout(timer);
       }
     } else {
       clearToken();
       setToken(null);
       setRoleId(null);
       setUserId(null);
-      navigate('/');
+      if (!isPublicRoute) {
+        navigate('/');
+      }
     }
-  }, [navigate]);
+  }, [navigate, location]);
 
   return (
     <UserContext.Provider value={{ token, setToken, roleId, userId }}>

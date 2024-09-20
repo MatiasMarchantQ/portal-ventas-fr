@@ -1,0 +1,88 @@
+.sale-detail-page {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    margin: 0 auto;
+    max-width: 1000px; /* Ajusta según tus necesidades */
+    font-family: Montserrat;
+  }
+  
+  .sale-detail-header {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 2.5rem;
+    color: #99235C;
+  }
+  
+  .sale-detail-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .sale-detail-fields-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Tres columnas de igual tamaño */
+    gap: 20px; /* Espaciado entre los campos */
+  }
+  
+  .sale-detail-field-group {
+    display: flex;
+    flex-direction: column; /* Permitir que las etiquetas y los campos se apilen */
+  }
+  
+  .sale-detail-field-group label {
+    margin-bottom: 5px; /* Espacio entre etiqueta y campo */
+  }
+  
+  .sale-detail-field-group input[type="file"] {
+    padding: 5px; /* Espacio dentro del campo de archivo */
+  }  
+  
+  
+  .sale-detail-field-group input,
+  .sale-detail-field-group textarea,
+  .sale-detail-field-group select {
+    width: 90%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 10px;
+    background-color: #fff;
+  }
+  
+  .sale-detail-field-group input[type="email"],
+  .sale-detail-field-group input[type="number"] {
+    box-shadow: 0 0.2px;
+  }
+
+  .sale-detail-field-group textarea {
+    resize: vertical; /* Permitir redimensionamiento vertical */
+    min-height: 40px; /* Altura mínima */
+  }
+  
+  
+  .sale-detail-page button {
+    align-self: flex-end;
+    width: 15%;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #99235C;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .sale-detail-submit-button:hover {
+    background-color: #b93775;
+  }
+  
+  .sale-detail-error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+  }
+  
