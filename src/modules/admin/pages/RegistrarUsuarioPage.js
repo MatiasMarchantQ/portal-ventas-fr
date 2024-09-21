@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useContext } from 'react';
-import './RegistrarUsuario.css'; // Asegúrate de tener el archivo CSS con los estilos
+import './RegistrarUsuario.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRandom, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'; // Importar los iconos
+import { faRandom, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { UserContext } from '../../../contexts/UserContext';
 import withAuthorization from '../../../contexts/withAuthorization';
 
 const RegistrarUsuarioPage = () => {
   const { token } = useContext(UserContext);
-  const [formData, setFormData] = useState({
+  
+  const initialFormData = {
     first_name: '',
     second_name: '',
     last_name: '',
@@ -25,176 +26,123 @@ const RegistrarUsuarioPage = () => {
     role_id: null,
     status: 1,
     password: '',
-  });
+  };
 
-  const [roles, setRoles] = useState([]); // Estado para almacenar los roles
-  const [companies, setCompanies] = useState([]); // Estado para almacenar las empresas
-  const [regions, setRegions] = useState([]); // Estado para almacenar las regiones
-  const [communes, setCommunes] = useState([]); // Estado para almacenar las comunas
-  const [salesChannels, setSalesChannels] = useState([]); 
+  const [formData, setFormData] = useState(initialFormData);
+  const [roles, setRoles] = useState([]);
+  const [companies, setCompanies] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const [communes, setCommunes] = useState([]);
+  const [salesChannels, setSalesChannels] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [passwordVisible, setPasswordVisible] = useState(false); // Estado para manejar la visibilidad de la contraseña
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [message, setMessage] = useState('');
 
-  // Función para obtener los roles de la API
-  const fetchRoles = async () => {
+  useEffect(() => {
+    fetchRoles();
+    fetchCompanies();
+    fetchRegions();
+    fetchSalesChannels();
+  }, []);
+
+  useEffect(() => {
+    fetchCommunes(formData.region_id);
+  }, [formData.region_id]);
+
+  const fetchData = async (url, setData, errorMessage) => {
     try {
-      const response = await fetch('http://localhost:3001/api/roles');
-      if (!response.ok) {
-        throw new Error('Error al obtener los roles');
-      }
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(errorMessage);
       const data = await response.json();
-      setRoles(data); // Almacenar los roles en el estado
+      setData(data);
     } catch (error) {
-      console.error('Error al obtener los roles:', error);
+      console.error(errorMessage, error);
     }
   };
 
-  // Función para obtener las empresas de la API
-  const fetchCompanies = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/api/companies');
-      if (!response.ok) {
-        throw new Error('Error al obtener las empresas');
-      }
-      const data = await response.json();
-      setCompanies(data); // Almacenar las empresas en el estado
-    } catch (error) {
-      console.error('Error al obtener las empresas:', error);
-    }
-  };
+  const fetchRoles = () => fetchData('http://localhost:3001/api/roles', setRoles, 'Error al obtener los roles');
+  const fetchCompanies = () => fetchData('http://localhost:3001/api/companies', setCompanies, 'Error al obtener las empresas');
+  const fetchRegions = () => fetchData('http://localhost:3001/api/regions', setRegions, 'Error al obtener las regiones');
+  const fetchSalesChannels = () => fetchData('http://localhost:3001/api/channels', setSalesChannels, 'Error al obtener los canales de venta');
 
-  // Función para obtener las regiones de la API
-  const fetchRegions = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/api/regions');
-      if (!response.ok) {
-        throw new Error('Error al obtener las regiones');
-      }
-      const data = await response.json();
-      setRegions(data); // Almacenar las regiones en el estado
-    } catch (error) {
-      console.error('Error al obtener las regiones:', error);
-    }
-  };
-
-  // Función para obtener las comunas de la API
-  // Función para obtener las comunas de la API según la región seleccionada
   const fetchCommunes = async (regionId) => {
     if (!regionId) {
       setCommunes([]);
       return;
     }
-    try {
-      const response = await fetch(`http://localhost:3001/api/communes/communes/${regionId}`);
-      if (!response.ok) {
-        throw new Error('Error al obtener las comunas');
-      }
-      const data = await response.json();
-      setCommunes(data);
-    } catch (error) {
-      console.error('Error al obtener las comunas:', error);
-    }
+    await fetchData(`http://localhost:3001/api/communes/communes/${regionId}`, setCommunes, 'Error al obtener las comunas');
   };
 
-  // Función para obtener los canales de venta de la API
-  const fetchSalesChannels = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/api/channels');
-      if (!response.ok) {
-        throw new Error('Error al obtener los canales de venta');
-      }
-      const data = await response.json();
-      setSalesChannels(data);
-    } catch (error) {
-      console.error('Error al obtener los canales de venta:', error);
-    }
-  };
-
-  // Usar useEffect para llamar a las funciones de obtención de datos cuando el componente se monte
-  useEffect(() => {
-    fetchRoles();
-    fetchCompanies();
-    fetchRegions();
-    fetchCommunes();
-    fetchSalesChannels();
-  }, []);
-
-  // Usar useEffect para obtener las comunas cuando cambie la región seleccionada
-  useEffect(() => {
-    fetchCommunes(formData.region_id);
-  }, [formData.region_id]);
-
-  // Manejo del cambio en los campos del formulario
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
+    setFormData(prevState => ({
+      ...prevState,
       [name]: type === 'checkbox' ? (checked ? 1 : 0) : (name === 'number' || name.endsWith('_id') ? parseInt(value) || null : value),
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true); // Mostrar indicador de carga
+    setIsSubmitting(true);
+    setMessage(''); // Reiniciar el mensaje antes de la nueva solicitud
   
-    // Imprimir formData en la consola
-    console.log('Datos enviados:', JSON.stringify(formData, null, 2));
-    
     try {
       const response = await fetch('http://localhost:3001/api/users/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Agregar el token en el encabezado
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(formData),
       });
   
       if (!response.ok) {
-        // Obtener el mensaje de error del servidor
         const errorData = await response.json();
         throw new Error(`Error en el registro del usuario: ${errorData.message || 'Error desconocido'}`);
       }
   
       const result = await response.json();
       console.log('Usuario registrado:', result);
+      
+      // Limpiar los inputs
+      setFormData(initialFormData);
+      setMessage('Usuario registrado exitosamente!');
     } catch (error) {
       console.error('Error al registrar el usuario:', error);
+      setMessage(error.message);
     } finally {
       setIsSubmitting(false);
     }
   };
-  
-  
+
   const generateRandomPassword = () => {
     const length = Math.floor(Math.random() * (16 - 8 + 1)) + 8;
     const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const lower = 'abcdefghijklmnopqrstuvwxyz';
     const numbers = '0123456789';
     const all = upper + lower + numbers;
-    
-    let password = '';
-    password += upper.charAt(Math.floor(Math.random() * upper.length));
-    password += lower.charAt(Math.floor(Math.random() * lower.length));
-    password += numbers.charAt(Math.floor(Math.random() * numbers.length));
+
+    let password = upper.charAt(Math.floor(Math.random() * upper.length)) +
+                   lower.charAt(Math.floor(Math.random() * lower.length)) +
+                   numbers.charAt(Math.floor(Math.random() * numbers.length));
 
     for (let i = 3; i < length; i++) {
       password += all.charAt(Math.floor(Math.random() * all.length));
     }
-    
+
     return password.split('').sort(() => Math.random() - 0.5).join('');
   };
 
   const handlePasswordGeneration = () => {
     const newPassword = generateRandomPassword();
-    setFormData({
-      ...formData,
+    setFormData(prevState => ({
+      ...prevState,
       password: newPassword,
-    });
+    }));
   };
 
   const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
+    setPasswordVisible(prev => !prev);
   };
 
   return (
@@ -275,6 +223,7 @@ const RegistrarUsuarioPage = () => {
                 onChange={handleChange}
                 placeholder="Ingresa el correo electrónico"
                 required
+                className="auto-expand"
               />
             </div>
           </div>
@@ -356,6 +305,7 @@ const RegistrarUsuarioPage = () => {
                 onChange={handleChange}
                 placeholder="Ingresa la calle"
                 required
+                className="auto-expand"
               />
             </div>
             <div className="registrar-usuario-form-group">
@@ -381,6 +331,7 @@ const RegistrarUsuarioPage = () => {
                 value={formData.department_office_floor}
                 onChange={handleChange}
                 placeholder="Ingresa depto/oficina/piso"
+                className="auto-expand"
               />
             </div>
             <div className="registrar-usuario-form-group">
@@ -448,6 +399,7 @@ const RegistrarUsuarioPage = () => {
                   </div>
                 </div>
               </div>
+              {message && <div className="message">{message}</div>}
             <button type="submit" className="registrar-usuario-submit-button" disabled={isSubmitting}>
               {isSubmitting ? 'Registrando...' : 'Registrar Nuevo Usuario'}
             </button>

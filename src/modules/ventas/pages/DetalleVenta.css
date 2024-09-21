@@ -37,13 +37,13 @@
   }
   
   .sale-detail-field-group input[type="file"] {
-    padding: 5px; /* Espacio dentro del campo de archivo */
+    padding: 5px;
   }  
   
   
   .sale-detail-field-group input,
   .sale-detail-field-group textarea,
-  .sale-detail-field-group select {
+  .sale-detail-field-group select[readonly] {
     width: 90%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -56,13 +56,25 @@
   .sale-detail-field-group input[type="email"],
   .sale-detail-field-group input[type="number"] {
     box-shadow: 0 0.2px;
+    border: none;
+    background-color: transparent;
+    pointer-events: none;
   }
 
   .sale-detail-field-group textarea {
-    resize: vertical; /* Permitir redimensionamiento vertical */
-    min-height: 40px; /* Altura mínima */
+    resize: vertical;
+    min-height: 40px;
   }
   
+  .sale-detail-field-group input[readonly],
+  .sale-detail-field-group input[readonly],
+  .sale-detail-field-group textarea[readonly],
+  .sale-detail-field-group select[readonly] {
+    border: none; /* Sin borde */
+    background-color: transparent; /* Fondo transparente */
+    pointer-events: none; /* Deshabilitar interacción */
+}
+
   
   .sale-detail-page button {
     align-self: flex-end;

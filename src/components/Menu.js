@@ -53,6 +53,12 @@ const Menu = ({ role_id, onMenuClick }) => {
     menuOptions = [
       { label: 'Ventas', action: 'Ventas' },
       { label: 'Mi perfil', action: 'Mi perfil' },
+      { label: 'Cerrar sesión', action: 'Cerrar sesión' },
+    ];
+  } else if (role_id === 5) {
+    menuOptions = [
+      { label: 'Ventas', action: 'Ventas' },
+      { label: 'Mi perfil', action: 'Mi perfil' },
       { label: 'Reportes', action: 'Reportes' },
       { label: 'Cerrar sesión', action: 'Cerrar sesión' },
     ];

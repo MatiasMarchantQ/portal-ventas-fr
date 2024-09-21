@@ -11,7 +11,7 @@
   }
   
   
-  .search-bar {
+  .ventas-page .search-bar {
     margin-bottom: 20px;
     display: flex;
     justify-content: center;
@@ -19,7 +19,7 @@
     position: relative;
   }
 
-  .search-bar .search-button {
+  .ventas-page .search-bar .search-button {
     color: #ffffff;
     background: #99235C;
     border: none;
@@ -30,26 +30,26 @@
     margin-left: 5px;
   }
   
-  .clear-button {
+  .ventas-page .clear-button {
     position: absolute;
     color: #99235C;
-    right: 23.5rem;
+    right: 24rem;
     top: 0.9rem;
     background: transparent;
     border: none;
     cursor: pointer;
   }
   
-  .clear-button:hover {
+  .ventas-page .clear-button:hover {
     color: #ff0000;
   }
   
-  .clear-button .fa-times {
+  .ventas-page .clear-button .fa-times {
     color: #ff0000;
   }
   
   
-  input[type="text"] {
+  .ventas-page input[type="text"] {
     padding: 12px;
     width: 30%;
     max-width: 400px;
@@ -61,92 +61,92 @@
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
   }
   
-  .sales-list {
+  .ventas-page .sales-list {
     display: flex;
     flex-direction: column;
   }
   
-  .sale-card {
+  .ventas-page .sale-card {
     border: 1px solid #ddd;
     border-radius: 20px 0;
     padding: 25px;
     margin-bottom: 10px;
   }
   
-  .sale-card-header {
+  .ventas-page .sale-card-header {
     display: flex;
     align-items: flex-start;
     margin-bottom: 20px;
   }
   
-  .sale-status {
+  .ventas-page .sale-status {
     flex: 0 0 100px;
     text-align: left;
     font-weight: bold;
     margin-top: calc(6%);
-    margin-left: 3rem;
+    margin-left: 1rem;
+    margin-right: 2rem;
   }
   
-  .sale-info {
+  .ventas-page .sale-info {
     flex: 1;
     display: flex;
     flex-direction: column;
   }
   
-  .info-top, .info-bottom {
+  .ventas-page .info-top, .info-bottom {
     display: flex;
     flex-wrap: wrap;
     gap: 1px;
   }
   
-  .info-top {
+  .ventas-page .info-top {
     font-size: 20px;
     color: #99235C;
     font-weight: bold;
-}
-  
-  .info-bottom {
-    font-size: 13px;
-    color: #777;
   }
   
-  .info-item {
+.ventas-page .info-bottom {
+    font-size: 0.9rem;
+  }
+  
+  .ventas-page .info-item {
     display: inline-flex;
     align-items: center;
     margin-top: auto;
   }
   
-  .info-item:not(:last-child)::after {
+  .ventas-page .info-item:not(:last-child)::after {
     content: ' | ';
     margin-left: 5px;
     margin-right: 5px;
 
   }
   
-  .info-item.purple {
+  .ventas-page .info-item.purple {
     color: #99235C; /* Morado */
   }
   
-  .info-item.gray {
-    color: #777; /* Gris */
+  .ventas-page .info-item.gray {
+    color: #525252; /* Gris */
   }
 
-  .info-item + .info-item {
+  .ventas-page .info-item + .info-item {
     margin-left: 0; /* Reduce o elimina el margen izquierdo para el siguiente elemento */
   }
   
-  .info-item-link {
+  .ventas-page .info-item-link {
     margin-left: 5px; /* Ajusta el valor según sea necesario */
   }
   
-  .pagination {
+  .ventas-page .pagination {
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 20px 0;
   }
   
-  .pagination-button {
+  .ventas-page .pagination-button {
     background-color: transparent;
     border: 1px solid #99235C;
     color: #99235C;
@@ -157,18 +157,18 @@
     font-size: 16px;
   }
   
-  .pagination-button:disabled {
+  .ventas-page .pagination-button:disabled {
     color: #ccc;
     border-color: #ccc;
     cursor: not-allowed;
   }
   
-  .pagination-numbers {
+  .ventas-page .pagination-numbers {
     display: flex;
     align-items: center;
   }
   
-  .pagination-number {
+  .ventas-page .pagination-number {
     background-color: transparent;
     border: none;
     color: #99235C;
@@ -179,15 +179,15 @@
     font-size: 16px;
   }
   
-  .pagination-number.active {
+  .ventas-page .pagination-number.active {
     background-color: #99235C;
     color: white;
   }
   
-  .pagination-number:hover:not(.active) {
+  .ventas-page .pagination-number:hover:not(.active) {
     background-color: #f0f0f0;
   }
   
-  .pagination-button{
+  .ventas-page .pagination-button{
     border: none
   }

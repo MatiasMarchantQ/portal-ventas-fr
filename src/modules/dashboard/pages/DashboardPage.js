@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import Header from '../../../components/Header';
 import Menu from '../../../components/Menu';
@@ -13,7 +13,6 @@ import IngresarVentasPage from '../../../modules/ventas/pages/IngresarVentasPage
 import DetalleVentaPage from '../../../modules/ventas/pages/DetalleVentaPage';
 import withAuthorization from '../../../contexts/withAuthorization';
 
-// Definir el acceso permitido para cada página según role_id
 const accessControl = {
   'Ventas': [1, 2, 3, 4, 5],
   'Ingresar venta': [1, 2, 3],
@@ -39,37 +38,31 @@ const DashboardPage = () => {
   };
 
   const handleSaleClick = (saleId) => {
-    setSelectedSaleId(saleId);  // Almacenar el ID de la venta seleccionada
-    setSelectedOption('Detalle Venta'); // Cambiar la opción seleccionada a "Detalle Venta"
+    setSelectedSaleId(saleId);
+    setSelectedOption('Detalle Venta');
   };
 
   const handleBackToSales = () => {
-    setSelectedSaleId(null); // Limpiar el ID de la venta seleccionada
-    setSelectedOption('Ventas'); // Volver a la vista de ventas
+    setSelectedSaleId(null);
+    setSelectedOption('Ventas');
   };
 
-  const content = useMemo(() => {
+  const renderContent = () => {
     if (selectedOption === 'Detalle Venta' && selectedSaleId) {
       return <DetalleVentaPage saleId={selectedSaleId} onBack={handleBackToSales} />;
     }
     
-    switch (selectedOption) {
-      case 'Ventas':
-        return <VentasPage onSaleClick={handleSaleClick} />;
-      case 'Ingresar venta':
-        return <IngresarVentasPage />;
-      case 'Registrar usuario':
-        return <RegistrarUsuarioPage />;
-      case 'Usuarios':
-        return <UsuariosPage />;
-      case 'Comunas y tarifas':
-        return <ComunasTarifasPage />;
-      case 'Mi perfil':
-        return <MiPerfilPage />;
-      default:
-        return <VentasPage onSaleClick={handleSaleClick} />;
-    }
-  }, [selectedOption, selectedSaleId]);
+    const components = {
+      'Ventas': <VentasPage onSaleClick={handleSaleClick} />,
+      'Ingresar venta': <IngresarVentasPage />,
+      'Registrar usuario': <RegistrarUsuarioPage />,
+      'Usuarios': <UsuariosPage />,
+      'Comunas y tarifas': <ComunasTarifasPage />,
+      'Mi perfil': <MiPerfilPage />,
+    };
+
+    return components[selectedOption] || <VentasPage onSaleClick={handleSaleClick} />;
+  };
 
   return (
     <div className="dashboard-container">
@@ -78,7 +71,7 @@ const DashboardPage = () => {
         <Menu className="menu-sidebar" role_id={roleId} onMenuClick={handleMenuClick} />
         <div className="page-container">
           <ContentContainer>
-            {errorMessage ? <p>{errorMessage}</p> : content}
+            {errorMessage ? <p>{errorMessage}</p> : renderContent()}
           </ContentContainer>
         </div>
       </div>

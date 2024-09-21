@@ -1,4 +1,86 @@
-.toggle-password {
+
+
+.mi-perfil-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5rem; /* Ajusta el padding según necesites */
+    margin-top: -5rem; /* Elevar el contenedor */
+}
+
+.mi-perfil-container h1 {
+    color: #99235C;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.mi-perfil-container .user-details {
+    width: 100%;
+    margin-bottom: 2rem;
+    display: grid; /* Usar grid para organizar los campos */
+    grid-template-columns: repeat(3, 1fr); /* Tres columnas */
+    gap: 1rem; /* Espacio entre los campos */
+}
+
+.mi-perfil-container .user-details strong {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    color: #99235C; /* Cambiar color a #99235C */
+}
+
+.mi-perfil-container input[type="text"],
+.mi-perfil-container input[type="email"],
+.mi-perfil-container input[type="password"] {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    margin-bottom: 1rem;
+}
+
+.mi-perfil-container button {
+    background-color: #99235C;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    border-radius: 4px;
     cursor: pointer;
-    margin-left: 5px;
+    margin-right: 0.5rem;
+}
+
+.mi-perfil-container button:hover {
+    background-color: #0056b3;
+}
+
+.mi-perfil-container .error {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+.mi-perfil-container__title,
+.mi-perfil-container__label,
+.mi-perfil-container__icon {
+    color: #99235C; /* Color para el título, etiquetas y íconos */
+}
+
+.input-container {
+    position: relative;
+    width: 140%;
+}
+
+.input-container input {
+    padding-right: 2.5rem; /* Espacio para el ícono */
+}
+
+.input-container .toggle-password {
+    position: absolute;
+    right: 10px; /* Ajusta según tu diseño */
+    margin-top: 1.5rem;
+    transform: translateY(-50%);
+    cursor: pointer;
 }

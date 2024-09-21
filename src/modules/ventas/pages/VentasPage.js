@@ -5,6 +5,16 @@ import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import withAuthorization from '../../../contexts/withAuthorization';
 import './Ventas.css';
 
+const statusColors = {
+  1: '#ffa500', // Ingresada - Naranja
+  2: '#87ceeb', // Nueva - Azul cielo
+  3: '#ffff00', // En revisión - Amarillo
+  4: '#a3d300', // Corrección requerida - Citrón
+  5: '#00008b', // Pendiente - Azul oscuro
+  6: '#008000', // Activo - Verde
+  7: '#ff0000', // Anulado - Rojo
+};
+
 const VentasPage = ({ onSaleClick }) => {
   const { token, roleId } = useContext(UserContext);
   const [sales, setSales] = useState([]);
@@ -135,6 +145,10 @@ const VentasPage = ({ onSaleClick }) => {
     onSaleClick(saleId);  // Call the function passed from DashboardPage
   };
 
+  const getStatusColor = (saleStatusId) => {
+    return statusColors[saleStatusId] || '#ffffff'; // Blanco si no encuentra el estado
+  };
+
   return (
     <div className="ventas-page">
       <h1>Ventas</h1>
@@ -161,7 +175,9 @@ const VentasPage = ({ onSaleClick }) => {
             {filteredSales.map((sale) => (
               <div className="sale-card" key={sale.sale_id} onClick={() => handleSaleClick(sale.sale_id)}>
                 <div className="sale-card-header">
-                  <p className="sale-status">{sale.sale_status_id}</p>
+                <p className="sale-status" style={{ padding: 5, backgroundColor: getStatusColor(sale.sale_status_id), borderRadius: 5, textAlign: 'center' }}>
+                  {sale.saleStatus ? sale.saleStatus.status_name : 'Estado no disponible'}
+                </p>
                   <div className="sale-info">
                     <div className="info-top">
                       {sale.service_id && <p className="info-item purple">{`ID Servicio: ${sale.service_id}`}</p>}
@@ -171,10 +187,13 @@ const VentasPage = ({ onSaleClick }) => {
                     </div>
                     <div className="info-bottom">
                       {sale.entry_date && <p className="info-item gray">{`Fecha de ingreso: ${new Date(sale.entry_date).toLocaleDateString()}`}</p>}
-                      {sale.salesChannel.channel_name && <p className="info-item gray">{`Canal de venta: ${sale.salesChannel.channel_name}`}</p>}
+                      {sale.salesChannel && sale.salesChannel.channel_name && (
+                        <p className="info-item gray">{`Canal de venta: ${sale.salesChannel.channel_name}`}</p>
+                      )}
+                      {sale.company?.company_name && <p className="info-item gray">{`${sale.company.company_name}`}</p>}
                       {sale.client_email && <p className="info-item gray">{`${sale.client_email}`}</p>}
-                      {sale.region.region_name && <p className="info-item gray">{`Región ${sale.region.region_name}`}</p>}
-                      {sale.commune.commune_name && <p className="info-item gray">{`Comuna: ${sale.commune.commune_name}`}</p>}
+                      {sale.region?.region_name && <p className="info-item gray">{`Región ${sale.region.region_name}`}</p>}
+                      {sale.commune?.commune_name && <p className="info-item gray">{`Comuna ${sale.commune.commune_name}`}</p>}
                       {sale.street && sale.number && <p className="info-item gray">{`${sale.street} ${sale.number}${sale.department_office_floor && sale.department_office_floor.trim() ? ` ${sale.department_office_floor}` : ''}`}</p>}
                       {sale.additional_comments && <p className="info-item gray">{`Comentarios adicionales: ${sale.additional_comments}`}</p>}
                       {sale.geo_reference && (
@@ -185,8 +204,8 @@ const VentasPage = ({ onSaleClick }) => {
                               </a>
                           </p>
                       )}
-                      {sale.promotion.promotion && <p className="info-item gray">{`Promoción: ${sale.promotion.promotion}`}</p>}
-                      {sale.installationAmount.amount && <p className="info-item gray">{`Monto de instalación: ${sale.installationAmount.amount}`}</p>}
+                      {sale.promotion?.promotion && <p className="info-item gray">{`Promoción: ${sale.promotion.promotion}`}</p>}
+                      {sale.installationAmount?.amount && <p className="info-item gray">{`Monto de instalación: ${sale.installationAmount.amount}`}</p>}
                     </div>
                   </div>
                 </div>

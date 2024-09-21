@@ -51,8 +51,9 @@ const UserProvider = ({ children }) => {
       // Monitorear la expiración del token
       const expirationTime = decryptedToken.exp * 1000 - Date.now();
       const warningTime = 5 * 60 * 1000; // 5 minutos antes de expirar
+      console.log('Tiempo hasta la expiración:', expirationTime);
 
-      if (expirationTime > 0 && expirationTime < warningTime) {
+      if (expirationTime > 0) {
         const timer = setTimeout(() => {
           alert('Tu sesión ha expirado. Haz clic en "Aceptar" para ser redirigido.');
           clearToken();
@@ -63,6 +64,11 @@ const UserProvider = ({ children }) => {
         }, expirationTime);
 
         return () => clearTimeout(timer);
+      }
+
+      // Si el tiempo de advertencia se ha pasado
+      if (expirationTime < warningTime && expirationTime > 0) {
+        alert('Tu sesión expira pronto. Por favor guarda tu trabajo.');
       }
     } else {
       clearToken();

@@ -321,57 +321,62 @@ const MiPerfilPage = () => {
                 )}
             </form>
 
-            <h2>Cambiar Contraseña</h2>
+            <h2 className="mi-perfil-container__title">Cambiar Contraseña</h2>
             <form onSubmit={handlePasswordSubmit}>
                 <p>
-                    <label>Contraseña Actual: </label>
-                    <input
-                        type={showPassword ? 'text' : 'password'}
-                        name="currentPassword"
-                        value={passwordData.currentPassword}
-                        onChange={handlePasswordChange}
-                        required
-                    />
-                    <FontAwesomeIcon
-                        icon={showPassword ? faEye : faEyeSlash}
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="toggle-password"
-                    />
+                    <label className="mi-perfil-container__label">Contraseña Actual: </label>
+                    <div className="input-container">
+                        <input
+                            type={showPassword ? 'text' : 'password'}
+                            name="currentPassword"
+                            value={passwordData.currentPassword}
+                            onChange={handlePasswordChange}
+                            required
+                        />
+                        <FontAwesomeIcon
+                            icon={showPassword ? faEyeSlash : faEye}
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="toggle-password mi-perfil-container__icon"
+                        />
+                    </div>
                 </p>
                 <p>
-                    <label>Nueva Contraseña: </label>
-                    <input
-                        type={showNewPassword ? 'text' : 'password'}
-                        name="newPassword"
-                        value={passwordData.newPassword}
-                        onChange={handlePasswordChange}
-                        required
-                    />
-                    <FontAwesomeIcon
-                        icon={showNewPassword ? faEye : faEyeSlash}
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="toggle-password"
-                    />
+                    <label className="mi-perfil-container__label">Nueva Contraseña: </label>
+                    <div className="input-container">
+                        <input
+                            type={showNewPassword ? 'text' : 'password'}
+                            name="newPassword"
+                            value={passwordData.newPassword}
+                            onChange={handlePasswordChange}
+                            required
+                        />
+                        <FontAwesomeIcon
+                            icon={showNewPassword ? faEyeSlash : faEye}
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            className="toggle-password mi-perfil-container__icon"
+                        />
+                    </div>
                 </p>
                 <p>
-                    <label>Repetir Nueva Contraseña: </label>
-                    <input
-                        type={showRepeatPassword ? 'text' : 'password'}
-                        name="repeatPassword"
-                        value={passwordData.repeatPassword}
-                        onChange={handlePasswordChange}
-                        required
-                    />
-                    <FontAwesomeIcon
-                        icon={showRepeatPassword ? faEye : faEyeSlash}
-                        onClick={() => setShowRepeatPassword(!showRepeatPassword)}
-                        className="toggle-password"
-                    />
+                    <label className="mi-perfil-container__label">Repetir Nueva Contraseña: </label>
+                    <div className="input-container">
+                        <input
+                            type={showRepeatPassword ? 'text' : 'password'}
+                            name="repeatPassword"
+                            value={passwordData.repeatPassword}
+                            onChange={handlePasswordChange}
+                            required
+                        />
+                        <FontAwesomeIcon
+                            icon={showRepeatPassword ? faEyeSlash : faEye}
+                            onClick={() => setShowRepeatPassword(!showRepeatPassword)}
+                            className="toggle-password mi-perfil-container__icon"
+                        />
+                    </div>
                 </p>
-
-                {passwordError && <p className="error">{passwordError}</p>}
-                <button type="submit">Actualizar Contraseña</button>
             </form>
+
+
         </div>
     );
 };

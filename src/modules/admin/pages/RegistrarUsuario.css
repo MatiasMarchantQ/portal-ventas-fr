@@ -140,3 +140,13 @@
 .registrar-usuario-submit-button:hover {
     background-color: #0056b3;
 }
+
+
+.auto-expand {
+    display: inline-block;
+    width: auto;
+    min-width: 100%; /* Mantener el ancho mínimo del input */
+    max-width: 100%; /* Limitar el ancho máximo al 100% */
+    box-sizing: border-box; /* Incluir padding en el tamaño total */
+  }
+  
