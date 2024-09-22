@@ -12,6 +12,7 @@ import MiPerfilPage from '../../../modules/profile/pages/MiPerfilPage';
 import IngresarVentasPage from '../../../modules/ventas/pages/IngresarVentasPage';
 import DetalleVentaPage from '../../../modules/ventas/pages/DetalleVentaPage';
 import withAuthorization from '../../../contexts/withAuthorization';
+import './Dashboard.css';
 
 const accessControl = {
   'Ventas': [1, 2, 3, 4, 5],

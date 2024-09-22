@@ -71,8 +71,10 @@ const ForgotPasswordPage = () => {
                 <input
                   type="email"
                   id="email"
+                  name="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  autoComplete='email'
                   required
                 />
               </div>

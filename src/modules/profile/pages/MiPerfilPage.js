@@ -35,7 +35,24 @@ const MiPerfilPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showRepeatPassword, setShowRepeatPassword] = useState(false);
+    const [regions, setRegions] = useState([]);
+    const [communes, setCommunes] = useState([]);
+    const [salesChannels, setSalesChannels] = useState([]);
 
+    const fieldLabels = {
+        first_name: 'Nombre',
+        second_name: 'Segundo Nombre',
+        last_name: 'Apellido',
+        second_last_name: 'Segundo Apellido',
+        email: 'Correo Electrónico',
+        phone_number: 'Número de Teléfono',
+        street: 'Calle',
+        number: 'Número',
+        department_office_floor: 'Departamento / Piso',
+        region_id: 'Región',
+        commune_id: 'Comuna',
+        sales_channel_id: 'Canal de Venta',
+    };
 
     const fetchUserData = useCallback(async () => {
         try {
@@ -47,12 +64,9 @@ const MiPerfilPage = () => {
                 }
             });
 
-            if (!response.ok) {
-                throw new Error('Error al obtener los datos del usuario');
-            }
-
+            if (!response.ok) throw new Error('Error al obtener los datos del usuario');
             const data = await response.json();
-            const { user_id, status, must_change_password, created_at, updated_at, modified_by_user_id, ...filteredData } = data;
+            const { user_id, ...filteredData } = data;
 
             setUserData(filteredData);
             setFormValues(filteredData);
@@ -61,18 +75,59 @@ const MiPerfilPage = () => {
         }
     }, [token]);
 
+    const fetchRegions = async () => {
+        try {
+            const response = await fetch('http://localhost:3001/api/regions/');
+            if (!response.ok) throw new Error('Error al obtener las regiones');
+            const data = await response.json();
+            setRegions(data);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const fetchSalesChannels = async () => {
+        try {
+            const response = await fetch('http://localhost:3001/api/channels');
+            if (!response.ok) throw new Error('Error al obtener los canales de venta');
+            const data = await response.json();
+            setSalesChannels(data);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
+    const fetchCommunes = async (regionId) => {
+        try {
+            const response = await fetch(`http://localhost:3001/api/communes/communes/${regionId}`);
+            if (!response.ok) throw new Error('Error al obtener las comunas');
+            const data = await response.json();
+            setCommunes(data);
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     useEffect(() => {
         fetchUserData();
+        fetchRegions();
+        fetchSalesChannels();
     }, [fetchUserData]);
+
+    useEffect(() => {
+        if (formValues.region_id) {
+            fetchCommunes(formValues.region_id);
+        }
+    }, [formValues.region_id]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormValues({ ...formValues, [name]: value });
+        setFormValues(prev => ({ ...prev, [name]: value || '' }));
     };
 
     const handlePasswordChange = (e) => {
         const { name, value } = e.target;
-        setPasswordData({ ...passwordData, [name]: value });
+        setPasswordData(prev => ({ ...prev, [name]: value || '' }));
     };
 
     const validatePassword = () => {
@@ -89,12 +144,12 @@ const MiPerfilPage = () => {
             return false;
         }
 
+        setPasswordError(''); // Clear error if validation passes
         return true;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         try {
             const response = await fetch(`http://localhost:3001/api/users/update/${userId}`, {
                 method: 'PUT',
@@ -105,10 +160,7 @@ const MiPerfilPage = () => {
                 body: JSON.stringify(formValues)
             });
 
-            if (!response.ok) {
-                throw new Error('Error al actualizar los datos del usuario');
-            }
-
+            if (!response.ok) throw new Error('Error al actualizar los datos del usuario');
             alert('Datos actualizados correctamente');
             await fetchUserData();
             setIsEditing(false);
@@ -119,7 +171,6 @@ const MiPerfilPage = () => {
 
     const handlePasswordSubmit = async (e) => {
         e.preventDefault();
-
         if (validatePassword()) {
             try {
                 const response = await fetch(`http://localhost:3001/api/users/update/${userId}`, {
@@ -131,10 +182,7 @@ const MiPerfilPage = () => {
                     body: JSON.stringify({ password: passwordData.newPassword })
                 });
 
-                if (!response.ok) {
-                    throw new Error('Error al actualizar la contraseña');
-                }
-
+                if (!response.ok) throw new Error('Error al actualizar la contraseña');
                 alert('Contraseña actualizada correctamente');
             } catch (error) {
                 setError(error.message);
@@ -147,144 +195,33 @@ const MiPerfilPage = () => {
         setIsEditing(false);
     };
 
-    if (error) {
-        return <div>Error: {error}</div>;
-    }
+    if (error) return <div>Error: {error}</div>;
+    if (!userData) return <div>Cargando datos del perfil...</div>;
 
-    if (!userData) {
-        return <div>Cargando datos del perfil...</div>;
-    }
-    
     return (
         <div className="mi-perfil-container">
             <h1>Mi Perfil</h1>
             <form onSubmit={handleSubmit}>
                 <div className="user-details">
-                    <p>
-                        <strong>Nombre: </strong>
-                        {isEditing ? (
-                            <>
+                    {['first_name', 'second_name', 'last_name', 'second_last_name', 'email', 'phone_number'].map((field, index) => (
+                        <div className="user-info" key={index}>
+                            <strong>{fieldLabels[field]}: </strong>
+                            {isEditing ? (
                                 <input
-                                    type="text"
-                                    name="first_name"
-                                    value={formValues.first_name}
+                                    type={field === 'email' ? 'email' : 'text'}
+                                    name={field}
+                                    value={formValues[field]}
                                     onChange={handleInputChange}
                                 />
-                                <input
-                                    type="text"
-                                    name="second_name"
-                                    value={formValues.second_name}
-                                    onChange={handleInputChange}
-                                />
-                            </>
-                        ) : (
-                            <span>{userData.first_name} {userData.second_name}</span>
-                        )}
-                    </p>
-                    <p>
-                        <strong>Apellidos: </strong>
+                            ) : (
+                                <span>{userData[field]}</span>
+                            )}
+                        </div>
+                    ))}
+                    <div className="user-info">
+                        <strong>{fieldLabels.street}: </strong>
                         {isEditing ? (
-                            <>
-                                <input
-                                    type="text"
-                                    name="last_name"
-                                    value={formValues.last_name}
-                                    onChange={handleInputChange}
-                                />
-                                <input
-                                    type="text"
-                                    name="second_last_name"
-                                    value={formValues.second_last_name}
-                                    onChange={handleInputChange}
-                                />
-                            </>
-                        ) : (
-                            <span>{userData.last_name} {userData.second_last_name}</span>
-                        )}
-                    </p>
-                    <p><strong>RUT: </strong> {userData.rut}</p>
-                    <p>
-                        <strong>Email: </strong>
-                        {isEditing ? (
-                            <input
-                                type="email"
-                                name="email"
-                                value={formValues.email}
-                                onChange={handleInputChange}
-                            />
-                        ) : (
-                            <span>{userData.email}</span>
-                        )}
-                    </p>
-                    <p>
-                        <strong>Teléfono: </strong>
-                        {isEditing ? (
-                            <input
-                                type="text"
-                                name="phone_number"
-                                value={formValues.phone_number}
-                                onChange={handleInputChange}
-                            />
-                        ) : (
-                            <span>{userData.phone_number}</span>
-                        )}
-                    </p>
-                    <p>
-                        <strong>Canal de Venta: </strong>
-                        {isEditing ? (
-                            <input
-                                type="text"
-                                name="sales_channel_id"
-                                value={formValues.sales_channel_id}
-                                onChange={handleInputChange}
-                            />
-                        ) : (
-                            <span>{userData.sales_channel_id}</span>
-                        )}
-                    </p>
-                    <p>
-                        <strong>Empresa: </strong>
-                        {isEditing ? (
-                            <input
-                                type="text"
-                                name="company_id"
-                                value={formValues.company_id}
-                                onChange={handleInputChange}
-                            />
-                        ) : (
-                            <span>{userData.company_id}</span>
-                        )}
-                    </p>
-                    <p>
-                        <strong>Región: </strong>
-                        {isEditing ? (
-                            <input
-                                type="text"
-                                name="region_id"
-                                value={formValues.region_id}
-                                onChange={handleInputChange}
-                            />
-                        ) : (
-                            <span>{userData.region_id}</span>
-                        )}
-                    </p>
-                    <p>
-                        <strong>Comuna: </strong>
-                        {isEditing ? (
-                            <input
-                                type="text"
-                                name="commune_id"
-                                value={formValues.commune_id}
-                                onChange={handleInputChange}
-                            />
-                        ) : (
-                            <span>{userData.commune_id}</span>
-                        )}
-                    </p>
-                    <p>
-                        <strong>Dirección: </strong>
-                        {isEditing ? (
-                            <>
+                            <div className="input-group">
                                 <input
                                     type="text"
                                     name="street"
@@ -303,80 +240,92 @@ const MiPerfilPage = () => {
                                     value={formValues.department_office_floor}
                                     onChange={handleInputChange}
                                 />
-                            </>
+                            </div>
                         ) : (
-                            <span>{userData.street}, {userData.number}, {userData.department_office_floor}</span>
+                            <span>{userData.street} {userData.number}, {userData.department_office_floor}</span>
                         )}
-                    </p>
-                    <p><strong>Rol: </strong> {userData.role_id}</p>
+                    </div>
+                    <div className="user-info">
+                        <strong>{fieldLabels.region_id}: </strong>
+                        {isEditing ? (
+                            <select
+                                name="region_id"
+                                value={formValues.region_id}
+                                onChange={handleInputChange}
+                            >
+                                <option value="">Seleccione una región</option>
+                                {regions.map(region => (
+                                    <option key={region.region_id} value={region.region_id}>{region.region_name}</option>
+                                ))}
+                            </select>
+                        ) : (
+                            <span>{regions.find(r => r.region_id === userData.region_id)?.region_name}</span>
+                        )}
+                    </div>
+                    <div className="user-info">
+                        <strong>{fieldLabels.commune_id}: </strong>
+                        {isEditing ? (
+                            <select
+                                name="commune_id"
+                                value={formValues.commune_id}
+                                onChange={handleInputChange}
+                                disabled={!formValues.region_id}
+                            >
+                                <option value="">Seleccione una comuna</option>
+                                {communes.map(commune => (
+                                    <option key={commune.commune_id} value={commune.commune_id}>{commune.commune_name}</option>
+                                ))}
+                            </select>
+                        ) : (
+                            <span>{communes.find(c => c.commune_id === userData.commune_id)?.commune_name}</span>
+                        )}
+                    </div>
+                    <div className="user-info">
+                        <strong>{fieldLabels.sales_channel_id}: </strong>
+                        <span>{salesChannels.find(c => c.channel_id === userData.sales_channel_id)?.channel_name}</span>
+                    </div>
                 </div>
-
-                {!isEditing ? (
-                    <button type="button" onClick={() => setIsEditing(true)}>Editar Datos</button>
-                ) : (
-                    <>
-                        <button type="submit">Guardar Cambios</button>
-                        <button type="button" onClick={handleCancel}>Cancelar</button>
-                    </>
-                )}
+                <div className="user-actions">
+                    {!isEditing ? (
+                        <button type="button" onClick={() => setIsEditing(true)}>Editar</button>
+                    ) : (
+                        <div>
+                            <button type="submit">Guardar</button>
+                            <button type="button" onClick={handleCancel}>Cancelar</button>
+                        </div>
+                    )}
+                </div>
             </form>
-
-            <h2 className="mi-perfil-container__title">Cambiar Contraseña</h2>
-            <form onSubmit={handlePasswordSubmit}>
-                <p>
-                    <label className="mi-perfil-container__label">Contraseña Actual: </label>
-                    <div className="input-container">
-                        <input
-                            type={showPassword ? 'text' : 'password'}
-                            name="currentPassword"
-                            value={passwordData.currentPassword}
-                            onChange={handlePasswordChange}
-                            required
-                        />
-                        <FontAwesomeIcon
-                            icon={showPassword ? faEyeSlash : faEye}
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="toggle-password mi-perfil-container__icon"
-                        />
+            <div className="change-password">
+                <form onSubmit={handlePasswordSubmit}>
+                    <div className="password-section">
+                        <h2>Cambiar Contraseña</h2>
+                        {['currentPassword', 'newPassword', 'repeatPassword'].map((field, index) => (
+                            <div className="input-container" key={index}>
+                                <label htmlFor={field}>{field === 'currentPassword' ? 'Contraseña Actual' : field === 'newPassword' ? 'Nueva Contraseña' : 'Repetir Nueva Contraseña'}</label>
+                                <input
+                                    type={field === 'currentPassword' ? (showPassword ? 'text' : 'password') : field === 'newPassword' ? (showNewPassword ? 'text' : 'password') : (showRepeatPassword ? 'text' : 'password')}
+                                    id={field}
+                                    name={field}
+                                    value={passwordData[field]}
+                                    onChange={handlePasswordChange}
+                                />
+                                <FontAwesomeIcon
+                                    icon={field === 'currentPassword' ? (showPassword ? faEyeSlash : faEye) : field === 'newPassword' ? (showNewPassword ? faEyeSlash : faEye) : (showRepeatPassword ? faEyeSlash : faEye)}
+                                    className="toggle-password"
+                                    onClick={() => {
+                                        if (field === 'currentPassword') setShowPassword(!showPassword);
+                                        else if (field === 'newPassword') setShowNewPassword(!showNewPassword);
+                                        else setShowRepeatPassword(!showRepeatPassword);
+                                    }}
+                                />
+                            </div>
+                        ))}
+                        <button type="submit">Actualizar Contraseña</button>
+                        {passwordError && <div className="error">{passwordError}</div>}
                     </div>
-                </p>
-                <p>
-                    <label className="mi-perfil-container__label">Nueva Contraseña: </label>
-                    <div className="input-container">
-                        <input
-                            type={showNewPassword ? 'text' : 'password'}
-                            name="newPassword"
-                            value={passwordData.newPassword}
-                            onChange={handlePasswordChange}
-                            required
-                        />
-                        <FontAwesomeIcon
-                            icon={showNewPassword ? faEyeSlash : faEye}
-                            onClick={() => setShowNewPassword(!showNewPassword)}
-                            className="toggle-password mi-perfil-container__icon"
-                        />
-                    </div>
-                </p>
-                <p>
-                    <label className="mi-perfil-container__label">Repetir Nueva Contraseña: </label>
-                    <div className="input-container">
-                        <input
-                            type={showRepeatPassword ? 'text' : 'password'}
-                            name="repeatPassword"
-                            value={passwordData.repeatPassword}
-                            onChange={handlePasswordChange}
-                            required
-                        />
-                        <FontAwesomeIcon
-                            icon={showRepeatPassword ? faEyeSlash : faEye}
-                            onClick={() => setShowRepeatPassword(!showRepeatPassword)}
-                            className="toggle-password mi-perfil-container__icon"
-                        />
-                    </div>
-                </p>
-            </form>
-
-
+                </form>
+            </div>
         </div>
     );
 };

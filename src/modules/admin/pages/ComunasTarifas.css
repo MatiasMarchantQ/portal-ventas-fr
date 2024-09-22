@@ -1,0 +1,110 @@
+.comunas-tarifas-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.comunas-tarifas-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.comunas-tarifas-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.comunas-section {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f9f9f9;
+}
+
+.comunas-section h2 {
+    margin-bottom: 15px;
+}
+
+.promociones-section {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f9f9f9;
+}
+
+.promociones-section h2 {
+    margin-bottom: 15px;
+}
+
+.monto-instalacion-section {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #f9f9f9;
+}
+
+.monto-instalacion-section h2 {
+    margin-bottom: 15px;
+}
+
+.comunas-tarifas-container button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.comunas-tarifas-container button:hover {
+    background-color: #0056b3;
+}
+
+.comunas-tarifas-container select {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.comunas-tarifas-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.comunas-tarifas-container thead {
+    background-color: #f1f1f1;
+}
+
+.comunas-tarifas-container th, 
+.comunas-tarifas-container td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.comunas-tarifas-container .edit-button {
+    background-color: #28a745;
+}
+
+.comunas-tarifas-container .delete-button {
+    background-color: #dc3545;
+}
+
+.comunas-tarifas-container .edit-button:hover {
+    background-color: #218838;
+}
+
+.comunas-tarifas-container .delete-button:hover {
+    background-color: #c82333;
+}
+
+.comunas-tarifas-container .monto-instalacion-display {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #e9ecef;
+    text-align: center;
+}

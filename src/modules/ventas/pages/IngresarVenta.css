@@ -1,80 +1,54 @@
-/* IngresarVenta.css */
+/* Global Styles */
 
 .ingresar-venta-wrapper {
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    margin: 0 auto;
-    height: auto;
-    max-width: auto;
-    font-family: Montserrat;
-  }
-  
-  .ingresar-venta-header {
-    text-align: center;
-    margin-bottom: 20px;
-    font-weight: bold;
-    font-size: 2.5rem;
-    color: #99235C;
-  }
-  
-  .ingresar-venta-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .ingresar-venta-date-group {
-    display: flex;
-    justify-content: flex-start;
-    color: #99235C;
-  }
-  
-  .ingresar-venta-date-group .form-group {
-    flex: 1;
-  }
-  
-  .ingresar-venta-fields-group {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4rem;
-  }
-
-  .ingresar-venta-fields-group input {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-    margin-bottom: 10px;
-    background-color: #fff;
-  }
-
-  .ingresar-venta-field-group textarea,
-  .ingresar-venta-field-group input[type="number"],
-  .ingresar-venta-field-group input[type="email"]{
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 1px;
-  font-size: 16px;
-  margin-bottom: 10px;
-  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  margin: 0 auto;
+  height: auto;
+  max-width: auto;
+  font-family: Montserrat;
 }
 
-.ingresar-venta-field-group input[type="email"]{
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-  margin-bottom: 10px;
-  background-color: #fff;
-  box-shadow: 0 0.2px;
+.ingresar-venta-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  font-weight: bold;
+  font-size: 2rem;
+  color: #99235C;
 }
 
-.ingresar-venta-field-group select{
-  width: 109%;
+/* Form Styles */
+
+.ingresar-venta-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ingresar-venta-fields-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4rem;
+}
+
+.ingresar-venta-field-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.ingresar-venta-field-group label {
+  margin-bottom: 5px;
+  color: #99235C;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+/* Common styles for input, select, textarea, and email */
+.ingresar-venta-field-control,
+.ingresar-venta-field-group input[type="email"],
+.ingresar-venta-field-group select,
+.ingresar-venta-field-group textarea {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -82,50 +56,40 @@
   margin-bottom: 10px;
   background-color: #fff;
 }
-  
-  .ingresar-venta-field-group {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .ingresar-venta-field-group label {
-    margin-bottom: 5px;
-    color: #99235C;
-    font-size: 0.9rem;
-  }
-  
-  .ingresar-venta-field-control {
-    padding: 10px;
-    border: 1px solid #fff;
-    border-radius: 5px;
-  }
 
-  .ingresar-venta-field-control.no-border {
-    border: none;
-    background-color: transparent;
-    outline: none;
-  }
-  
-  
-  .ingresar-venta-submit-button {
-    align-self: flex-start;
-    width: 31%;
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #99235C;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .ingresar-venta-submit-button:hover {
-    background-color: #b93775;
-  }
-  
-  .ingresar-venta-error-message {
-    color: red;
-    font-size: 14px;
-    margin-top: 10px;
-  }
-  
+.ingresar-venta-field-control[readonly] {
+  border: none;
+  background-color: transparent;
+  pointer-events: none;
+}
+
+/* Adjusting select width */
+.ingresar-venta-field-group select {
+  width: 100%;
+}
+
+/* Button Styles */
+
+.ingresar-venta-submit-button {
+  align-self: flex-start;
+  width: 31%;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #99235C;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.ingresar-venta-submit-button:hover {
+  background-color: #b93775;
+}
+
+/* Error Message Styles */
+
+.ingresar-venta-error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 10px;
+}

@@ -1,0 +1,39 @@
+.usuarios-page {
+    padding: 20px;
+  }
+  
+  .usuarios-page h1 {
+    color: #99235C;
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  th {
+    background-color: #99235C;
+    color: #fff;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  tr:hover {
+    background-color: #e9e9e9;
+  }
+  
+  .loading {
+    text-align: center;
+    margin-top: 20px;
+    color: #666;
+  }

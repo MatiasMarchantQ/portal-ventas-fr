@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import withAuthorization from '../../../contexts/withAuthorization';
 import './DetalleVenta.css';
-const SaleDetailPage = ({ saleId, onBack }) => {
+const DetalleVentaPage = ({ saleId, onBack }) => {
   const { token, roleId } = useContext(UserContext);
   const [sale, setSale] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -124,7 +124,6 @@ const SaleDetailPage = ({ saleId, onBack }) => {
     }
   };
   
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUpdatedSale((prev) => ({ ...prev, [name]: value }));
@@ -141,11 +140,7 @@ const SaleDetailPage = ({ saleId, onBack }) => {
       setUpdateMessage('No tienes permisos para actualizar esta venta');
       return;
     }
-    console.log(` Rol ID: ${roleId}, Estado actual: ${sale.sale_status_id}, Intento de actualización a: ${updatedSale.sale_status_id}`);
-
-
-
-  
+    console.log(` Rol ID: ${roleId}, Estado actual: ${sale.sale_status_id}, Intento de actualización a: ${updatedSale.sale_status_id}`);  
     try {
       const response = await fetch(endpoint, {
         method: 'PUT',
@@ -168,7 +163,6 @@ const SaleDetailPage = ({ saleId, onBack }) => {
     }
   };
   
-
   if (loading) {
     return <div>Loading sale details...</div>;
   }
@@ -177,90 +171,125 @@ const SaleDetailPage = ({ saleId, onBack }) => {
     return <div>No details found for this sale.</div>;
   }
 
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setUpdatedSale(sale);
+  };
+
   const renderEditForm = () => (
     <div className="sale-detail-form">
       {/* Form Fields */}
       {renderFormFields()}
-      {roleId === 5 && renderEditableSaleStatus()}
-      <button onClick={handleUpdate}>Guardar Cambios</button>
       {updateMessage && <div className="update-message">{updateMessage}</div>} {/* Mensaje de actualización */}
     </div>
   );
   
   const renderFormFields = () => (
     <div className="sale-detail-fields-group">
-      {renderInputField("Nombres", "client_first_name", "text", true)}
-      {renderInputField("Apellidos", "client_last_name", "text", true)}
-      {renderInputField("RUT", "client_rut", "text", true)}
-      {renderInputField("Correo Electrónico", "client_email", "email", true)}
-      {renderInputField("Número de Teléfono", "client_phone", "text", true)}
-      {renderInputField("Número Secundario (Opcional)", "client_secondary_phone", "text", true)}
-      
-      <select name="region_id" value={updatedSale.region_id || ''} onChange={handleChange} disabled={roleId === 5}>
-        <option value="">Selecciona una región</option>
-        {regions.map((region) => (
-          <option key={region.region_id} value={region.region_id}>
-            {region.region_name}
-          </option>
-        ))}
-      </select>
+      {renderInputField("Nombres", "client_first_name", "text")}
+      {renderInputField("Apellidos", "client_last_name", "text")}
+      {renderInputField("RUT", "client_rut", "text")}
+      {renderInputField("Correo Electrónico", "client_email", "email")}
+      {renderInputField("Número de Teléfono", "client_phone", "text")}
+      {renderInputField("Número Secundario (Opcional)", "client_secondary_phone", "text")}
   
-      <select name="commune_id" value={updatedSale.commune_id || ''} onChange={handleChange} disabled={roleId === 5}>
-        <option value="">Selecciona una comuna</option>
-        {communes.map((commune) => (
-          <option key={commune.commune_id} value={commune.commune_id}>
-            {commune.commune_name}
-          </option>
-        ))}
-      </select>
+
+      <div className="sale-detail-field-group">
+          <strong>Región:</strong>
+          <select 
+            name="region_id" 
+            value={updatedSale.region_id || ''} 
+            onChange={handleChange} 
+            disabled={roleId === 5}
+          >
+            <option value="">Selecciona una región</option>
+            {regions.map((region) => (
+              <option key={region.region_id} value={region.region_id}>
+                {region.region_name}
+              </option>
+            ))}
+          </select>
+        </div>
+    
+        <div className="sale-detail-field-group">
+        <strong>Comuna:</strong>
+        <select 
+          name="commune_id" 
+          value={updatedSale.commune_id || ''} 
+          onChange={handleChange} 
+          disabled={roleId === 5}
+        >
+          <option value="">Selecciona una comuna</option>
+          {communes.map((commune) => (
+            <option key={commune.commune_id} value={commune.commune_id}>
+              {commune.commune_name}
+            </option>
+          ))}
+        </select>
+      </div>
       <p></p>
   
-      {renderInputField("Calle/Avenida", "street", "text", true)}
-      {renderInputField("Número", "number", "text", true)}
-      {renderInputField("Departamento/Oficina/Piso", "department_office_floor", "text", true)}
-      {renderInputField("Georeferencia", "geo_reference", "text", true)}
+      {renderInputField("Calle/Avenida", "street", "text")}
+      {renderInputField("Número", "number", "text")}
+      {renderInputField("Departamento/Oficina/Piso", "department_office_floor", "text")}
+      {renderInputField("Georeferencia", "geo_reference", "text")}
       <p></p>
       <p></p>
-  
-      <select name="promotion_id" value={updatedSale.promotion_id || ''} onChange={handleChange} disabled={roleId === 5}>
-        <option value="">Selecciona una promoción</option>
-        {promotions.map((promotion) => (
-          <option key={promotion.promotion_id} value={promotion.promotion_id}>
-            {promotion.Promotion.promotion}
-          </option>
-        ))}
-      </select>
+      <div className="sale-detail-field-group">
+        <div className="sale-detail-field-group">
+          <strong>Promoción:</strong>
+          <select 
+            name="promotion_id" 
+            value={updatedSale.promotion_id || ''} 
+            onChange={handleChange} 
+            disabled={roleId === 5}
+          >
+            <option value="">Selecciona una promoción</option>
+            {promotions.map((promotion) => (
+              <option key={promotion.promotion_id} value={promotion.promotion_id}>
+                {promotion.Promotion.promotion}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
   
       <div className="sale-detail-field-group">
         <label>Monto de Instalación:
           <input type="text" value={installationAmount ? installationAmount.amount : ''} readOnly />
         </label>
       </div>
-  
-      {renderInputField("Número Orden(Wisphub)", "service_id", "text", true)}
-      {renderTextarea("Comentarios adicionales", "additional_comments", true)}
+      <p></p>
+
+      {roleId === 5 && renderEditableSaleStatus()}
+      {renderInputField("Número Orden(Wisphub)", "service_id", "textarea", true, true)}
+      <p></p>
+      {renderTextarea("Comentarios adicionales", "additional_comments")}
     </div>
   );
-  
   const renderEditableSaleStatus = () => (
-    <div>
-      <label>Estado de Venta:
-        <select name="sale_status_id" value={updatedSale.sale_status_id || ''} onChange={handleChange}>
-          <option value="">Selecciona un estado</option>
-          {saleStatuses.map((saleStatus) => (
-            <option key={saleStatus.sale_status_id} value={saleStatus.sale_status_id}>
-              {saleStatus.status_name}
-            </option>
-          ))}
-        </select>
-      </label>
+    <div className="sale-detail-field-group">
+      <strong>Estado de Venta:</strong>
+      <select 
+        name="sale_status_id" 
+        value={updatedSale.sale_status_id || ''} 
+        onChange={handleChange}
+      >
+        <option value="">Selecciona un estado</option>
+        {saleStatuses.map((saleStatus) => (
+          <option key={saleStatus.sale_status_id} value={saleStatus.sale_status_id}>
+            {saleStatus.status_name}
+          </option>
+        ))}
+      </select>
     </div>
   );
-  
-  const renderInputField = (label, name, type = "text", readOnly = false) => (
+
+  const renderInputField = (label, name, type = "text", editable = true, required = false) => (
     <div className="sale-detail-field-group">
       <label>{label}:
-        <input type={type} name={name} value={updatedSale[name]} onChange={handleChange} readOnly={readOnly} />
+        <input type={type} name={name} value={updatedSale[name]} onChange={handleChange} readOnly={roleId === 5} required={required}/>
       </label>
     </div>
   );
@@ -274,96 +303,163 @@ const SaleDetailPage = ({ saleId, onBack }) => {
         name={name}
         value={updatedSale[name]}
         onChange={handleChange}
+        readOnly={roleId === 5}
       ></textarea>
     </div>
   );
 
   const renderSaleDetails = () => (
     <div className="sale-detail-fields-group">
-      <strong>{sale.executive?.role.role_name}</strong>
-        <p></p>
-        <p></p>
-        <p>{sale.executive?.first_name} {sale.executive?.last_name} {sale.executive?.second_last_name} | {sale.executive?.rut}</p>
-        <p>{sale.executive?.email} | {sale.executive?.phone_number}</p>
-        <p></p>
-        <div className="sale-detail-field-group">
-          <p>Fecha de Ingreso: {sale.created_at}</p>
-        </div>
-        <p></p>
-        <p></p>
-        <div className="sale-detail-field-group">
-          <p>Nombres: {sale.client_first_name}</p>
-        </div>
-        <div className="sale-detail-field-group">
-          <p>Apellidos: {sale.client_last_name}</p>
-        </div>
-        <div className="sale-detail-field-group">
-          <p>RUT: {sale.client_rut}</p>
-        </div>
-        <div className="sale-detail-field-group">
-          <p>Correo Electrónico: {sale.client_email}</p>
-        </div>
-        <div className="sale-detail-field-group">
-          <p>Número de Teléfono: {sale.client_phone}</p>
-        </div>
-        <div className="sale-detail-field-group">
-          <p>Número Secundario (Opcional): {sale.client_secondary_phone}</p>
-        </div>
-        <div className="sale-detail-field-group">
-          <p>Región: {sale.region?.region_name}</p>
-        </div>
-        <div className="sale-detail-field-group">
-          <p>Comuna: {sale.commune?.commune_name}</p>
-        </div>
-        <p></p>
-        <div className="sale-detail-field-group">
-          <p>Calle/Avenida: {sale.street}</p>
-        </div>
-        <div className="sale-detail-field-group">
-          <p>Número: {sale.number}</p>
-        </div>
-        <div className="sale-detail-field-group">
-          <p>Departamento/Oficina/Piso: {sale.department_office_floor}</p>
-        </div>
-        <div className="sale-detail-field-group">
-          <p>Geo Referencia: {sale.geo_reference}</p>
-        </div>
-        <p></p>
-        <p></p>
-        <div className="sale-detail-field-group">
-          <p>Promoción: {sale.promotion?.promotion}</p>
-        </div>
-        <div className="sale-detail-field-group">
-          <p>Monto de Instalación: {sale.installationAmount?.amount}</p>
-        </div>
-        <p></p>
-        <div className="sale-detail-field-group">
-          <p>Número de Orden: {sale.order_number}</p>
-        </div>
-        <div className="sale-detail-field-group">
-          <p>Comentarios Adicionales: {sale.additional_comments}</p>
-        </div>
-        <p></p>
-        <div className="sale-detail-field-group">
-          <p>Estado de la Venta: {sale.saleStatus?.status_name}</p>
-        </div>
+      {/* Fecha de Ingreso */}
+      <div className="sale-detail-field-group">
+        <strong>Fecha de Ingreso:</strong> 
+        <p>{sale.created_at}</p>
+      </div>
+      <p></p>
+      <p></p>
+      <div className="executive-info">
+        <strong>{sale.executive?.role.role_name}</strong>
+        <p>Nombre: {sale.executive?.first_name} {sale.executive?.second_name} {sale.executive?.last_name} {sale.executive?.second_last_name} - Rut: {sale.executive?.rut} - Email: {sale.executive?.email} - Celular: {sale.executive?.phone_number}</p>
+      </div>
+      <p></p>
+      <p></p>
+
+      {/* Nombres del Cliente */}
+      <div className="sale-detail-field-group">
+        <strong>Nombres:</strong> 
+        <p>{sale.client_first_name}</p>
+      </div>
+  
+      {/* Apellidos del Cliente */}
+      <div className="sale-detail-field-group">
+        <strong>Apellidos:</strong> 
+        <p>{sale.client_last_name}</p>
+      </div>
+  
+      {/* RUT del Cliente */}
+      <div className="sale-detail-field-group">
+        <strong>RUT:</strong> 
+        <p>{sale.client_rut}</p>
+      </div>
+  
+      {/* Correo Electrónico del Cliente */}
+      <div className="sale-detail-field-group">
+        <strong>Correo Electrónico:</strong> 
+        <p>{sale.client_email}</p>
+      </div>
+  
+      {/* Número de Teléfono del Cliente */}
+      <div className="sale-detail-field-group">
+        <strong>Número de Teléfono:</strong> 
+        <p>{sale.client_phone}</p>
+      </div>
+  
+      {/* Número Secundario del Cliente */}
+      <div className="sale-detail-field-group">
+        <strong>Número Secundario (Opcional):</strong> 
+        <p>{sale.client_secondary_phone}</p>
+      </div>
+  
+      {/* Región del Cliente */}
+      <div className="sale-detail-field-group">
+        <strong>Región:</strong> 
+        <p>{sale.region?.region_name}</p>
+      </div>
+  
+      {/* Comuna del Cliente */}
+      <div className="sale-detail-field-group">
+        <strong>Comuna:</strong> 
+        <p>{sale.commune?.commune_name}</p>
+      </div>
+      <p></p>
+  
+      {/* Calle/Avenida */}
+      <div className="sale-detail-field-group">
+        <strong>Calle/Avenida:</strong> 
+        <p>{sale.street}</p>
+      </div>
+  
+      {/* Número de Calle */}
+      <div className="sale-detail-field-group">
+        <strong>Número casa:</strong> 
+        <p>{sale.number}</p>
+      </div>
+  
+      {/* Departamento/Oficina/Piso */}
+      <div className="sale-detail-field-group">
+        <strong>Departamento/Oficina/Piso:</strong> 
+        <p>{sale.department_office_floor}</p>
+      </div>
+  
+      {/* Geo Referencia */}
+      <div className="sale-detail-field-group">
+        <strong>Geo Referencia:</strong> 
+        <p>{sale.geo_reference}</p>
+      </div>
+      <p></p>
+      <p></p>
+  
+      {/* Promoción */}
+      <div className="sale-detail-field-group">
+        <strong>Promoción:</strong> 
+        <p>{sale.promotion?.promotion}</p>
+      </div>
+  
+      {/* Monto de Instalación */}
+      <div className="sale-detail-field-group">
+        <strong>Monto de Instalación:</strong> 
+        <p>{sale.installationAmount?.amount}</p>
+      </div>
+      <p></p>
+
+      {/* Estado de la Venta */}
+      <div className="sale-detail-field-group">
+        <strong>Estado de la Venta:</strong> 
+        <p>{sale.saleStatus?.status_name}</p>
+      </div>
+  
+      {/* Número de Orden */}
+      <div className="sale-detail-field-group">
+        <strong>Número de Orden:</strong> 
+        <p>{sale.order_number}</p>
+      </div>
+      <p></p>
+  
+      {/* Comentarios Adicionales */}
+      <div className="sale-detail-field-group">
+        <strong>Comentarios Adicionales:</strong> 
+        <p>{sale.additional_comments}</p>
+      </div>
     </div>
   );
-
+  
   return (
     <div className="sale-detail-page">
-      <button onClick={onBack}>Volver</button>
-      <h2>Detalles de Venta</h2>
+      <button onClick={onBack}>Atrás</button>
+      <h2>{roleId === 4 ? 'Validar venta' : 'Detalle venta'}</h2>
       {isEditing ? renderEditForm() : renderSaleDetails()}
-      
-      {!(roleId === 3 && sale.sale_status_id === 1) && (
-        <button onClick={() => setIsEditing(!isEditing)}>
-          {isEditing ? "Cancelar" : "Editar"}
-        </button>
-      )}
+
+      <div className='button-group'>
+        {isEditing && (
+          <button onClick={handleUpdate}>Guardar Cambios</button>
+        )}
+    
+        {!(roleId === 3 && sale.sale_status_id === 1) && (
+          <button onClick={() => {
+            if (isEditing) {
+              handleCancelEdit(); // Cancela la edición y restablece los valores
+            } else {
+              setIsEditing(true); // Habilita la edición
+            }
+          }}>
+            {isEditing ? "Cancelar" : "Editar"}
+          </button>
+        )}
+      </div>
     </div>
   );
-};
+}  
 
 
-export default withAuthorization(SaleDetailPage, [1, 2, 3, 4, 5]);
+
+export default withAuthorization(DetalleVentaPage, [1, 2, 3, 4, 5]);

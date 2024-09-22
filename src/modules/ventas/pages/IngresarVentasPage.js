@@ -192,75 +192,88 @@ const IngresarVentasPage = () => {
       <form className="ingresar-venta-form" onSubmit={handleSubmit}>
         <div className="ingresar-venta-fields-group">
           <div className="ingresar-venta-field-group">
-            <label>Nombres</label>
+            <label htmlFor="client_first_name">Nombres</label>
             <input
               type="text"
               className="ingresar-venta-field-control"
+              id="client_first_name"
               name="client_first_name"
               value={formValues.client_first_name}
               onChange={handleInputChange}
+              autoComplete="given-name"
             />
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>Apellidos</label>
+            <label htmlFor="client_last_name">Apellidos</label>
             <input
               type="text"
               className="ingresar-venta-field-control"
+              id="client_last_name"
               name="client_last_name"
               value={formValues.client_last_name}
               onChange={handleInputChange}
+              autoComplete="family-name"
             />
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>RUT</label>
+            <label htmlFor="client_rut">RUT</label>
             <input
               type="text"
               className="ingresar-venta-field-control"
+              id="client_rut"
               name="client_rut"
               value={formValues.client_rut}
               onChange={handleInputChange}
+              autoComplete="off"
             />
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>Email</label>
+            <label htmlFor="client_email">Email</label>
             <input
               type="email"
               className="ingresar-venta-field-control"
+              id="client_email"
               name="client_email"
               value={formValues.client_email}
               onChange={handleInputChange}
+              autoComplete="email"
             />
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>Número celular</label>
+            <label htmlFor="client_phone">Número celular</label>
             <input
               type="text"
               className="ingresar-venta-field-control"
+              id="client_phone"
               name="client_phone"
               value={formValues.client_phone}
               onChange={handleInputChange}
+              autoComplete="tel"
             />
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>Segundo número celular (opcional)</label>
+            <label htmlFor="client_secondary_phone">Segundo número celular (opcional)</label>
             <input
               type="text"
               className="ingresar-venta-field-control"
+              id="client_secondary_phone"
               name="client_secondary_phone"
               value={formValues.client_secondary_phone}
               onChange={handleInputChange}
+              autoComplete="tel"
             />
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>Región</label>
+            <label htmlFor="region_id">Región</label>
             <select
               className="ingresar-venta-field-control"
+              id="region_id"
               name="region_id"
               value={formValues.region_id}
               onChange={handleInputChange}
@@ -273,11 +286,12 @@ const IngresarVentasPage = () => {
               ))}
             </select>
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>Comuna</label>
+            <label htmlFor="commune_id">Comuna</label>
             <select
               className="ingresar-venta-field-control"
+              id="commune_id"
               name="commune_id"
               value={formValues.commune_id}
               onChange={handleInputChange}
@@ -290,55 +304,60 @@ const IngresarVentasPage = () => {
               ))}
             </select>
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>Calle</label>
+            <label htmlFor="street">Calle/Avenida</label>
             <input
               type="text"
               className="ingresar-venta-field-control"
+              id="street"
               name="street"
               value={formValues.street}
               onChange={handleInputChange}
             />
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>Número</label>
+            <label htmlFor="number">Número Casa</label>
             <input
               type="text"
               className="ingresar-venta-field-control"
+              id="number"
               name="number"
               value={formValues.number}
               onChange={handleInputChange}
             />
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>Departamento/Piso</label>
+            <label htmlFor="department_office_floor">Departamento/Piso</label>
             <input
               type="text"
               className="ingresar-venta-field-control"
+              id="department_office_floor"
               name="department_office_floor"
               value={formValues.department_office_floor}
               onChange={handleInputChange}
             />
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>Referencia geográfica</label>
+            <label htmlFor="geo_reference">Referencia geográfica</label>
             <input
               type="text"
               className="ingresar-venta-field-control"
+              id="geo_reference"
               name="geo_reference"
               value={formValues.geo_reference}
               onChange={handleInputChange}
             />
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>Promoción</label>
+            <label htmlFor="promotion_id">Promoción</label>
             <select
               className="ingresar-venta-field-control"
+              id="promotion_id"
               name="promotion_id"
               value={formValues.promotion_id}
               onChange={handleInputChange}
@@ -351,27 +370,28 @@ const IngresarVentasPage = () => {
               ))}
             </select>
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>Montos de instalación (cargados automáticamente):</label>
+            <label>Monto de instalación:</label>
             <input
               type="text"
-              className="ingresar-venta-field-control"
+              className="ingresar-venta-field-control no-border"
               value={loading ? 'Cargando...' : installationAmount}
               readOnly
             />
           </div>
-
+  
           <div className="ingresar-venta-field-group">
-            <label>Comentarios adicionales</label>
+            <label htmlFor="additional_comments">Comentarios adicionales</label>
             <textarea
               className="ingresar-venta-field-control"
+              id="additional_comments"
               name="additional_comments"
               value={formValues.additional_comments}
               onChange={handleInputChange}
             />
           </div>
-
+  
           <div className="ingresar-venta-field-group">
             <label>Imagen de la cédula de identidad</label>
             <input
@@ -381,19 +401,13 @@ const IngresarVentasPage = () => {
               onChange={handleFileChange}
             />
           </div>
-          <p></p>
-          <p></p> 
-          <div>
-            <button type="submit" className="ingresar-venta-submit-button">Enviar venta</button>
-            <p></p>
-            {successMessage && <div className="success-message">{successMessage}</div>}
-            {errorMessage && <div className="error-message">{errorMessage}</div>}
-          </div>
-         
         </div>
+        <button type="submit" className="ingresar-venta-submit-button">Enviar venta</button>
+        {successMessage && <div className="success-message">{successMessage}</div>}
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
       </form>
     </div>
-  );
+  );  
 };
 
 export default withAuthorization(IngresarVentasPage, [1, 2, 3]);
