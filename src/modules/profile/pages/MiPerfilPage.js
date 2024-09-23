@@ -38,19 +38,24 @@ const MiPerfilPage = () => {
     const [regions, setRegions] = useState([]);
     const [communes, setCommunes] = useState([]);
     const [salesChannels, setSalesChannels] = useState([]);
+    const [roles, setRoles] = useState([]);
+    const [companies, setCompanies] = useState([]);
 
     const fieldLabels = {
+        role_id: 'Rol',
         first_name: 'Nombre',
         second_name: 'Segundo Nombre',
         last_name: 'Apellido',
         second_last_name: 'Segundo Apellido',
+        rut: 'RUT',
         email: 'Correo Electrónico',
         phone_number: 'Número de Teléfono',
-        street: 'Calle',
-        number: 'Número',
-        department_office_floor: 'Departamento / Piso',
+        company_id: 'Empresa',
         region_id: 'Región',
         commune_id: 'Comuna',
+        street: 'Calle/Avenida',
+        number: 'Número casa',
+        department_office_floor: 'Departamento / Piso / Oficina (Opcional)',
         sales_channel_id: 'Canal de Venta',
     };
 
@@ -75,6 +80,19 @@ const MiPerfilPage = () => {
         }
     }, [token]);
 
+    const fetchRoles = async () => {
+        try {
+          const response = await fetch('http://localhost:3001/api/roles');
+          if (!response.ok) throw new Error('Error al obtener los roles');
+          const data = await response.json();
+          // Aquí puedes guardar los roles en un estado o utilizarlos de alguna manera
+          setRoles(data);
+        } catch (error) {
+          setError(error.message);
+        }
+      };
+      
+
     const fetchRegions = async () => {
         try {
             const response = await fetch('http://localhost:3001/api/regions/');
@@ -85,6 +103,18 @@ const MiPerfilPage = () => {
             setError(error.message);
         }
     };
+
+    const fetchCompanies = async () => {
+        try {
+          const response = await fetch('http://localhost:3001/api/companies');
+          if (!response.ok) throw new Error('Error al obtener las empresas');
+          const data = await response.json();
+          // Aquí puedes guardar las empresas en un estado o utilizarlas de alguna manera
+          setCompanies(data);
+        } catch (error) {
+          setError(error.message);
+        }
+      };
 
     const fetchSalesChannels = async () => {
         try {
@@ -110,6 +140,8 @@ const MiPerfilPage = () => {
 
     useEffect(() => {
         fetchUserData();
+        fetchRoles();
+        fetchCompanies();
         fetchRegions();
         fetchSalesChannels();
     }, [fetchUserData]);
@@ -203,47 +235,50 @@ const MiPerfilPage = () => {
             <h1>Mi Perfil</h1>
             <form onSubmit={handleSubmit}>
                 <div className="user-details">
-                    {['first_name', 'second_name', 'last_name', 'second_last_name', 'email', 'phone_number'].map((field, index) => (
+                    <div className="user-info">
+                        <strong>Rol: </strong>
+                        <span>{roles.find(role => role.role_id === userData.role_id)?.role_name}</span>
+                    </div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    {['first_name', 'second_name', 'last_name', 'second_last_name'].map((field, index) => (
                         <div className="user-info" key={index}>
                             <strong>{fieldLabels[field]}: </strong>
                             {isEditing ? (
-                                <input
-                                    type={field === 'email' ? 'email' : 'text'}
-                                    name={field}
-                                    value={formValues[field]}
-                                    onChange={handleInputChange}
-                                />
+                            <input
+                                type="text"
+                                name={field}
+                                value={formValues[field]}
+                                onChange={handleInputChange}
+                            />
                             ) : (
-                                <span>{userData[field]}</span>
+                            <span>{userData[field]}</span>
                             )}
                         </div>
                     ))}
                     <div className="user-info">
-                        <strong>{fieldLabels.street}: </strong>
-                        {isEditing ? (
-                            <div className="input-group">
-                                <input
-                                    type="text"
-                                    name="street"
-                                    value={formValues.street}
-                                    onChange={handleInputChange}
-                                />
-                                <input
-                                    type="text"
-                                    name="number"
-                                    value={formValues.number}
-                                    onChange={handleInputChange}
-                                />
-                                <input
-                                    type="text"
-                                    name="department_office_floor"
-                                    value={formValues.department_office_floor}
-                                    onChange={handleInputChange}
-                                />
-                            </div>
-                        ) : (
-                            <span>{userData.street} {userData.number}, {userData.department_office_floor}</span>
-                        )}
+                        <strong>{fieldLabels.rut}: </strong>
+                        <span>{userData.rut}</span>
+                    </div>
+                    {['email', 'phone_number'].map((field, index) => (
+                        <div className="user-info" key={index}>
+                            <strong>{fieldLabels[field]}: </strong>
+                            {isEditing ? (
+                            <input
+                                type={field === 'email' ? 'email' : 'text'}
+                                name={field}
+                                value={formValues[field]}
+                                onChange={handleInputChange}
+                            />
+                            ) : (
+                            <span>{userData[field]}</span>
+                            )}
+                        </div>
+                    ))}
+                    <div className="user-info">
+                        <strong>{fieldLabels.company_id}: </strong>
+                        <span>{companies.find(company => company.company_id === userData.company_id)?.company_name}</span>
                     </div>
                     <div className="user-info">
                         <strong>{fieldLabels.region_id}: </strong>
@@ -281,8 +316,49 @@ const MiPerfilPage = () => {
                         )}
                     </div>
                     <div className="user-info">
+                    <div>
+                        <strong>{fieldLabels.street}: </strong><br/>
+                        {isEditing ? (
+                        <input
+                            type="text"
+                            name="street"
+                            value={formValues.street}
+                            onChange={handleInputChange}
+                        />
+                        ) : (
+                        <span>{userData.street}</span>
+                        )}
+                    </div>
+                    <div>
+                        <strong>{fieldLabels.number}</strong><br/>
+                        {isEditing ? (
+                        <input
+                            type="text"
+                            name="number"
+                            value={formValues.number}
+                            onChange={handleInputChange}
+                        />
+                        ) : (
+                        <span>{userData.number}</span>
+                        )}
+                    </div>
+                    <div>
+                        <strong>{fieldLabels.department_office_floor}</strong><br/>
+                        {isEditing ? (
+                        <input
+                            type="text"
+                            name="department_office_floor"
+                            value={formValues.department_office_floor}
+                            onChange={handleInputChange}
+                        />
+                        ) : (
+                        <span>{userData.department_office_floor}</span>
+                        )}
+                    </div>
+                    </div>
+                    <div className="user-info">
                         <strong>{fieldLabels.sales_channel_id}: </strong>
-                        <span>{salesChannels.find(c => c.channel_id === userData.sales_channel_id)?.channel_name}</span>
+                        <span>{salesChannels.find(c => c.sales_channel_id === userData.sales_channel_id)?.channel_name}</span>
                     </div>
                 </div>
                 <div className="user-actions">
@@ -299,30 +375,32 @@ const MiPerfilPage = () => {
             <div className="change-password">
                 <form onSubmit={handlePasswordSubmit}>
                     <div className="password-section">
-                        <h2>Cambiar Contraseña</h2>
-                        {['currentPassword', 'newPassword', 'repeatPassword'].map((field, index) => (
-                            <div className="input-container" key={index}>
-                                <label htmlFor={field}>{field === 'currentPassword' ? 'Contraseña Actual' : field === 'newPassword' ? 'Nueva Contraseña' : 'Repetir Nueva Contraseña'}</label>
-                                <input
-                                    type={field === 'currentPassword' ? (showPassword ? 'text' : 'password') : field === 'newPassword' ? (showNewPassword ? 'text' : 'password') : (showRepeatPassword ? 'text' : 'password')}
-                                    id={field}
-                                    name={field}
-                                    value={passwordData[field]}
-                                    onChange={handlePasswordChange}
-                                />
-                                <FontAwesomeIcon
-                                    icon={field === 'currentPassword' ? (showPassword ? faEyeSlash : faEye) : field === 'newPassword' ? (showNewPassword ? faEyeSlash : faEye) : (showRepeatPassword ? faEyeSlash : faEye)}
-                                    className="toggle-password"
-                                    onClick={() => {
-                                        if (field === 'currentPassword') setShowPassword(!showPassword);
-                                        else if (field === 'newPassword') setShowNewPassword(!showNewPassword);
-                                        else setShowRepeatPassword(!showRepeatPassword);
-                                    }}
-                                />
-                            </div>
-                        ))}
-                        <button type="submit">Actualizar Contraseña</button>
-                        {passwordError && <div className="error">{passwordError}</div>}
+                    <h2>Cambiar Contraseña</h2>
+                    {['currentPassword', 'newPassword', 'repeatPassword'].map((field, index) => (
+                        <div className="input-container">
+                        <label htmlFor={field}>{field === 'currentPassword' ? 'Contraseña Actual' : field === 'newPassword' ? 'Nueva Contraseña' : 'Repetir Nueva Contraseña'}</label>
+                        <div className="input-wrapper">
+                          <input
+                            type={field === 'currentPassword' ? (showPassword ? 'text' : 'password') : field === 'newPassword' ? (showNewPassword ? 'text' : 'password') : (showRepeatPassword ? 'text' : 'password')}
+                            id={field}
+                            name={field}
+                            value={passwordData[field]}
+                            onChange={handlePasswordChange}
+                          />
+                          <FontAwesomeIcon
+                            icon={field === 'currentPassword' ? (showPassword ? faEyeSlash : faEye) : field === 'newPassword' ? (showNewPassword ? faEyeSlash : faEye) : (showRepeatPassword ? faEyeSlash : faEye)}
+                            className="toggle-password"
+                            onClick={() => {
+                              if (field === 'currentPassword') setShowPassword(!showPassword);
+                              else if (field === 'newPassword') setShowNewPassword(!showNewPassword);
+                              else setShowRepeatPassword(!showRepeatPassword);
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                    <button type="submit" style={{ marginLeft: 0 }}>Actualizar Contraseña</button>
+                    {passwordError && <div className="error" style={{ textAlign: 'flex-start' }}>{passwordError}</div>}
                     </div>
                 </form>
             </div>

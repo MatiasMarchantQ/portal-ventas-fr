@@ -132,7 +132,8 @@
     color: #99235C;
     position: absolute;
     top: 50%;
-    right: 1px;
+    right: 0;
+    margin-right: 5px;
     transform: translateY(-50%);
     cursor: pointer;
     z-index: 1;

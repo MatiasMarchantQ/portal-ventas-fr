@@ -152,7 +152,7 @@ const RegistrarUsuarioPage = () => {
         <form onSubmit={handleSubmit}>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
-              <label htmlFor="first_name">Primer Nombre:</label>
+              <strong htmlFor="first_name">Primer Nombre:</strong>
               <input
                 type="text"
                 name="first_name"
@@ -164,7 +164,7 @@ const RegistrarUsuarioPage = () => {
               />
             </div>
             <div className="registrar-usuario-form-group">
-              <label htmlFor="second_name">Segundo Nombre:</label>
+              <strong htmlFor="second_name">Segundo Nombre:</strong>
               <input
                 type="text"
                 name="second_name"
@@ -177,7 +177,7 @@ const RegistrarUsuarioPage = () => {
           </div>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
-              <label htmlFor="last_name">Primer Apellido:</label>
+              <strong htmlFor="last_name">Primer Apellido:</strong>
               <input
                 type="text"
                 name="last_name"
@@ -189,7 +189,7 @@ const RegistrarUsuarioPage = () => {
               />
             </div>
             <div className="registrar-usuario-form-group">
-              <label htmlFor="second_last_name">Segundo Apellido:</label>
+              <strong htmlFor="second_last_name">Segundo Apellido:</strong>
               <input
                 type="text"
                 name="second_last_name"
@@ -202,7 +202,7 @@ const RegistrarUsuarioPage = () => {
           </div>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
-              <label htmlFor="rut">Rut:</label>
+              <strong htmlFor="rut">Rut:</strong>
               <input
                 type="text"
                 name="rut"
@@ -214,7 +214,7 @@ const RegistrarUsuarioPage = () => {
               />
             </div>
             <div className="registrar-usuario-form-group">
-              <label htmlFor="email">Correo electrónico:</label>
+              <strong htmlFor="email">Correo electrónico:</strong>
               <input
                 type="email"
                 name="email"
@@ -229,7 +229,7 @@ const RegistrarUsuarioPage = () => {
           </div>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
-              <label htmlFor="phone_number">Número celular:</label>
+              <strong htmlFor="phone_number">Número celular:</strong>
               <input
                 type="tel"
                 name="phone_number"
@@ -241,7 +241,7 @@ const RegistrarUsuarioPage = () => {
               />
             </div>
             <div className="registrar-usuario-form-group">
-              <label htmlFor="company_id">Empresa:</label>
+              <strong htmlFor="company_id">Empresa:</strong>
               <select
                 name="company_id"
                 id="company_id"
@@ -260,7 +260,7 @@ const RegistrarUsuarioPage = () => {
           </div>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
-              <label htmlFor="region_id">Región:</label>
+              <strong htmlFor="region_id">Región:</strong>
               <select
                 name="region_id"
                 id="region_id"
@@ -277,7 +277,7 @@ const RegistrarUsuarioPage = () => {
               </select>
             </div>
             <div className="registrar-usuario-form-group">
-              <label htmlFor="commune_id">Comuna:</label>
+              <strong htmlFor="commune_id">Comuna:</strong>
               <select
                 name="commune_id"
                 id="commune_id"
@@ -296,7 +296,7 @@ const RegistrarUsuarioPage = () => {
           </div>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
-              <label htmlFor="street">Calle:</label>
+              <strong htmlFor="street">Calle:</strong>
               <input
                 type="text"
                 name="street"
@@ -309,7 +309,7 @@ const RegistrarUsuarioPage = () => {
               />
             </div>
             <div className="registrar-usuario-form-group">
-              <label htmlFor="number">Número:</label>
+              <strong htmlFor="number">Número:</strong>
               <input
                 type="text"
                 name="number"
@@ -323,7 +323,7 @@ const RegistrarUsuarioPage = () => {
           </div>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
-              <label htmlFor="department_office_floor">Depto/Oficina/Piso:</label>
+              <strong htmlFor="department_office_floor">Depto/Oficina/Piso:</strong>
               <input
                 type="text"
                 name="department_office_floor"
@@ -335,7 +335,7 @@ const RegistrarUsuarioPage = () => {
               />
             </div>
             <div className="registrar-usuario-form-group">
-              <label htmlFor="sales_channel_id">Canal de venta:</label>
+              <strong htmlFor="sales_channel_id">Canal de venta:</strong>
               <select
                 name="sales_channel_id"
                 id="sales_channel_id"
@@ -354,7 +354,7 @@ const RegistrarUsuarioPage = () => {
           </div>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
-              <label htmlFor="role_id">Rol:</label>
+              <strong htmlFor="role_id">Rol:</strong>
               <select
                 name="role_id"
                 id="role_id"
@@ -373,7 +373,7 @@ const RegistrarUsuarioPage = () => {
           </div>
           <div className="registrar-usuario-form-row">
                 <div className="registrar-usuario-form-group full-width">
-                  <label htmlFor="password">Contraseña nueva:</label>
+                  <strong htmlFor="password">Contraseña nueva:</strong>
                   <div className="password-container">
                     <input
                       type={passwordVisible ? 'text' : 'password'}

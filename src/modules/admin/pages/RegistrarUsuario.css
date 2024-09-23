@@ -21,8 +21,8 @@
 /* Estructura para las filas con grid */
 .registrar-usuario-form-row {
     display: grid;
-    grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
-    gap: 5rem; /* Espacio más amplio entre columnas */
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
     margin-bottom: 1rem;
     width: 100%;
 }
@@ -33,8 +33,9 @@
 }
 
 /* Estilos comunes para etiquetas y campos de entrada */
-.registrar-usuario-form-group label {
+.registrar-usuario-form-group strong {
     display: block;
+    color: #99235C;
     font-size: 0.9rem;
     margin-bottom: 0.5rem;
 }
@@ -99,7 +100,7 @@
   }
   
   .password-container input[type="password"] {
-    width: 43.5%;
+    width: 45%;
   }
 
   .password-container input[type="text"]{
@@ -133,7 +134,7 @@
     font-size: 1rem;
     border-radius: 4px;
     cursor: pointer;
-    width: 50%;
+    width: 45%;
     margin-top: 1rem;
 }
 

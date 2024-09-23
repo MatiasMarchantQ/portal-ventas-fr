@@ -1,39 +1,111 @@
-.usuarios-page {
-    padding: 20px;
-  }
-  
-  .usuarios-page h1 {
-    color: #99235C;
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
-  
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-  }
-  
-  th {
-    background-color: #99235C;
-    color: #fff;
-  }
-  
-  tr:nth-child(even) {
-    background-color: #f2f2f2;
-  }
-  
-  tr:hover {
-    background-color: #e9e9e9;
-  }
-  
-  .loading {
-    text-align: center;
-    margin-top: 20px;
-    color: #666;
-  }
+.usuarios-page h1 {
+  margin-top: 0;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #99235C;
+}
+
+.usuarios-page table {
+  max-width: 100%;
+  border-collapse: collapse;
+}
+
+.usuarios-page thead {
+  background-color: #99235C;
+  border-bottom: 1px solid #ddd;
+}
+
+.usuarios-page th {
+  padding: 10px;
+  text-align: left;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.usuarios-page tbody tr {
+  border-bottom: 1px solid #ddd;
+}
+
+.usuarios-page td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.usuarios-page td:last-child {
+  text-align: center;
+}
+
+.usuarios-page .loading {
+  text-align: center;
+  padding: 20px;
+  font-size: 18px;
+  color: #666;
+}
+
+.detalle-button {
+  background-color: #99235C;
+  color: #ffffff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.detalle-button:hover {
+  background-color: #8b2353;
+}
+
+.usuarios-page .pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.usuarios-page .pagination-button {
+  background-color: transparent;
+  border: 1px solid #99235C;
+  color: #99235C;
+  padding: 8px 16px;
+  margin: 0 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.usuarios-page .pagination-button:disabled {
+  color: #ccc;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+.usuarios-page .pagination-numbers {
+  display: flex;
+  align-items: center;
+}
+
+.usuarios-page .pagination-number {
+  background-color: transparent;
+  border: none;
+  color: #99235C;
+  padding: 8px 12px;
+  margin: 0 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.usuarios-page .pagination-number.active {
+  background-color: #99235C;
+  color: white;
+}
+
+.usuarios-page .pagination-number:hover:not(.active) {
+  background-color: #f0f0f0;
+}
+
+.usuarios-page .pagination-button{
+  border: none
+}

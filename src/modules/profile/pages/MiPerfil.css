@@ -16,11 +16,10 @@
   
   /* Sección de detalles del usuario */
   .mi-perfil-container .user-details {
-    width: 60%;
-    justify-content: flex-start;
+    width: 100%;
     left: 100%;
     display: grid;
-    grid-template-columns: repeat(1); /* Tres columnas */
+    grid-template-columns: repeat(4, 4fr); /* Tres columnas */
     gap: 3rem;
 }
   
@@ -32,9 +31,8 @@
   }
   
   /* Inputs de texto, email, password y select */
-  .mi-perfil-container input[type="text"],
+  .mi-perfil-container .user-details input[type="text"],
   .mi-perfil-container input[type="email"],
-  .mi-perfil-container input[type="password"],
   .mi-perfil-container select,
   .mi-perfil-container textarea {
     width: 100%;
@@ -100,21 +98,10 @@
     font-weight: bold;
   }
   
-  /* Estilos para los campos de entrada */
-  .input-container input {
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-  }
-  
   /* Estilos para los íconos de mostrar/ocultar contraseña */
   .input-container .toggle-password {
     position: absolute;
-    right: 0.5rem;
+    right: 20rem;
     margin-top: 1.3rem;
     transform: translateY(-50%);
     cursor: pointer;
@@ -130,6 +117,35 @@
     color: #99235C;
     font-size: 2rem;
     text-align: center;
+  }
+
+  .input-container {
+    text-align:justify;
+  }
+  
+  .input-container label {
+    display: block;
+    margin: 0 auto;
+  }
+  
+  .input-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .input-wrapper input {
+    padding: 0.75rem;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    width: 150%;
+  }
+  
+  .input-wrapper .toggle-password {
+    position: absolute;
+    top: 0;
+    transform: translateY(-50%);
+    cursor: pointer;
+    left: 135%;
   }
   
   .password-section button {

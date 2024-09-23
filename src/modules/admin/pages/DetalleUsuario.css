@@ -1,0 +1,82 @@
+/* Global Styles for DetalleUsuario */
+
+.detalle-usuario-page {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    height: auto;
+    max-width: auto;
+    font-family: Montserrat;
+  }
+  
+  .detalle-usuario-header {
+    text-align: center;
+    font-weight: bold;
+    font-size: 2rem;
+    color: #99235C;
+  }
+  
+  .detalle-usuario-container {
+    background-color: #fff;
+    padding: 20px;
+    margin: 0 auto;
+    color: #333;
+  }
+
+  .detalle-usuario-info {
+    display: grid;
+    grid-template-columns: repeat(2, 2fr); /* Dos columnas */
+    gap: 4rem; /* Espacio entre columnas similar a ingresar-venta-fields-group */
+  }
+  
+  .detalle-usuario-label {
+    margin-bottom: 5px;
+    color: #99235C; /* Color del label */
+    font-size: 0.9rem;
+    font-weight: bold;
+  }
+  
+  .detalle-usuario-value {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #fff;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+  
+  .detalle-usuario-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4rem;
+  }
+
+  .editable {
+    border: 1px solid #ccc;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  
+  /* Checkbox specific styles */
+  input[type="checkbox"] {
+    margin-left: 10px;
+  }
+  
+  .detalle-usuario-button {
+    margin-top: 20px;
+  }
+  
+  
+  .detalle-usuario-button:hover {
+    background-color: #b93775;
+  }
+  
+  /* Responsiveness for small screens */
+  @media (max-width: 768px) {
+    .detalle-usuario-info {
+      grid-template-columns: 1fr; /* Pasa a una sola columna en pantallas pequeñas */
+      gap: 2rem;
+    }
+  }
+  
