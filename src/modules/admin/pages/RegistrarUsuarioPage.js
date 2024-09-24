@@ -15,7 +15,7 @@ const RegistrarUsuarioPage = () => {
     second_last_name: '',
     rut: '',
     email: '',
-    phone_number: '',
+    phone_number: '+569',
     company_id: null,
     region_id: null,
     commune_id: null,
@@ -103,10 +103,17 @@ const RegistrarUsuarioPage = () => {
   
       const result = await response.json();
       console.log('Usuario registrado:', result);
-      
+  
+      // Obtener el email y la contraseña del usuario registrado
+      const userEmail = formData.email;
+      const userPassword = formData.password;
+  
+      // Crear el mensaje de éxito con el email y la contraseña
+      const successMessage = `Usuario registrado exitosamente! Email: ${userEmail} - Contraseña: ${userPassword}`;
+  
       // Limpiar los inputs
       setFormData(initialFormData);
-      setMessage('Usuario registrado exitosamente!');
+      setMessage(successMessage);
     } catch (error) {
       console.error('Error al registrar el usuario:', error);
       setMessage(error.message);
@@ -143,6 +150,16 @@ const RegistrarUsuarioPage = () => {
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(prev => !prev);
+  };
+
+  const handleRutChange = (e) => {
+    const rut = e.target.value.replace(/[^0-9]/g, '');
+    if (rut.length === 9) {
+      const formattedRut = `${rut.substring(0, 2)}.${rut.substring(2, 5)}.${rut.substring(5, 8)}-${rut.substring(8, 9)}`;
+      setFormData(prevState => ({ ...prevState, rut: formattedRut }));
+    } else {
+      setFormData(prevState => ({ ...prevState, rut: rut }));
+    }
   };
 
   return (
@@ -208,7 +225,7 @@ const RegistrarUsuarioPage = () => {
                 name="rut"
                 id="rut"
                 value={formData.rut}
-                onChange={handleChange}
+                onChange={handleRutChange}
                 placeholder="Ingresa el Rut"
                 required
               />
@@ -296,7 +313,7 @@ const RegistrarUsuarioPage = () => {
           </div>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
-              <strong htmlFor="street">Calle:</strong>
+              <strong htmlFor="street">Calle/Avenida:</strong>
               <input
                 type="text"
                 name="street"
@@ -309,7 +326,7 @@ const RegistrarUsuarioPage = () => {
               />
             </div>
             <div className="registrar-usuario-form-group">
-              <strong htmlFor="number">Número:</strong>
+              <strong htmlFor="number">Número casa:</strong>
               <input
                 type="text"
                 name="number"
@@ -323,7 +340,7 @@ const RegistrarUsuarioPage = () => {
           </div>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
-              <strong htmlFor="department_office_floor">Depto/Oficina/Piso:</strong>
+              <strong htmlFor="department_office_floor">Departamento/Oficina/Piso:</strong>
               <input
                 type="text"
                 name="department_office_floor"
@@ -399,10 +416,11 @@ const RegistrarUsuarioPage = () => {
                   </div>
                 </div>
               </div>
-              {message && <div className="message">{message}</div>}
             <button type="submit" className="registrar-usuario-submit-button" disabled={isSubmitting}>
               {isSubmitting ? 'Registrando...' : 'Registrar Nuevo Usuario'}
             </button>
+            {message && <div style={{'margin-top': '2rem'}} className="message">{message}</div>}
+          
         </form>
       </div>
     </div>

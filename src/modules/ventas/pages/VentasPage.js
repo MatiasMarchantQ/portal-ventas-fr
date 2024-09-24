@@ -23,6 +23,8 @@ const VentasPage = ({ onSaleClick }) => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [originalTotalPages] = useState(1);
+
   const limit = 18;
 
   useEffect(() => {
@@ -93,11 +95,11 @@ const VentasPage = ({ onSaleClick }) => {
 
   const handleClearSearch = () => {
     setSearchTerm('');
-    setFilteredSales(sales);
-    setTotalPages(Math.ceil(sales.length / limit)); // Actualiza el total de páginas
-    setCurrentPage(1); // Reiniciar a la primera página al limpiar
+    setFilteredSales(sales); // Vuelve a cargar la lista completa de ventas
+    setTotalPages(originalTotalPages); // Resetear la paginación
+    setCurrentPage(1); // Resetear la página actual
+    window.location.href = '/dashboard';
   };
-
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
@@ -126,15 +128,15 @@ const VentasPage = ({ onSaleClick }) => {
           onChange={handleSearchChange}
           autoComplete="off" // O utiliza un valor específico
         />
-        <button className="search-button" onClick={handleSearchClick}>
-          <FontAwesomeIcon icon={faSearch} />
-          Buscar
-        </button>
         {searchTerm && (
           <button className="clear-button" onClick={handleClearSearch}>
             <FontAwesomeIcon icon={faTimes} />
           </button>
         )}
+        <button className="search-button" onClick={handleSearchClick}>
+          <FontAwesomeIcon icon={faSearch} />
+          Buscar
+        </button>
       </div>
       {filteredSales.length > 0 ? (
         <>
@@ -153,7 +155,7 @@ const VentasPage = ({ onSaleClick }) => {
                       {sale.client_phone && <p className="info-item purple">{`Celular: ${sale.client_phone}`}</p>}
                     </div>
                     <div className="info-bottom">
-                      {sale.entry_date && <p className="info-item gray">{`Fecha de ingreso: ${new Date(sale.entry_date).toLocaleDateString()}`}</p>}
+                      {sale.created_at && ( <p className="info-item gray"> Fecha de ingreso:{" "}{new Date(sale.created_at).toLocaleString("es-CL", {year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit", })}</p>)}
                       {sale.salesChannel?.channel_name && <p className="info-item gray">{`Canal de venta: ${sale.salesChannel.channel_name}`}</p>}
                       {sale.company?.company_name && <p className="info-item gray">{`${sale.company.company_name}`}</p>}
                       {sale.client_email && <p className="info-item gray">{`${sale.client_email}`}</p>}

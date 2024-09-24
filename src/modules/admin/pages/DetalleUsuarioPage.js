@@ -12,13 +12,12 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
     second_name: '',
     last_name: '',
     second_last_name: '',
-    rut: '',
     email: '',
     phone_number: '',
     company_id: '',
     region_id: '',
     commune_id: '',
-    sale_channel_id: '',
+    sales_channel_id: '',
     street: '',
     number: '',
     department_office_floor: '',
@@ -73,7 +72,7 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
           company_id: userData.user.company?.company_id || '',
           region_id: userData.user.region?.region_id || '',
           commune_id: userData.user.commune?.commune_id || '',
-          sale_channel_id: userData.user.salesChannel?.sales_channel_id || '',
+          sales_channel_id: userData.user.salesChannel?.sales_channel_id || '',
           street: userData.user.street || '',
           number: userData.user.number || '',
           department_office_floor: userData.user.department_office_floor || '',
@@ -120,9 +119,23 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
     fetchCommunes();
   }, [editableFields.region_id]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditableFields(prev => ({ ...prev, [name]: value }));
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    let newValue = value;
+  
+    switch (name) {
+      case 'company_id':
+      case 'region_id':
+      case 'commune_id':
+      case 'sales_channel_id':
+      case 'role_id':
+        newValue = parseInt(value, 10);
+        break;
+      default:
+        newValue = value;
+    }
+  
+    setEditableFields((prevFields) => ({ ...prevFields, [name]: newValue }));
   };
 
   const handleCheckboxChange = () => {
@@ -169,9 +182,9 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
 
   return (
     <div className="detalle-usuario-page">
+      <button className="detalle-usuario-button" onClick={onBack}>Volver a atrás</button>
       <div className="detalle-usuario-container">
         <h1 className="detalle-usuario-header">Detalle de Usuario</h1>
-        <button className="detalle-usuario-button" onClick={onBack}>Volver a Usuarios</button>
         <form onSubmit={handleSubmit} className="detalle-usuario-info">
           {/* Primera columna */}
           <div>
@@ -185,7 +198,7 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
             </p>
             <p>
               <label className="detalle-usuario-label">RUT:</label>
-              <input className="detalle-usuario-value" type="text" name="rut" value={editableFields.rut} onChange={handleInputChange} />
+              <input className="detalle-usuario-value" type="text" name="rut" value={editableFields.rut} onChange={handleInputChange} disabled />
             </p>
             <p>
               <label className="detalle-usuario-label">Teléfono:</label>
@@ -193,10 +206,17 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
             </p>
             <p>
               <label className="detalle-usuario-label">Empresa:</label>
-              <select className="detalle-usuario-value" name="company_id" value={editableFields.company_id} onChange={handleInputChange}>
+              <select 
+                className="detalle-usuario-value" 
+                name="company_id" 
+                value={parseInt(editableFields.company_id, 10)} 
+                onChange={handleInputChange}
+              >
                 <option value="">Seleccione una empresa</option>
                 {companies && companies.map(company => (
-                  <option key={company.company_id} value={company.company_id}>{company.company_name}</option>
+                  <option key={company.company_id} value={company.company_id}>
+                    {company.company_name}
+                  </option>
                 ))}
               </select>
             </p>
@@ -252,7 +272,7 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
             </p>
             <p>
               <label className="detalle-usuario-label">Canal de Venta:</label>
-              <select className="detalle-usuario-value" name="sale_channel_id" value={editableFields.sale_channel_id} onChange={handleInputChange}>
+              <select className="detalle-usuario-value" name="sales_channel_id" value={editableFields.sales_channel_id} onChange={handleInputChange}>
                 <option value="">Seleccione un canal</option>
                 {channels && channels.map(channel => (
                   <option key={channel.sales_channel_id} value={channel.sales_channel_id}>{channel.channel_name}</option>
@@ -272,7 +292,7 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
               <input type="checkbox" checked={isEnabled} onChange={handleCheckboxChange} />
             </p>
           </div>
-          <button type="submit" className="detalle-usuario-button">Actualizar Usuario</button>
+          <button type="submit" className="detalle-usuario-button" id='update-user'>Actualizar Usuario</button>
         </form>
       </div>
     </div>

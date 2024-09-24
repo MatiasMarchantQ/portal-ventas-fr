@@ -42,8 +42,28 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   }, [saleId, token]);
 
   useEffect(() => {
-    fetchRegions();
+    const fetchSaleStatuses = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/sale-statuses', {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!response.ok) throw new Error('Error fetching sale statuses');
+        const data = await response.json();
+        setSaleStatuses(data);
+      } catch (error) {
+        console.error('Error fetching sale statuses:', error);
+      }
+    };
     fetchSaleStatuses();
+  }, []);
+
+  useEffect(() => {
+    fetchRegions();
   }, []);
 
   useEffect(() => {
@@ -103,24 +123,6 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       setInstallationAmount(data);
     } catch (error) {
       console.error('Error fetching installation amount:', error);
-    }
-  };
-
-  const fetchSaleStatuses = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/api/sale-statuses', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) throw new Error('Error fetching sale statuses');
-      const data = await response.json();
-      setSaleStatuses(data);
-    } catch (error) {
-      console.error('Error fetching sale statuses:', error);
     }
   };
   
@@ -247,7 +249,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
             <option value="">Selecciona una promoción</option>
             {promotions.map((promotion) => (
               <option key={promotion.promotion_id} value={promotion.promotion_id}>
-                {promotion.Promotion.promotion}
+                {promotion.promotion}
               </option>
             ))}
           </select>
@@ -289,7 +291,14 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   const renderInputField = (label, name, type = "text", editable = true, required = false) => (
     <div className="sale-detail-field-group">
       <label>{label}:
-        <input type={type} name={name} value={updatedSale[name]} onChange={handleChange} readOnly={roleId === 5} required={required}/>
+        <input
+          type={type}
+          name={name}
+          value={updatedSale[name] !== null ? updatedSale[name] : ""}
+          onChange={handleChange}
+          readOnly={roleId === 5}
+          required={required}
+        />
       </label>
     </div>
   );
@@ -301,7 +310,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       <textarea
         className="sale-detail-field-group-adittional-comments"
         name={name}
-        value={updatedSale[name]}
+        value={updatedSale[name] !== null ? updatedSale[name] : ""}
         onChange={handleChange}
         readOnly={roleId === 5}
       ></textarea>
@@ -313,7 +322,14 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       {/* Fecha de Ingreso */}
       <div className="sale-detail-field-group">
         <strong>Fecha de Ingreso:</strong> 
-        <p>{sale.created_at}</p>
+        <p>{new Date(sale.created_at).toLocaleString('es-CL', { 
+          year: 'numeric', 
+          month: '2-digit', 
+          day: '2-digit', 
+          hour: '2-digit', 
+          minute: '2-digit', 
+          second: '2-digit' 
+        })}</p>
       </div>
       <p></p>
       <p></p>

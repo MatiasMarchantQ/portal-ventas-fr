@@ -28,13 +28,13 @@ const MiPerfilPage = () => {
     const [passwordData, setPasswordData] = useState({
         currentPassword: '',
         newPassword: '',
-        repeatPassword: ''
+        confirmPassword: ''
     });
     const [passwordError, setPasswordError] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
-    const [showRepeatPassword, setShowRepeatPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [regions, setRegions] = useState([]);
     const [communes, setCommunes] = useState([]);
     const [salesChannels, setSalesChannels] = useState([]);
@@ -82,16 +82,14 @@ const MiPerfilPage = () => {
 
     const fetchRoles = async () => {
         try {
-          const response = await fetch('http://localhost:3001/api/roles');
-          if (!response.ok) throw new Error('Error al obtener los roles');
-          const data = await response.json();
-          // Aquí puedes guardar los roles en un estado o utilizarlos de alguna manera
-          setRoles(data);
+            const response = await fetch('http://localhost:3001/api/roles');
+            if (!response.ok) throw new Error('Error al obtener los roles');
+            const data = await response.json();
+            setRoles(data);
         } catch (error) {
-          setError(error.message);
+            setError(error.message);
         }
-      };
-      
+    };
 
     const fetchRegions = async () => {
         try {
@@ -106,15 +104,14 @@ const MiPerfilPage = () => {
 
     const fetchCompanies = async () => {
         try {
-          const response = await fetch('http://localhost:3001/api/companies');
-          if (!response.ok) throw new Error('Error al obtener las empresas');
-          const data = await response.json();
-          // Aquí puedes guardar las empresas en un estado o utilizarlas de alguna manera
-          setCompanies(data);
+            const response = await fetch('http://localhost:3001/api/companies');
+            if (!response.ok) throw new Error('Error al obtener las empresas');
+            const data = await response.json();
+            setCompanies(data);
         } catch (error) {
-          setError(error.message);
+            setError(error.message);
         }
-      };
+    };
 
     const fetchSalesChannels = async () => {
         try {
@@ -163,27 +160,27 @@ const MiPerfilPage = () => {
     };
 
     const validatePassword = () => {
-        const { newPassword, repeatPassword } = passwordData;
-        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,20}$/;
+        const { newPassword, confirmPassword } = passwordData;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,20}$/;
 
         if (!passwordRegex.test(newPassword)) {
             setPasswordError('La contraseña debe tener entre 8 y 20 caracteres, al menos una mayúscula, una minúscula y un número.');
             return false;
         }
 
-        if (newPassword !== repeatPassword) {
+        if (newPassword !== confirmPassword) {
             setPasswordError('Las contraseñas no coinciden.');
             return false;
         }
 
-        setPasswordError(''); // Clear error if validation passes
+        setPasswordError('');
         return true;
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch(`http://localhost:3001/api/users/update/${userId}`, {
+            const response = await fetch('http://localhost:3001/api/users/update', {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -205,19 +202,23 @@ const MiPerfilPage = () => {
         e.preventDefault();
         if (validatePassword()) {
             try {
-                const response = await fetch(`http://localhost:3001/api/users/update/${userId}`, {
+                const response = await fetch('http://localhost:3001/api/users/users/me/password', {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ password: passwordData.newPassword })
+                    body: JSON.stringify(passwordData)
                 });
 
-                if (!response.ok) throw new Error('Error al actualizar la contraseña');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Error al actualizar la contraseña');
+                }
                 alert('Contraseña actualizada correctamente');
+                setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
             } catch (error) {
-                setError(error.message);
+                setPasswordError(error.message);
             }
         }
     };
@@ -375,32 +376,44 @@ const MiPerfilPage = () => {
             <div className="change-password">
                 <form onSubmit={handlePasswordSubmit}>
                     <div className="password-section">
-                    <h2>Cambiar Contraseña</h2>
-                    {['currentPassword', 'newPassword', 'repeatPassword'].map((field, index) => (
-                        <div className="input-container">
-                        <label htmlFor={field}>{field === 'currentPassword' ? 'Contraseña Actual' : field === 'newPassword' ? 'Nueva Contraseña' : 'Repetir Nueva Contraseña'}</label>
-                        <div className="input-wrapper">
-                          <input
-                            type={field === 'currentPassword' ? (showPassword ? 'text' : 'password') : field === 'newPassword' ? (showNewPassword ? 'text' : 'password') : (showRepeatPassword ? 'text' : 'password')}
-                            id={field}
-                            name={field}
-                            value={passwordData[field]}
-                            onChange={handlePasswordChange}
-                          />
-                          <FontAwesomeIcon
-                            icon={field === 'currentPassword' ? (showPassword ? faEyeSlash : faEye) : field === 'newPassword' ? (showNewPassword ? faEyeSlash : faEye) : (showRepeatPassword ? faEyeSlash : faEye)}
-                            className="toggle-password"
-                            onClick={() => {
-                              if (field === 'currentPassword') setShowPassword(!showPassword);
-                              else if (field === 'newPassword') setShowNewPassword(!showNewPassword);
-                              else setShowRepeatPassword(!showRepeatPassword);
-                            }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                    <button type="submit" style={{ marginLeft: 0 }}>Actualizar Contraseña</button>
-                    {passwordError && <div className="error" style={{ textAlign: 'flex-start' }}>{passwordError}</div>}
+                        <h2>Cambiar Contraseña</h2>
+                        {['currentPassword', 'newPassword', 'confirmPassword'].map((field, index) => (
+                            <div className="input-container" key={index}>
+                                <label htmlFor={field}>
+                                    {field === 'currentPassword' ? 'Contraseña Actual' : 
+                                     field === 'newPassword' ? 'Nueva Contraseña' : 
+                                     'Confirmar Nueva Contraseña'}
+                                </label>
+                                <div className="input-wrapper">
+                                    <input
+                                        type={
+                                            field === 'currentPassword' ? (showPassword ? 'text' : 'password') :
+                                            field === 'newPassword' ? (showNewPassword ? 'text' : 'password') :
+                                            (showConfirmPassword ? 'text' : 'password')
+                                        }
+                                        id={field}
+                                        name={field}
+                                        value={passwordData[field]}
+                                        onChange={handlePasswordChange}
+                                    />
+                                    <FontAwesomeIcon
+                                        icon={
+                                            field === 'currentPassword' ? (showPassword ? faEyeSlash : faEye) :
+                                            field === 'newPassword' ? (showNewPassword ? faEyeSlash : faEye) :
+                                            (showConfirmPassword ? faEyeSlash : faEye)
+                                        }
+                                        className="toggle-password"
+                                        onClick={() => {
+                                            if (field === 'currentPassword') setShowPassword(!showPassword);
+                                            else if (field === 'newPassword') setShowNewPassword(!showNewPassword);
+                                            else setShowConfirmPassword(!showConfirmPassword);
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                        <button type="submit" style={{ marginLeft: 0 }}>Actualizar Contraseña</button>
+                        {passwordError && <div className="error" style={{ textAlign: 'flex-start' }}>{passwordError}</div>}
                     </div>
                 </form>
             </div>

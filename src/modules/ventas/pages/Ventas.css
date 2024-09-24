@@ -33,20 +33,13 @@
   .ventas-page .clear-button {
     position: absolute;
     color: #99235C;
-    right: 24rem;
+    left: 40rem;
     top: 0.9rem;
     background: transparent;
     border: none;
     cursor: pointer;
   }
-  
-  .ventas-page .clear-button:hover {
-    color: #ff0000;
-  }
-  
-  .ventas-page .clear-button .fa-times {
-    color: #ff0000;
-  }
+
   
   
   .ventas-page input[type="text"] {

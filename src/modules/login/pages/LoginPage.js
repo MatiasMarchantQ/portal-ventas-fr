@@ -21,13 +21,37 @@ const LoginPage = () => {
   useEffect(() => {
     const storedToken = sessionStorage.getItem('token');
     const storedCookie = Cookies.get('token');
-
+  
     if (storedCookie) {
       setToken(storedCookie);
-      navigate('/dashboard');
+      const userStatus = storedCookie.user_status;
+      const mustChangePassword = storedCookie.must_change_password;
+  
+      if (userStatus === 0) {
+        setError('Su cuenta se encuentra suspendida. Por favor, comuníquese con un administrador para obtener más información.');
+        return;
+      }
+  
+      if (mustChangePassword === 1) {
+        navigate(`/changepassword/${storedCookie}`);
+      } else {
+        navigate('/dashboard');
+      }
     } else if (storedToken) {
       setToken(storedToken);
-      navigate('/dashboard');
+      const userStatus = storedToken.user_status;
+      const mustChangePassword = storedToken.must_change_password;
+  
+      if (userStatus === 0) {
+        setError('Su cuenta se encuentra suspendida. Por favor, comuníquese con un administrador para obtener más información.');
+        return;
+      }
+  
+      if (mustChangePassword === 1) {
+        navigate(`/changepassword/${storedToken}`);
+      } else {
+        navigate('/dashboard');
+      }
     }
   }, [navigate, setToken]);
 

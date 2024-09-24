@@ -23,6 +23,38 @@
     color: #333;
   }
 
+  .detalle-usuario-button {
+    background-color: #99235C;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 15%;
+  }
+
+  .detalle-usuario-button:hover {
+    background-color: #b93775;
+  }
+
+  #update-user{
+    background-color: #99235C;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  #update-user:hover {
+    background-color: #b93775;
+  }
+
   .detalle-usuario-info {
     display: grid;
     grid-template-columns: repeat(2, 2fr); /* Dos columnas */
