@@ -20,8 +20,6 @@ const MiPerfilPage = () => {
         street: '',
         number: '',
         department_office_floor: '',
-        sales_channel_id: '',
-        company_id: '',
         region_id: '',
         commune_id: ''
     });
@@ -266,12 +264,22 @@ const MiPerfilPage = () => {
                         <div className="user-info" key={index}>
                             <strong>{fieldLabels[field]}: </strong>
                             {isEditing ? (
-                            <input
+                            field === 'email' ? (
+                                <textarea
+                                name={field}
+                                value={formValues[field]}
+                                onChange={handleInputChange}
+                                rows={2}
+                                style={{ width: '100%', resize: 'none' }}
+                                />
+                            ) : (
+                                <input
                                 type={field === 'email' ? 'email' : 'text'}
                                 name={field}
                                 value={formValues[field]}
                                 onChange={handleInputChange}
-                            />
+                                />
+                            )
                             ) : (
                             <span>{userData[field]}</span>
                             )}
@@ -364,7 +372,7 @@ const MiPerfilPage = () => {
                 </div>
                 <div className="user-actions">
                     {!isEditing ? (
-                        <button type="button" onClick={() => setIsEditing(true)}>Editar</button>
+                        <button type="button" onClick={() => setIsEditing(true)}>Modificar datos</button>
                     ) : (
                         <div>
                             <button type="submit">Guardar</button>
@@ -412,7 +420,7 @@ const MiPerfilPage = () => {
                                 </div>
                             </div>
                         ))}
-                        <button type="submit" style={{ marginLeft: 0 }}>Actualizar Contraseña</button>
+                        <button type="submit" style={{ marginLeft: 0, width: '26%' }}>Actualizar Contraseña</button>
                         {passwordError && <div className="error" style={{ textAlign: 'flex-start' }}>{passwordError}</div>}
                     </div>
                 </form>

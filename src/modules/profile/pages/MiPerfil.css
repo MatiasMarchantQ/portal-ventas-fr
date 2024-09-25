@@ -2,8 +2,7 @@
 .mi-perfil-container {
     display: flex;
     flex-direction: column;
-    padding: 5rem;
-    margin-top: -5rem;
+    padding: 2rem;
     }
   
   /* Títulos */
@@ -16,11 +15,9 @@
   
   /* Sección de detalles del usuario */
   .mi-perfil-container .user-details {
-    width: 100%;
-    left: 100%;
     display: grid;
     grid-template-columns: repeat(4, 4fr); /* Tres columnas */
-    gap: 3rem;
+    gap: 5rem;
 }
   
   /* Etiquetas de los campos */
@@ -32,8 +29,16 @@
   
   /* Inputs de texto, email, password y select */
   .mi-perfil-container .user-details input[type="text"],
-  .mi-perfil-container input[type="email"],
-  .mi-perfil-container select,
+  .mi-perfil-container select {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+
   .mi-perfil-container textarea {
     width: 100%;
     padding: 0.75rem;

@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../../contexts/UserContext';
+import {jwtDecode} from 'jwt-decode';  // Corregir esta importación
 import Cookies from 'js-cookie';
 import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
@@ -17,41 +18,33 @@ const LoginPage = () => {
   const { setToken } = useContext(UserContext);
   const navigate = useNavigate();
 
-  // Verificar el token almacenado al cargar la página
+  // Este effect es para manejar el token almacenado
   useEffect(() => {
     const storedToken = sessionStorage.getItem('token');
     const storedCookie = Cookies.get('token');
-  
+
+    const processToken = (token) => {
+      const decodedToken = jwtDecode(token);
+
+      // Verificar si la cuenta está suspendida
+      if (decodedToken.status === 0) {
+        setError('Su cuenta se encuentra suspendida. Por favor, comuníquese con un administrador para obtener más información.');
+        return;
+      }
+
+      // Verificar si debe cambiar contraseña
+      if (decodedToken.must_change_password === 1) {
+        navigate(`/changepassword/${token}`);
+      } else {
+        setToken(token);
+        navigate('/dashboard');
+      }
+    };
+
     if (storedCookie) {
-      setToken(storedCookie);
-      const userStatus = storedCookie.user_status;
-      const mustChangePassword = storedCookie.must_change_password;
-  
-      if (userStatus === 0) {
-        setError('Su cuenta se encuentra suspendida. Por favor, comuníquese con un administrador para obtener más información.');
-        return;
-      }
-  
-      if (mustChangePassword === 1) {
-        navigate(`/changepassword/${storedCookie}`);
-      } else {
-        navigate('/dashboard');
-      }
+      processToken(storedCookie);
     } else if (storedToken) {
-      setToken(storedToken);
-      const userStatus = storedToken.user_status;
-      const mustChangePassword = storedToken.must_change_password;
-  
-      if (userStatus === 0) {
-        setError('Su cuenta se encuentra suspendida. Por favor, comuníquese con un administrador para obtener más información.');
-        return;
-      }
-  
-      if (mustChangePassword === 1) {
-        navigate(`/changepassword/${storedToken}`);
-      } else {
-        navigate('/dashboard');
-      }
+      processToken(storedToken);
     }
   }, [navigate, setToken]);
 
@@ -79,28 +72,42 @@ const LoginPage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, rememberMe }), // Enviar el estado del checkbox
+        body: JSON.stringify({ email, password, rememberMe }),
       });
-
+  
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
       }
-
+  
       const data = await response.json();
       console.log('Respuesta del servidor:', data);
-
+  
       if (data.message === 'Login exitoso' && data.token) {
-        setToken(data.token);
-
-        if (rememberMe) {
-          // Almacenar el token en las Cookies con expiración de 2 horas
-          Cookies.set('token', data.token, { expires: 2 / 24 }); // 2 horas en días
-        } else {
-          // Almacenar el token en sessionStorage
-          localStorage.setItem('token', data.token);
+        const decodedToken = jwtDecode(data.token);
+  
+        // Verificar el estado de la cuenta
+        if (decodedToken.status === 0) {
+          setError('Su cuenta se encuentra suspendida. Por favor, comuníquese con un administrador para obtener más información.');
+          return;
         }
-
-        navigate('/dashboard');
+  
+        // Verificar si debe cambiar contraseña
+        if (decodedToken.must_change_password === 1) {
+          navigate(`/changepassword/${data.token}`);
+        } else {
+          // Si todo está bien, guardar el token en el contexto y redirigir al dashboard
+          setToken(data.token);
+  
+          if (rememberMe) {
+            // Almacenar el token en las Cookies con expiración de 2 horas
+            Cookies.set('token', data.token, { expires: 2 / 24 });
+          } else {
+            // Almacenar el token en sessionStorage
+            sessionStorage.setItem('token', data.token);
+          }
+  
+          navigate('/dashboard');
+        }
       } else {
         setError(data.error);
       }
@@ -108,6 +115,7 @@ const LoginPage = () => {
       setError('Ingrese correctamente sus datos');
     }
   };
+  
 
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {

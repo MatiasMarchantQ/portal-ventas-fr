@@ -99,13 +99,10 @@
     padding-right: 2.5rem;
   }
   
-  .password-container input[type="password"] {
+  .password-container input[type="password"],
+  .password-container input[type="text"] {
     width: 45%;
   }
-
-  .password-container input[type="text"]{
-    max-width: 43.5%;
-}
   
   .password-random-icon {
     margin-left: 5px;

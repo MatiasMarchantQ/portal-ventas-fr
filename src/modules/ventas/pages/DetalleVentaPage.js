@@ -1,7 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import withAuthorization from '../../../contexts/withAuthorization';
 import './DetalleVenta.css';
+
 const DetalleVentaPage = ({ saleId, onBack }) => {
   const { token, roleId } = useContext(UserContext);
   const [sale, setSale] = useState(null);
@@ -13,33 +14,34 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   const [promotions, setPromotions] = useState([]);
   const [installationAmount, setInstallationAmount] = useState(null);
   const [saleStatuses, setSaleStatuses] = useState([]);
+  const [reasons, setReasons] = useState([]);
   const [updateMessage, setUpdateMessage] = useState('');
 
-  useEffect(() => {
-    const fetchSaleDetails = async () => {
-      try {
-        const response = await fetch(`http://localhost:3001/api/sales/${saleId}`, {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+  const fetchSaleDetails = useCallback(async () => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/sales/${saleId}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-        if (!response.ok) throw new Error(`Error fetching sale details: ${response.status} ${response.statusText}`);
-        
-        const data = await response.json();
-        setSale(data);
-        setUpdatedSale(data);
-      } catch (error) {
-        console.error('Error in request:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSaleDetails();
+      if (!response.ok) throw new Error(`Error fetching sale details: ${response.status} ${response.statusText}`);
+      
+      const data = await response.json();
+      setSale(data);
+      setUpdatedSale(data);
+    } catch (error) {
+      console.error('Error in request:', error);
+    } finally {
+      setLoading(false);
+    }
   }, [saleId, token]);
+
+  useEffect(() => {
+    fetchSaleDetails();
+  }, [fetchSaleDetails]);
 
   useEffect(() => {
     const fetchSaleStatuses = async () => {
@@ -61,6 +63,20 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
     };
     fetchSaleStatuses();
   }, []);
+
+  useEffect(() => {
+    const fetchReasons = async () => {
+      try {
+        const response = await fetch(`http://localhost:3001/api/sale-statuses/reasons/${updatedSale.sale_status_id}`);
+        if (!response.ok) throw new Error('Error fetching reasons');
+        const data = await response.json();
+        setReasons(data);
+      } catch (error) {
+        console.error('Error fetching reasons:', error);
+      }
+    };
+    fetchReasons();
+  }, [updatedSale.sale_status_id]);
 
   useEffect(() => {
     fetchRegions();
@@ -129,6 +145,14 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setUpdatedSale((prev) => ({ ...prev, [name]: value }));
+  
+    if (name === 'sale_status_reason_id') {
+      const reasonId = value;
+      const reason = reasons.find((reason) => reason.reason_name === reasonId);
+      if (reason) {
+        setUpdatedSale((prev) => ({ ...prev, sale_status_reason_id: reason.sale_status_reason_id }));
+      }
+    }
   };
 
   const handleUpdate = async () => {
@@ -142,7 +166,6 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       setUpdateMessage('No tienes permisos para actualizar esta venta');
       return;
     }
-    console.log(` Rol ID: ${roleId}, Estado actual: ${sale.sale_status_id}, Intento de actualización a: ${updatedSale.sale_status_id}`);  
     try {
       const response = await fetch(endpoint, {
         method: 'PUT',
@@ -157,14 +180,19 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   
       const data = await response.json();
       setSale(data);
+      setUpdatedSale(data);
       setIsEditing(false);
-      setUpdateMessage('Venta actualizada con éxito!'); // Mensaje de éxito
+      setUpdateMessage('Venta actualizada con éxito!');
+      
+      // Refresh the sale details to ensure we have the most up-to-date information
+      await fetchSaleDetails();
     } catch (error) {
       console.error('Error updating:', error);
-      setUpdateMessage(`Error al actualizar: ${error.message}`); // Mensaje de error
+      setIsEditing(true);
+      setUpdateMessage(`Error al actualizar: ${error.message}`);
     }
   };
-  
+
   if (loading) {
     return <div>Loading sale details...</div>;
   }
@@ -262,10 +290,11 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
           <input type="text" value={installationAmount ? installationAmount.amount : ''} readOnly />
         </label>
       </div>
-      <p></p>
 
-      {roleId === 5 && renderEditableSaleStatus()}
       {renderInputField("Número Orden(Wisphub)", "service_id", "textarea", true, true)}
+      {[1, 2, 3, 4, 5].includes(roleId) && renderEditableSaleStatus()}
+      {[1, 2, 4, 5].includes(roleId) && renderEditableReason()}
+      <p></p>
       <p></p>
       {renderTextarea("Comentarios adicionales", "additional_comments")}
     </div>
@@ -282,6 +311,24 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
         {saleStatuses.map((saleStatus) => (
           <option key={saleStatus.sale_status_id} value={saleStatus.sale_status_id}>
             {saleStatus.status_name}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+
+  const renderEditableReason = () => (
+    <div className="sale-detail-field-group">
+      <strong>Motivo:</strong>
+      <select 
+        name="sale_status_reason_id" 
+        value={updatedSale.sale_status_reason_id || ''} 
+        onChange={handleChange}
+      >
+        <option value="">Selecciona un motivo</option>
+        {reasons.map((reason) => (
+          <option key={reason.sale_status_reason_id} value={reason.reason_id}>
+            {reason.reason_name}
           </option>
         ))}
       </select>
@@ -426,18 +473,23 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
         <strong>Monto de Instalación:</strong> 
         <p>{sale.installationAmount?.amount}</p>
       </div>
-      <p></p>
+
+      {/* Número de Orden */}
+      <div className="sale-detail-field-group">
+        <strong>Número de Orden:</strong> 
+        <p>{sale.order_number}</p>
+      </div>
 
       {/* Estado de la Venta */}
       <div className="sale-detail-field-group">
         <strong>Estado de la Venta:</strong> 
         <p>{sale.saleStatus?.status_name}</p>
       </div>
-  
-      {/* Número de Orden */}
+
+      {/* Motivo de la Venta */}
       <div className="sale-detail-field-group">
-        <strong>Número de Orden:</strong> 
-        <p>{sale.order_number}</p>
+        <strong>Motivo:</strong> 
+        <p>{sale.reason?.reason_name}</p>
       </div>
       <p></p>
   
@@ -463,9 +515,9 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
         {!(roleId === 3 && sale.sale_status_id === 1) && (
           <button onClick={() => {
             if (isEditing) {
-              handleCancelEdit(); // Cancela la edición y restablece los valores
+              handleCancelEdit();
             } else {
-              setIsEditing(true); // Habilita la edición
+              setIsEditing(true);
             }
           }}>
             {isEditing ? "Cancelar" : "Editar"}
@@ -474,8 +526,6 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       </div>
     </div>
   );
-}  
-
-
+}
 
 export default withAuthorization(DetalleVentaPage, [1, 2, 3, 4, 5]);

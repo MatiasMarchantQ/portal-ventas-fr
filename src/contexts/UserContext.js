@@ -7,7 +7,7 @@ const publicRoutes = ['/', '/forgotpassword', '/changepassword', '/resetpassword
 
 const decryptToken = (token) => {
   try {
-    const decodedToken = JSON.parse(atob(token.split('.')[1]));
+    const decodedToken = JSON.parse(atob(token.split('.')[1])); // Decodificar el token
     return decodedToken;
   } catch (error) {
     console.error('Error al descifrar el token:', error);
@@ -18,27 +18,27 @@ const decryptToken = (token) => {
 const isTokenExpired = (token) => {
   const decryptedToken = decryptToken(token);
   if (decryptedToken && decryptedToken.exp) {
-    return Date.now() >= decryptedToken.exp * 1000;
+    return Date.now() >= decryptedToken.exp * 1000; // Verificar si el token ha expirado
   }
   return true;
 };
 
 const clearToken = () => {
-  localStorage.removeItem('token');
-  sessionStorage.removeItem('token');
-  document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+  localStorage.removeItem('token');  // Limpiar localStorage
+  sessionStorage.removeItem('token');  // Limpiar sessionStorage
+  document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';  // Limpiar cookies
 };
 
 const UserProvider = ({ children }) => {
-  const [token, setToken] = useState(() => localStorage.getItem('token') || null);
+  const [token, setToken] = useState(() => localStorage.getItem('token') || sessionStorage.getItem('token') || null);  // Revisar tanto localStorage como sessionStorage
   const [roleId, setRoleId] = useState(null);
   const [userId, setUserId] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    const isPublicRoute = publicRoutes.some(route => location.pathname.startsWith(route));
+    const storedToken = localStorage.getItem('token') || sessionStorage.getItem('token'); // Buscar token en ambas fuentes
+    const isPublicRoute = publicRoutes.some(route => location.pathname.startsWith(route)); // Revisar si es una ruta pública
 
     if (storedToken && !isTokenExpired(storedToken)) {
       setToken(storedToken);
@@ -50,12 +50,13 @@ const UserProvider = ({ children }) => {
       
       // Monitorear la expiración del token
       const expirationTime = decryptedToken.exp * 1000 - Date.now();
-      const warningTime = 5 * 60 * 1000; // 5 minutos antes de expirar
+      const warningTime = 5 * 60 * 1000; // 5 minutos antes de que expire
       console.log('Tiempo hasta la expiración:', expirationTime);
 
       if (expirationTime > 0) {
         const timer = setTimeout(() => {
           alert('Tu sesión ha expirado. Haz clic en "Aceptar" para ser redirigido.');
+          console.clear();
           clearToken();
           setToken(null);
           setRoleId(null);
@@ -70,13 +71,15 @@ const UserProvider = ({ children }) => {
       if (expirationTime < warningTime && expirationTime > 0) {
         alert('Tu sesión expira pronto. Por favor guarda tu trabajo.');
       }
+
     } else {
+      // Si el token no es válido o ha expirado
       clearToken();
       setToken(null);
       setRoleId(null);
       setUserId(null);
       if (!isPublicRoute) {
-        navigate('/');
+        navigate('/'); // Redirigir a la página principal si no es una ruta pública
       }
     }
   }, [navigate, location]);

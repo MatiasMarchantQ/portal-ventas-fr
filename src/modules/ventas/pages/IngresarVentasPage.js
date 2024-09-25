@@ -136,23 +136,30 @@ const IngresarVentasPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
-    const formData = new FormData();
-    formData.append('client_first_name', formValues.client_first_name);
-    formData.append('client_last_name', formValues.client_last_name);
-    formData.append('client_rut', formValues.client_rut);
-    formData.append('client_email', formValues.client_email);
-    formData.append('client_phone', formValues.client_phone);
-    formData.append('client_secondary_phone', formValues.client_secondary_phone);
-    formData.append('region_id', formValues.region_id);
-    formData.append('commune_id', formValues.commune_id);
-    formData.append('street', formValues.street);
-    formData.append('number', formValues.number);
-    formData.append('department_office_floor', formValues.department_office_floor);
-    formData.append('geo_reference', formValues.geo_reference);
-    formData.append('promotion_id', formValues.promotion_id);
-    formData.append('additional_comments', formValues.additional_comments);
+    const data = {
+      client_first_name: formValues.client_first_name,
+      client_last_name: formValues.client_last_name,
+      client_rut: formValues.client_rut,
+      client_email: formValues.client_email,
+      client_phone: formValues.client_phone,
+      client_secondary_phone: formValues.client_secondary_phone,
+      region_id: formValues.region_id,
+      commune_id: formValues.commune_id,
+      street: formValues.street,
+      number: formValues.number,
+      department_office_floor: formValues.department_office_floor,
+      geo_reference: formValues.geo_reference,
+      promotion_id: formValues.promotion_id,
+      additional_comments: formValues.additional_comments,
+    };
   
-    selectedFiles.forEach((file) => {
+    const files = selectedFiles;
+  
+    const formData = new FormData();
+    Object.keys(data).forEach((key) => {
+      formData.append(key, data[key]);
+    });
+    files.forEach((file) => {
       formData.append('id_card_image', file);
     });
   
@@ -164,7 +171,8 @@ const IngresarVentasPage = () => {
         },
         body: formData,
       });
-  
+
+      console.log(formData);
       if (!response.ok) {
         throw new Error('Error al enviar la venta');
       }

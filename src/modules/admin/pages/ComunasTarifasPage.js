@@ -25,9 +25,25 @@ const useToggleCard = (initialState = false) => {
   return [isOpen, toggle];
 };
 
+// Card component
+const Card = ({ title, children, isOpen, toggle }) => (
+  <div className="card" onClick={toggle}>
+    <h2>{title}</h2>
+    {isOpen && <div onClick={(e) => e.stopPropagation()}>{children}</div>}
+  </div>
+);
+
 // Reusable select component
 const Select = ({ value, onChange, options, placeholder }) => (
-  <select value={value} onChange={(e) => onChange(e.target.value)} required>
+  <select 
+    value={value} 
+    onChange={(e) => {
+      onChange(e.target.value);
+      e.stopPropagation();
+    }} 
+    onClick={(e) => e.stopPropagation()}
+    required
+  >
     <option value="">{placeholder}</option>
     {options.map(option => (
       <option key={option.value} value={option.value}>
@@ -35,14 +51,6 @@ const Select = ({ value, onChange, options, placeholder }) => (
       </option>
     ))}
   </select>
-);
-
-// Card component
-const Card = ({ title, children, isOpen, toggle }) => (
-  <div className="card" onClick={toggle}>
-    <h2>{title}</h2>
-    {isOpen && children}
-  </div>
 );
 
 // AddCommuneToRegion component
@@ -69,12 +77,12 @@ const AddCommuneToRegion = ({ token, regions }) => {
     try {
       const result = await apiCall(`http://localhost:3001/api/communes/regions/${selectedRegionId}/communes`, 'POST', {
         commune_name: communeName,
-      }, token);
-      alert(result.message); // Mostrar el mensaje de éxito
+      }, `Bearer ${token}`);
+      alert(result.message);
       setCommuneName('');
       setIsSubmitting(false);
     } catch (error) {
-      console.error('Error adding commune to region:', error);
+      console.error('Error al agregar la comuna a la región:', error);
       alert('Error al agregar comuna a la región');
       setIsSubmitting(false);
     }
@@ -91,7 +99,7 @@ const AddCommuneToRegion = ({ token, regions }) => {
       </select>
 
       <div className="comunas-tarifas-field-group">
-        <label for='communeName'>Nombre de la Comuna:
+        <label htmlFor='communeName'>Nombre de la Comuna:
           <input
             id="communeName"
             name="communeName"
@@ -108,14 +116,24 @@ const AddCommuneToRegion = ({ token, regions }) => {
   );
 };
 
-const UpdateCommune = ({ token, regions, communes }) => {
+const UpdateCommune = ({ token, regions }) => {
   const [selectedRegionId, setSelectedRegionId] = useState('');
+  const [communes, setCommunes] = useState([]);
   const [selectedCommuneId, setSelectedCommuneId] = useState('');
   const [communeName, setCommuneName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (selectedRegionId) {
+      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`)
+        .then(setCommunes)
+        .catch(error => console.error('Error loading communes:', error));
+    }
+  }, [selectedRegionId]);
+
   const handleRegionChange = (regionId) => {
     setSelectedRegionId(regionId);
+    setSelectedCommuneId('');
   };
 
   const handleCommuneChange = (communeId) => {
@@ -134,9 +152,9 @@ const UpdateCommune = ({ token, regions, communes }) => {
     }
     setIsSubmitting(true);
     try {
-      const result = await apiCall(`http://localhost:3001/api/communes/${selectedCommuneId}`, 'PATCH', {
+      const result = await apiCall(`http://localhost:3001/api/communes/${selectedCommuneId}`, 'PUT', {
         commune_name: communeName,
-      }, token);
+      }, `Bearer ${token}`);
       alert(result.message);
       setCommuneName('');
       setIsSubmitting(false);
@@ -166,7 +184,7 @@ const UpdateCommune = ({ token, regions, communes }) => {
       </select>
 
       <div className="comunas-tarifas-field-group">
-        <label for='communeName'>Nombre de la Comuna:
+        <label htmlFor='communeName'>Nombre de la Comuna:
           <input
             id="communeName"
             name="communeName"
@@ -198,7 +216,7 @@ const CreatePromotion = ({ token, installationAmounts }) => {
       const result = await apiCall('http://localhost:3001/api/promotions', 'POST', {
         promotion: newPromotionName,
         installationAmountId: installationAmountId,
-      }, token);
+      }, `Bearer ${token}`);
       alert('Promoción creada: ' + result.message);
       setNewPromotionName('');
       setInstallationAmountId('');
@@ -211,7 +229,7 @@ const CreatePromotion = ({ token, installationAmounts }) => {
   return (
     <form className="comunas-tarifas-form" onSubmit={handleCreatePromotion}>
       <div className="comunas-tarifas-field-group">
-        <label for='newPromotionName'>Nombre de la Promoción:
+        <label htmlFor='newPromotionName'>Nombre de la Promoción:
           <input
             id="newPromotionName"
             name="newPromotionName"
@@ -259,7 +277,7 @@ const UpdatePromotion = ({ token, promotions, installationAmounts }) => {
       const result = await apiCall(`http://localhost:3001/api/promotions/${selectedPromotionId}`, 'PATCH', {
         promotion: updatedPromotionName,
         installation_amount_id: updatedInstallationAmountId,
-      }, token);
+      }, `Bearer ${token}`);
       alert('Promoción actualizada: ' + result.message);
       setUpdatedPromotionName('');
       setUpdatedInstallationAmountId('');
@@ -286,7 +304,7 @@ const UpdatePromotion = ({ token, promotions, installationAmounts }) => {
         />
       </div>
       <div className="comunas-tarifas-field-group">
-        <label for='updatedPromotionName'>Nombre de la Promoción:
+        <label htmlFor='updatedPromotionName'>Nombre de la Promoción:
           <input
             id="updatedPromotionName"
             name="updatedPromotionName"
@@ -306,7 +324,7 @@ const UpdatePromotion = ({ token, promotions, installationAmounts }) => {
           onChange={setUpdatedInstallationAmountId}
           options={installationAmounts.map(amount => ({
             value: amount.installation_amount_id,
-            label: `${amount.amount} ${amount.currency}` // Assuming you want to include the currency
+            label: amount.amount
           }))}
           placeholder="Seleccione un monto"
         />
@@ -318,10 +336,32 @@ const UpdatePromotion = ({ token, promotions, installationAmounts }) => {
   );  
 };
 
-// DisablePromotions component
-const DisablePromotions = ({ token, regions, communes, promotions, selectedRegionId, selectedCommuneId, handleRegionChange, handleCommuneChange }) => {
+//Deshabilitar
+const DisablePromotions = ({ token, regions, promotions }) => {
+  const [selectedRegionId, setSelectedRegionId] = useState('');
+  const [communes, setCommunes] = useState([]);
+  const [selectedCommuneId, setSelectedCommuneId] = useState('');
   const [selectedPromotionIds, setSelectedPromotionIds] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (selectedRegionId) {
+      // Cargar comunas para la región seleccionada
+      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`)
+        .then(setCommunes)
+        .catch(error => console.error('Error al cargar comunas:', error));
+    }
+  }, [selectedRegionId]);
+
+  const handleRegionChange = (event) => {
+    const regionId = event.target.value; // Obtener el ID de la región seleccionada
+    setSelectedRegionId(regionId);  // Actualizar el estado de selectedRegionId
+    setSelectedCommuneId('');  // Limpiar la comuna seleccionada al cambiar la región
+  };
+
+  const handleCommuneChange = (event) => {
+    setSelectedCommuneId(event.target.value); // Obtener el ID de la comuna seleccionada
+  };
 
   const handlePromotionChange = (promotionId, isChecked) => {
     setSelectedPromotionIds((prev) =>
@@ -340,11 +380,10 @@ const DisablePromotions = ({ token, regions, communes, promotions, selectedRegio
       const result = await apiCall(`http://localhost:3001/api/promotions/communes/${selectedCommuneId}/promotions/disable`, 'PATCH', {
         promotionIds: selectedPromotionIds,
       }, token);
-      console.log(selectedPromotionIds, selectedCommuneId)
       alert(result.message);
       setIsSubmitting(false);
     } catch (error) {
-      console.error('Error disabling promotions:', error);
+      console.error('Error al deshabilitar promociones:', error);
       alert('Error al deshabilitar promociones');
       setIsSubmitting(false);
     }
@@ -356,7 +395,7 @@ const DisablePromotions = ({ token, regions, communes, promotions, selectedRegio
       <select
         className="comunas-tarifas-field"
         value={selectedRegionId}
-        onChange={(e) => handleRegionChange(e.target.value)}
+        onChange={handleRegionChange}
       >
         <option value="">Seleccione una región</option>
         {regions.map((region) => (
@@ -365,21 +404,22 @@ const DisablePromotions = ({ token, regions, communes, promotions, selectedRegio
           </option>
         ))}
       </select>
-  
+
       <h3 className="comunas-tarifas-header">Seleccionar Comuna:</h3>
       <select
         className="comunas-tarifas-field"
         value={selectedCommuneId}
-        onChange={(e) => handleCommuneChange(e.target.value)}
+        onChange={handleCommuneChange}
       >
         <option value="">Seleccione una comuna</option>
+        {/* Ya no es necesario el filtro aquí */}
         {communes.map((commune) => (
           <option key={commune.commune_id} value={commune.commune_id}>
             {commune.commune_name}
           </option>
         ))}
       </select>
-  
+
       <h3 className="comunas-tarifas-header">Seleccionar Promociones:</h3>
       {promotions.map((promotion) => (
         <div key={promotion.promotion_id} className="comunas-tarifas-field-group">
@@ -395,21 +435,39 @@ const DisablePromotions = ({ token, regions, communes, promotions, selectedRegio
           </label>
         </div>
       ))}
+
       <button className="comunas-tarifas-submit-button" type="submit" disabled={isSubmitting}>
         Deshabilitar Promociones
       </button>
     </form>
   );
-};  
+};
 
 
-// AssignPromotion component
-const AssignPromotion = ({ token, regions, communes, promotions, selectedRegionId, setSelectedRegionId }) => {
-  const [selectedCommunes, setSelectedCommunes] = useState('');
+const AssignPromotion = ({ token, regions, promotions }) => {
+  const [selectedRegionId, setSelectedRegionId] = useState('');
+  const [communes, setCommunes] = useState([]);
+  const [selectedCommuneId, setSelectedCommuneId] = useState('');
   const [selectedPromotionIds, setSelectedPromotionIds] = useState([]);
 
-  const handleCommuneChange = (communeId) => {
-    setSelectedCommunes(communeId);
+  useEffect(() => {
+    if (selectedRegionId) {
+      // Cargar las comunas para la región seleccionada
+      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`)
+        .then(setCommunes)
+        .catch(error => console.error('Error al cargar las comunas:', error));
+    } else {
+      setCommunes([]); // Limpiar las comunas si no hay región seleccionada
+    }
+  }, [selectedRegionId]);
+
+  const handleRegionChange = (event) => {
+    setSelectedRegionId(event.target.value); // Guardar el ID de la región seleccionada
+    setSelectedCommuneId(''); // Limpiar la comuna seleccionada
+  };
+
+  const handleCommuneChange = (event) => {
+    setSelectedCommuneId(event.target.value); // Guardar el ID de la comuna seleccionada
   };
 
   const handlePromotionChange = (promotionId, isChecked) => {
@@ -420,43 +478,52 @@ const AssignPromotion = ({ token, regions, communes, promotions, selectedRegionI
 
   const handleAssignPromotionToCommune = async (e) => {
     e.preventDefault();
-    if (selectedPromotionIds.length === 0 || !selectedCommunes) {
+    if (selectedPromotionIds.length === 0 || !selectedCommuneId) {
       alert('Debe seleccionar al menos una comuna y una promoción.');
       return;
     }
     try {
-      const result = await apiCall(`http://localhost:3001/api/promotions/communes/${selectedCommunes}/promotions`, 'POST', {
+      const result = await apiCall(`http://localhost:3001/api/promotions/communes/${selectedCommuneId}/promotions`, 'POST', {
         promotionIds: selectedPromotionIds,
-      }, token);
+      }, `Bearer ${token}`);
       alert(result.message);
     } catch (error) {
-      console.error('Error assigning promotion to commune:', error);
+      console.error('Error al asignar la promoción a la comuna:', error);
       alert('Error al asignar la promoción a la comuna');
     }
   };
 
   return (
-    <>
-      <Select
+    <form onSubmit={handleAssignPromotionToCommune}>
+      <h3 className="comunas-tarifas-header">Seleccionar Región:</h3>
+      <select
         className="comunas-tarifas-field"
         value={selectedRegionId}
-        onChange={setSelectedRegionId}
-        options={regions.map(region => ({
-          value: region.region_id,
-          label: region.region_name
-        }))}
-        placeholder="Seleccione una región"
-      />
-      <Select
+        onChange={handleRegionChange}
+      >
+        <option value="">Seleccione una región</option>
+        {regions.map(region => (
+          <option key={region.region_id} value={region.region_id}>
+            {region.region_name}
+          </option>
+        ))}
+      </select>
+
+      <h3 className="comunas-tarifas-header">Seleccionar Comuna:</h3>
+      <select
         className="comunas-tarifas-field"
-        value={selectedCommunes}
+        value={selectedCommuneId}
         onChange={handleCommuneChange}
-        options={communes.map(commune => ({
-          value: commune.commune_id,
-          label: commune.commune_name
-        }))}
-        placeholder="Seleccione una comuna"
-      />
+        disabled={!selectedRegionId} // Desactivar si no hay región seleccionada
+      >
+        <option value="">Seleccione una comuna</option>
+        {communes.map(commune => (
+          <option key={commune.commune_id} value={commune.commune_id}>
+            {commune.commune_name}
+          </option>
+        ))}
+      </select>
+
       <h3 className="comunas-tarifas-header">Seleccionar Promociones:</h3>
       {promotions.map((promotion) => (
         <div key={promotion.promotion_id} className="comunas-tarifas-field-group">
@@ -472,17 +539,27 @@ const AssignPromotion = ({ token, regions, communes, promotions, selectedRegionI
           </label>
         </div>
       ))}
-      <button className="comunas-tarifas-submit-button" onClick={handleAssignPromotionToCommune}>
+
+      <button className="comunas-tarifas-submit-button" type="submit">
         Asignar Promoción
       </button>
-    </>
-  );  
+    </form>
+  );
 };
 
-// UpdateInstallationAmount component
+
+
 const UpdateInstallationAmount = ({ token, promotions, installationAmounts }) => {
   const [selectedPromotionId, setSelectedPromotionId] = useState('');
   const [installationAmountId, setInstallationAmountId] = useState('');
+
+  const handlePromotionChange = (promotionId) => {
+    setSelectedPromotionId(promotionId);
+  };
+
+  const handleInstallationAmountChange = (installationAmountId) => {
+    setInstallationAmountId(installationAmountId);
+  };
 
   const handleUpdateInstallationAmount = async (e) => {
     e.preventDefault();
@@ -493,7 +570,7 @@ const UpdateInstallationAmount = ({ token, promotions, installationAmounts }) =>
     try {
       const result = await apiCall(`http://localhost:3001/api/promotions/promotions/${selectedPromotionId}/installation-amount`, 'PATCH', {
         installation_amount_id: installationAmountId,
-      }, token);
+      }, `Bearer ${token}`);
       alert(result.message);
     } catch (error) {
       console.error('Error al actualizar el monto de instalación:', error);
@@ -508,7 +585,7 @@ const UpdateInstallationAmount = ({ token, promotions, installationAmounts }) =>
         <Select
           className="comunas-tarifas-field"
           value={selectedPromotionId}
-          onChange={setSelectedPromotionId}
+          onChange={handlePromotionChange}
           options={promotions.map(promotion => ({
             value: promotion.promotion_id,
             label: promotion.promotion
@@ -521,7 +598,7 @@ const UpdateInstallationAmount = ({ token, promotions, installationAmounts }) =>
         <Select
           className="comunas-tarifas-field"
           value={installationAmountId}
-          onChange={setInstallationAmountId}
+          onChange={handleInstallationAmountChange}
           options={installationAmounts.map(amount => ({
             value: amount.installation_amount_id,
             label: amount.amount
@@ -611,10 +688,6 @@ const ComunasTarifas = () => {
           regions={regions}
           communes={communes}
           promotions={promotions}
-          selectedRegionId={selectedRegionId}
-          selectedCommuneId={selectedCommuneId}
-          handleRegionChange={handleRegionChange}
-          handleCommuneChange={handleCommuneChange}
         />
       </Card>
 
@@ -624,8 +697,6 @@ const ComunasTarifas = () => {
           regions={regions}
           communes={communes}
           promotions={promotions}
-          selectedRegionId={selectedRegionId}
-          setSelectedRegionId={setSelectedRegionId}
         />
       </Card>
 

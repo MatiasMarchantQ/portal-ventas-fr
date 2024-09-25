@@ -14,7 +14,7 @@ function App() {
         <Routes>
           <Route path="/" element={<LoginPage />} />
           <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
-          <Route path="/changepassword" element={<ChangePasswordPage />} />
+          <Route path="/changepassword/:token" element={<ChangePasswordPage />} />
           <Route path="/resetpassword/:token" element={<ResetPasswordPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="*" element={<div>Not Found</div>} />
