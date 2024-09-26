@@ -16,6 +16,9 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   const [saleStatuses, setSaleStatuses] = useState([]);
   const [reasons, setReasons] = useState([]);
   const [updateMessage, setUpdateMessage] = useState('');
+  const id_card_image_url = sale?.id_card_image_url;
+  const simple_power_image_url = sale?.simple_power_image_url;
+  const house_image_url = sale?.house_image_url;
 
   const fetchSaleDetails = useCallback(async () => {
     try {
@@ -257,14 +260,13 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
           ))}
         </select>
       </div>
-      <p></p>
+      <div></div>
   
       {renderInputField("Calle/Avenida", "street", "text")}
       {renderInputField("Número", "number", "text")}
       {renderInputField("Departamento/Oficina/Piso", "department_office_floor", "text")}
       {renderInputField("Georeferencia", "geo_reference", "text")}
-      <p></p>
-      <p></p>
+
       <div className="sale-detail-field-group">
         <div className="sale-detail-field-group">
           <strong>Promoción:</strong>
@@ -365,141 +367,178 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   );
 
   const renderSaleDetails = () => (
-    <div className="sale-detail-fields-group">
-      {/* Fecha de Ingreso */}
-      <div className="sale-detail-field-group">
-        <strong>Fecha de Ingreso:</strong> 
-        <p>{new Date(sale.created_at).toLocaleString('es-CL', { 
-          year: 'numeric', 
-          month: '2-digit', 
-          day: '2-digit', 
-          hour: '2-digit', 
-          minute: '2-digit', 
-          second: '2-digit' 
-        })}</p>
-      </div>
-      <p></p>
-      <p></p>
-      <div className="executive-info">
-        <strong>{sale.executive?.role.role_name}</strong>
-        <p>Nombre: {sale.executive?.first_name} {sale.executive?.second_name} {sale.executive?.last_name} {sale.executive?.second_last_name} - Rut: {sale.executive?.rut} - Email: {sale.executive?.email} - Celular: {sale.executive?.phone_number}</p>
-      </div>
-      <p></p>
-      <p></p>
-
-      {/* Nombres del Cliente */}
-      <div className="sale-detail-field-group">
-        <strong>Nombres:</strong> 
-        <p>{sale.client_first_name}</p>
-      </div>
+    <>
+      <div className="sale-detail-fields-group">
+        {/* Fecha de Ingreso */}
+        <div className="sale-detail-field-group">
+          <strong>Fecha de Ingreso:</strong> 
+          <p>{new Date(sale.created_at).toLocaleString('es-CL', { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit', 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit' 
+          })}</p>
+        </div>
+        <p></p>
+        <p></p>
+        <div className="executive-info">
+          <strong>{sale.executive?.role.role_name}</strong>
+          <p>Nombre: {sale.executive?.first_name} {sale.executive?.second_name} {sale.executive?.last_name} {sale.executive?.second_last_name} - Rut: {sale.executive?.rut} - Email: {sale.executive?.email} - Celular: {sale.executive?.phone_number}</p>
+        </div>
+        <p></p>
+        <p></p>
   
-      {/* Apellidos del Cliente */}
-      <div className="sale-detail-field-group">
-        <strong>Apellidos:</strong> 
-        <p>{sale.client_last_name}</p>
-      </div>
+        {/* Nombres del Cliente */}
+        <div className="sale-detail-field-group">
+          <strong>Nombres:</strong> 
+          <p>{sale.client_first_name}</p>
+        </div>
+    
+        {/* Apellidos del Cliente */}
+        <div className="sale-detail-field-group">
+          <strong>Apellidos:</strong> 
+          <p>{sale.client_last_name}</p>
+        </div>
+    
+        {/* RUT del Cliente */}
+        <div className="sale-detail-field-group">
+          <strong>RUT:</strong> 
+          <p>{sale.client_rut}</p>
+        </div>
+    
+        {/* Correo Electrónico del Cliente */}
+        <div className="sale-detail-field-group">
+          <strong>Correo Electrónico:</strong> 
+          <p>{sale.client_email}</p>
+        </div>
+    
+        {/* Número de Teléfono del Cliente */}
+        <div className="sale-detail-field-group">
+          <strong>Número de Teléfono:</strong> 
+          <p>{sale.client_phone}</p>
+        </div>
+    
+        {/* Número Secundario del Cliente */}
+        <div className="sale-detail-field-group">
+          <strong>Número Secundario (Opcional):</strong> 
+          <p>{sale.client_secondary_phone}</p>
+        </div>
+    
+        {/* Región del Cliente */}
+        <div className="sale-detail-field-group">
+          <strong>Región:</strong> 
+          <p>{sale.region?.region_name}</p>
+        </div>
+    
+        {/* Comuna del Cliente */}
+        <div className="sale-detail-field-group">
+          <strong>Comuna:</strong> 
+          <p>{sale.commune?.commune_name}</p>
+        </div>
+        <p></p>
+    
+        {/* Calle/Avenida */}
+        <div className="sale-detail-field-group">
+          <strong>Calle/Avenida:</strong> 
+          <p>{sale.street}</p>
+        </div>
+    
+        {/* Número de Calle */}
+        <div className="sale-detail-field-group">
+          <strong>Número casa:</strong> 
+          <p>{sale.number}</p>
+        </div>
+    
+        {/* Departamento/Oficina/Piso */}
+        <div className="sale-detail-field-group">
+          <strong>Departamento/Oficina/Piso:</strong> 
+          <p>{sale.department_office_floor}</p>
+        </div>
+    
+        {/* Geo Referencia */}
+        <div className="sale-detail-field-group">
+          <strong>Geo Referencia:</strong> 
+          <p>{sale.geo_reference}</p>
+        </div>
+        <p></p>
+        <p></p>
+    
+        {/* Promoción */}
+        <div className="sale-detail-field-group">
+          <strong>Promoción:</strong> 
+          <p>{sale.promotion?.promotion}</p>
+        </div>
+    
+        {/* Monto de Instalación */}
+        <div className="sale-detail-field-group">
+          <strong>Monto de Instalación:</strong> 
+          <p>{sale.installationAmount?.amount}</p>
+        </div>
   
-      {/* RUT del Cliente */}
-      <div className="sale-detail-field-group">
-        <strong>RUT:</strong> 
-        <p>{sale.client_rut}</p>
-      </div>
+        {/* Número de Orden */}
+        <div className="sale-detail-field-group">
+          <strong>Número de Orden:</strong> 
+          <p>{sale.order_number}</p>
+        </div>
   
-      {/* Correo Electrónico del Cliente */}
-      <div className="sale-detail-field-group">
-        <strong>Correo Electrónico:</strong> 
-        <p>{sale.client_email}</p>
-      </div>
+        {/* Estado de la Venta */}
+        <div className="sale-detail-field-group">
+          <strong>Estado de la Venta:</strong> 
+          <p>{sale.saleStatus?.status_name}</p>
+        </div>
   
-      {/* Número de Teléfono del Cliente */}
-      <div className="sale-detail-field-group">
-        <strong>Número de Teléfono:</strong> 
-        <p>{sale.client_phone}</p>
+        {/* Motivo de la Venta */}
+        <div className="sale-detail-field-group">
+          <strong>Motivo:</strong> 
+          <p>{sale.reason?.reason_name}</p>
+        </div>
+        <p></p>
+    
+        {/* Comentarios Adicionales */}
+        <div className="sale-detail-field-group">
+          <strong>Comentarios Adicionales:</strong> 
+          <p>{sale.additional_comments}</p>
+        </div>
       </div>
-  
-      {/* Número Secundario del Cliente */}
+    
+      {/* Imágenes Contenedor */}
       <div className="sale-detail-field-group">
-        <strong>Número Secundario (Opcional):</strong> 
-        <p>{sale.client_secondary_phone}</p>
+        <div className="sale-detail-images" style={{display: 'flex', justifyContent:'flex-end', marginTop: '-3.5rem'}}>
+          <strong>Imágenes:</strong>
+          {id_card_image_url || simple_power_image_url || house_image_url ? (
+            <ul style={{marginLeft: '-7rem'}}>
+              {id_card_image_url && (
+                <li>
+                  <a href={id_card_image_url} target="_blank" rel="noopener noreferrer">
+                    <i className="fas fa-image"></i> Ver imagen Cédula
+                  </a>
+                </li>
+              )}
+              {simple_power_image_url && (
+                <li>
+                  <a href={simple_power_image_url} target="_blank" rel="noopener noreferrer">
+                    <i className="fas fa-image"></i> Ver imagen Poder Simple
+                  </a>
+                </li>
+              )}
+              {house_image_url && (
+                <li>
+                  <a href={house_image_url} target="_blank" rel="noopener noreferrer">
+                    <i className="fas fa-image"></i> Ver Imagen Casa
+                  </a>
+                </li>
+              )}
+            </ul>
+          ) : (
+            <p>No disponible</p>
+          )}
+        </div>
       </div>
-  
-      {/* Región del Cliente */}
-      <div className="sale-detail-field-group">
-        <strong>Región:</strong> 
-        <p>{sale.region?.region_name}</p>
-      </div>
-  
-      {/* Comuna del Cliente */}
-      <div className="sale-detail-field-group">
-        <strong>Comuna:</strong> 
-        <p>{sale.commune?.commune_name}</p>
-      </div>
-      <p></p>
-  
-      {/* Calle/Avenida */}
-      <div className="sale-detail-field-group">
-        <strong>Calle/Avenida:</strong> 
-        <p>{sale.street}</p>
-      </div>
-  
-      {/* Número de Calle */}
-      <div className="sale-detail-field-group">
-        <strong>Número casa:</strong> 
-        <p>{sale.number}</p>
-      </div>
-  
-      {/* Departamento/Oficina/Piso */}
-      <div className="sale-detail-field-group">
-        <strong>Departamento/Oficina/Piso:</strong> 
-        <p>{sale.department_office_floor}</p>
-      </div>
-  
-      {/* Geo Referencia */}
-      <div className="sale-detail-field-group">
-        <strong>Geo Referencia:</strong> 
-        <p>{sale.geo_reference}</p>
-      </div>
-      <p></p>
-      <p></p>
-  
-      {/* Promoción */}
-      <div className="sale-detail-field-group">
-        <strong>Promoción:</strong> 
-        <p>{sale.promotion?.promotion}</p>
-      </div>
-  
-      {/* Monto de Instalación */}
-      <div className="sale-detail-field-group">
-        <strong>Monto de Instalación:</strong> 
-        <p>{sale.installationAmount?.amount}</p>
-      </div>
-
-      {/* Número de Orden */}
-      <div className="sale-detail-field-group">
-        <strong>Número de Orden:</strong> 
-        <p>{sale.order_number}</p>
-      </div>
-
-      {/* Estado de la Venta */}
-      <div className="sale-detail-field-group">
-        <strong>Estado de la Venta:</strong> 
-        <p>{sale.saleStatus?.status_name}</p>
-      </div>
-
-      {/* Motivo de la Venta */}
-      <div className="sale-detail-field-group">
-        <strong>Motivo:</strong> 
-        <p>{sale.reason?.reason_name}</p>
-      </div>
-      <p></p>
-  
-      {/* Comentarios Adicionales */}
-      <div className="sale-detail-field-group">
-        <strong>Comentarios Adicionales:</strong> 
-        <p>{sale.additional_comments}</p>
-      </div>
-    </div>
+    </>
   );
+  
   
   return (
     <div className="sale-detail-page">

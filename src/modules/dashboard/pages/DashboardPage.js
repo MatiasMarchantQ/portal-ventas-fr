@@ -45,21 +45,21 @@ const DashboardPage = () => {
     setSelectedOption('Detalle Venta');
   };
 
-  const handleUserClick = (userId) => {
-    setSelectedUserId(userId);
+  const handleUserClick = (idUser) => {
+    setSelectedUserId(idUser);
     setSelectedOption('Detalle Usuario');
   };
 
-  const handleBackToSales = () => {
-    setSelectedSaleId(null);
-    setSelectedOption('Ventas');
+  const handleBackToUsers = () => {
+    setSelectedUserId(null);
+    setSelectedOption('Usuarios');
   };
 
   const renderContent = () => {
     if (selectedOption === 'Detalle Venta' && selectedSaleId) {
-      return <DetalleVentaPage saleId={selectedSaleId} onBack={handleBackToSales} />;
+      return <DetalleVentaPage saleId={selectedSaleId} onBack={() => setSelectedOption('Ventas')} />;
     } else if (selectedOption === 'Detalle Usuario' && selectedUserId) {
-      return <DetalleUsuarioPage userId={selectedUserId} onBack={() => setSelectedOption('Usuarios')} />;
+      return <DetalleUsuarioPage idUser={selectedUserId} onBack={handleBackToUsers} />;
     }
     
     const components = {

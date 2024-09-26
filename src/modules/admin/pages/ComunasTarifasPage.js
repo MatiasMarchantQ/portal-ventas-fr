@@ -53,6 +53,124 @@ const Select = ({ value, onChange, options, placeholder }) => (
   </select>
 );
 
+// Ver opciones
+const ViewOptions = ({ token, regions }) => {
+  const [selectedRegionId, setSelectedRegionId] = useState('');
+  const [communes, setCommunes] = useState([]);
+  const [selectedCommuneId, setSelectedCommuneId] = useState('');
+  const [promotions, setPromotions] = useState([]);
+  const [selectedPromotionId, setSelectedPromotionId] = useState('');
+  const [installationAmount, setInstallationAmount] = useState('');
+
+  // Cargar comunas cuando se selecciona una región
+  useEffect(() => {
+    if (selectedRegionId) {
+      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`)
+        .then(setCommunes)
+        .catch(error => console.error('Error al cargar las comunas:', error));
+    } else {
+      setCommunes([]); // Limpiar comunas si no hay región seleccionada
+    }
+  }, [selectedRegionId]);
+
+  // Cargar promociones cuando se selecciona una comuna
+  useEffect(() => {
+    if (selectedCommuneId) {
+      // Cambiar el endpoint para obtener promociones por comuna
+      apiCall(`http://localhost:3001/api/sales/promotions/commune/${selectedCommuneId}`)
+        .then(setPromotions)
+        .catch(error => console.error('Error al cargar las promociones:', error));
+    } else {
+      setPromotions([]); // Limpiar promociones si no hay comuna seleccionada
+    }
+  }, [selectedCommuneId]);
+
+  // Cargar monto de instalación cuando se selecciona una promoción
+  useEffect(() => {
+    if (selectedPromotionId) {
+      apiCall(`http://localhost:3001/api/sales/installation-amounts/promotion/${selectedPromotionId}`)
+        .then(response => setInstallationAmount(response))
+        .catch(error => console.error('Error al cargar el monto de instalación:', error));
+    } else {
+      setInstallationAmount(''); // Limpiar el monto si no hay promoción seleccionada
+    }
+  }, [selectedPromotionId]);
+
+  // Manejar cambios de selección
+  const handleRegionChange = (event) => {
+    setSelectedRegionId(event.target.value);
+    setSelectedCommuneId(''); // Limpiar comuna seleccionada
+    setSelectedPromotionId(''); // Limpiar promoción seleccionada
+    setInstallationAmount(''); // Limpiar monto de instalación
+  };
+
+  const handleCommuneChange = (event) => {
+    setSelectedCommuneId(event.target.value);
+    setSelectedPromotionId(''); // Limpiar promoción seleccionada
+    setInstallationAmount(''); // Limpiar monto de instalación
+  };
+
+  const handlePromotionChange = (event) => {
+    setSelectedPromotionId(event.target.value);
+  };
+
+  return (
+    <div className="card">
+      <h3>Seleccione una Región</h3>
+      <select value={selectedRegionId} onChange={handleRegionChange}>
+        <option value="">Seleccione una región</option>
+        {regions.map(region => (
+          <option key={region.region_id} value={region.region_id}>
+            {region.region_name}
+          </option>
+        ))}
+      </select>
+
+      {selectedRegionId && (
+        <>
+          <h3>Seleccione una Comuna</h3>
+          <select value={selectedCommuneId} onChange={handleCommuneChange}>
+            <option value="">Seleccione una comuna</option>
+            {communes.map(commune => (
+              <option key={commune.commune_id} value={commune.commune_id}>
+                {commune.commune_name}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
+
+      {selectedCommuneId && (
+        <>
+          <h3>Seleccione una Promoción</h3>
+          <select value={selectedPromotionId} onChange={handlePromotionChange}>
+            <option value="">Seleccione una promoción</option>
+            {promotions.length === 0 ? (
+              <option value="">No hay promociones asociadas</option>
+            ) : (
+              promotions.map(promotion => (
+                <option key={promotion.promotion_id} value={promotion.promotion_id}>
+                  {promotion.promotion}
+                </option>
+              ))
+            )}
+          </select>
+        </>
+      )}
+
+      {selectedPromotionId && (
+        <div>
+          <h3>Monto de Instalación</h3>
+          <p>{installationAmount && installationAmount.amount ? installationAmount.amount : 'No disponible'}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+
+
 // AddCommuneToRegion component
 const AddCommuneToRegion = ({ token, regions }) => {
   const [selectedRegionId, setSelectedRegionId] = useState('');
@@ -203,25 +321,24 @@ const UpdateCommune = ({ token, regions }) => {
 
 // CreatePromotion component
 const CreatePromotion = ({ token, installationAmounts }) => {
-  const [newPromotionName, setNewPromotionName] = useState('');
-  const [installationAmountId, setInstallationAmountId] = useState('');
+  const [promotionName, setPromotionName] = useState('');
+  const [selectedInstallationAmountId, setSelectedInstallationAmountId] = useState('');
 
-  const handleCreatePromotion = async (e) => {
-    e.preventDefault();
-    if (!newPromotionName || !installationAmountId) {
+  const handleCreatePromotion = async (event) => {
+    event.preventDefault();
+    if (!promotionName || !selectedInstallationAmountId) {
       alert('Por favor complete todos los campos.');
       return;
     }
     try {
       const result = await apiCall('http://localhost:3001/api/promotions', 'POST', {
-        promotion: newPromotionName,
-        installationAmountId: installationAmountId,
+        promotion: promotionName,
+        installationAmountId: selectedInstallationAmountId,
       }, `Bearer ${token}`);
-      alert('Promoción creada: ' + result.message);
-      setNewPromotionName('');
-      setInstallationAmountId('');
+      alert(`Promoción creada: ${result.message}`);
+      setPromotionName('');
+      setSelectedInstallationAmountId('');
     } catch (error) {
-      console.error('Error creating promotion:', error);
       alert('Error al crear la promoción');
     }
   };
@@ -229,14 +346,15 @@ const CreatePromotion = ({ token, installationAmounts }) => {
   return (
     <form className="comunas-tarifas-form" onSubmit={handleCreatePromotion}>
       <div className="comunas-tarifas-field-group">
-        <label htmlFor='newPromotionName'>Nombre de la Promoción:
+        <label htmlFor="promotionName">
+          Nombre de la Promoción:
           <input
-            id="newPromotionName"
-            name="newPromotionName"
+            id="promotionName"
+            name="promotionName"
             className="comunas-tarifas-field"
             type="text"
-            value={newPromotionName}
-            onChange={(e) => setNewPromotionName(e.target.value)}
+            value={promotionName}
+            onChange={(event) => setPromotionName(event.target.value)}
             required
           />
         </label>
@@ -245,11 +363,11 @@ const CreatePromotion = ({ token, installationAmounts }) => {
         <label>Monto de Instalación:</label>
         <Select
           className="comunas-tarifas-field"
-          value={installationAmountId}
-          onChange={setInstallationAmountId}
-          options={installationAmounts.map(amount => ({
+          value={selectedInstallationAmountId}
+          onChange={setSelectedInstallationAmountId}
+          options={installationAmounts.map((amount) => ({
             value: amount.installation_amount_id,
-            label: amount.amount
+            label: amount.amount,
           }))}
           placeholder="Seleccione un monto"
         />
@@ -258,7 +376,7 @@ const CreatePromotion = ({ token, installationAmounts }) => {
         Crear Promoción
       </button>
     </form>
-  );  
+  );
 };
 
 // UpdatePromotion component
@@ -615,12 +733,9 @@ const UpdateInstallationAmount = ({ token, promotions, installationAmounts }) =>
 const ComunasTarifas = () => {
   const { token } = useContext(UserContext);
   const [regions, setRegions] = useState([]);
-  const [communes, setCommunes] = useState([]);
-  const [selectedRegionId, setSelectedRegionId] = useState('');
-  const [selectedCommuneId, setSelectedCommuneId] = useState('');
   const [installationAmounts, setInstallationAmounts] = useState([]);
   const [promotions, setPromotions] = useState([]);
-
+  
   const [isOpenCreatePromotion, toggleCreatePromotion] = useToggleCard();
   const [isOpenUpdatePromotion, toggleUpdatePromotion] = useToggleCard();
   const [isOpenAssignPromotionToCommune, toggleAssignPromotionToCommune] = useToggleCard();
@@ -628,14 +743,7 @@ const ComunasTarifas = () => {
   const [isOpenDisablePromotions, toggleDisablePromotions] = useToggleCard();
   const [isOpenAddCommuneToRegion, toggleAddCommuneToRegion] = useToggleCard();
   const [isOpenUpdateCommune, toggleUpdateCommune] = useToggleCard();
-  
-  const handleRegionChange = (regionId) => {
-    setSelectedRegionId(regionId);
-  };
-
-  const handleCommuneChange = (communeId) => {
-    setSelectedCommuneId(communeId);
-  };
+  const [isOpenViewOptions, toggleViewOptions] = useToggleCard();
 
   useEffect(() => {
     if (!token) return;
@@ -656,22 +764,18 @@ const ComunasTarifas = () => {
     fetchData();
   }, [token]);
 
-  useEffect(() => {
-    if (selectedRegionId) {
-      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`)
-        .then(setCommunes)
-        .catch(error => console.error('Error loading communes:', error));
-    }
-  }, [selectedRegionId]);
-
   return (
     <div className='card-grid'>
+      <Card title="Ver Opciones de Promoción e Instalación" isOpen={isOpenViewOptions} toggle={toggleViewOptions}>
+        <ViewOptions token={token} regions={regions} />
+      </Card>
+
       <Card title="Agregar Comuna a Región" isOpen={isOpenAddCommuneToRegion} toggle={toggleAddCommuneToRegion}>
         <AddCommuneToRegion token={token} regions={regions} />
       </Card>
 
       <Card title="Actualizar Comuna" isOpen={isOpenUpdateCommune} toggle={toggleUpdateCommune}>
-        <UpdateCommune token={token} regions={regions} communes={communes} />
+        <UpdateCommune token={token} regions={regions} />
       </Card>
 
       <Card title="Crear Nueva Promoción" isOpen={isOpenCreatePromotion} toggle={toggleCreatePromotion}>
@@ -686,7 +790,6 @@ const ComunasTarifas = () => {
         <DisablePromotions
           token={token}
           regions={regions}
-          communes={communes}
           promotions={promotions}
         />
       </Card>
@@ -695,7 +798,6 @@ const ComunasTarifas = () => {
         <AssignPromotion
           token={token}
           regions={regions}
-          communes={communes}
           promotions={promotions}
         />
       </Card>
@@ -706,5 +808,6 @@ const ComunasTarifas = () => {
     </div>
   );
 };
+
 
 export default ComunasTarifas;

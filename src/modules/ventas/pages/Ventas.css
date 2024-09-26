@@ -62,7 +62,7 @@
   .ventas-page .sale-card {
     border: 1px solid #ddd;
     border-radius: 20px 0;
-    padding: 25px;
+    padding: 10px;
     margin-bottom: 10px;
   }
   
@@ -77,14 +77,14 @@
     text-align: left;
     font-weight: bold;
     margin-top: calc(6%);
-    margin-left: 1rem;
-    margin-right: 2rem;
+    margin: 1rem;
   }
   
   .ventas-page .sale-info {
     flex: 1;
     display: flex;
     flex-direction: column;
+    margin-top: 1rem;
   }
   
   .ventas-page .info-top, .info-bottom {

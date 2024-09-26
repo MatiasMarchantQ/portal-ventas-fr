@@ -3,31 +3,66 @@ import { UserContext } from '../../../contexts/UserContext';
 import withAuthorization from '../../../contexts/withAuthorization';
 import './DetalleUsuario.css';
 
-// Hook personalizado para fetch de datos
-const useFetch = (url, options) => {
+// Custom hook for data fetching with caching
+const useCachedFetch = (url, options) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!url) {
+      setLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     const fetchData = async () => {
       try {
-        const response = await fetch(url, options);
+        const cachedData = sessionStorage.getItem(url);
+        if (cachedData) {
+          if (isMounted) {
+            setData(JSON.parse(cachedData));
+            setLoading(false);
+          }
+          return;
+        }
+
+        const response = await fetch(url, { ...options, signal });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const result = await response.json();
-        setData(result);
+        if (isMounted) {
+          setData(result);
+          sessionStorage.setItem(url, JSON.stringify(result));
+        }
       } catch (err) {
-        setError(err);
+        if (err.name !== 'AbortError' && isMounted) {
+          console.error('Fetch error:', err);
+          setError(err.message);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
+
     fetchData();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
   }, [url]);
 
   return { data, loading, error };
 };
 
-const DetalleUsuarioPage = ({ userId, onBack }) => {
+const DetalleUsuarioPage = ({ onBack, idUser }) => {
   const { token } = useContext(UserContext);
   const [editableFields, setEditableFields] = useState({
     first_name: '',
@@ -47,51 +82,41 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
     role_id: '',
     password: ''
   });
+  
   const [isEnabled, setIsEnabled] = useState(false);
 
-  // Fetch de datos del usuario
-  const { data: userData, loading: userLoading } = useFetch(
-    `http://localhost:3001/api/users/${userId}`,
+  // Fetch user data
+  const { data: userData, loading: userLoading, error: userError } = useCachedFetch(
+    idUser ? `${process.env.REACT_APP_API_URL}/users/${idUser}` : null,
     {
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       },
     }
   );
 
-  // Fetch de datos auxiliares
-  const { data: regions } = useFetch('http://localhost:3001/api/regions');
-  const { data: companies } = useFetch('http://localhost:3001/api/companies');
-  const { data: roles } = useFetch('http://localhost:3001/api/roles');
-  const { data: channels } = useFetch('http://localhost:3001/api/channels');
+  // Fetch auxiliary data
+  const { data: regions } = useCachedFetch(`${process.env.REACT_APP_API_URL}/regions`);
+  const { data: companies } = useCachedFetch(`${process.env.REACT_APP_API_URL}/companies`);
+  const { data: roles } = useCachedFetch(`${process.env.REACT_APP_API_URL}/roles`);
+  const { data: channels } = useCachedFetch(`${process.env.REACT_APP_API_URL}/channels`);
 
-  // Fetch de comunas basado en la región seleccionada
-  const { data: communes } = useFetch(
-    editableFields.region_id ? `http://localhost:3001/api/communes/communes/${editableFields.region_id}` : null
+  // Fetch communes based on selected region
+  const { data: communes } = useCachedFetch(
+    editableFields.region_id ? `${process.env.REACT_APP_API_URL}/communes/${editableFields.region_id}` : null
   );
 
-  // Efecto para actualizar los campos editables cuando se cargan los datos del usuario
   useEffect(() => {
     if (userData && userData.user) {
-      setEditableFields({
-        first_name: userData.user.first_name || '',
-        second_name: userData.user.second_name || '',
-        last_name: userData.user.last_name || '',
-        second_last_name: userData.user.second_last_name || '',
-        rut: userData.user.rut || '',
-        email: userData.user.email || '',
-        phone_number: userData.user.phone_number || '',
+      setEditableFields(prevFields => ({
+        ...prevFields,
+        ...userData.user,
         company_id: userData.user.company?.company_id || '',
         region_id: userData.user.region?.region_id || '',
         commune_id: userData.user.commune?.commune_id || '',
         sales_channel_id: userData.user.salesChannel?.sales_channel_id || '',
-        street: userData.user.street || '',
-        number: userData.user.number || '',
-        department_office_floor: userData.user.department_office_floor || '',
         role_id: userData.user.role?.role_id || '',
-        password: ''
-      });
+      }));
       setIsEnabled(userData.user.status === 1);
     }
   }, [userData]);
@@ -102,9 +127,10 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
       ...prev,
       [name]: ['company_id', 'region_id', 'commune_id', 'sales_channel_id', 'role_id'].includes(name)
         ? (value === '' ? '' : Number(value))
-        : value
+        : value || ''  // Ensure the value is always a string
     }));
   }, []);
+  
 
   const handleCheckboxChange = useCallback(() => {
     setIsEnabled(prev => !prev);
@@ -112,9 +138,12 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-    const dataToSend = { ...editableFields, status: isEnabled ? 1 : 0 };
+    const dataToSend = { ...editableFields };
+    if (dataToSend.password === '') {
+      delete dataToSend.password; // Elimina la contraseña si está vacía
+    }
     try {
-      const response = await fetch(`http://localhost:3001/api/users/update/${userId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/users/update/${idUser}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -131,13 +160,29 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
       console.error('Error updating user:', error);
       alert('Error al actualizar el usuario');
     }
-  }, [editableFields, isEnabled, userId, token]);
+  }, [editableFields, idUser, token]);
+
+  const renderInput = useCallback((name, type, labelText) => (
+    <p key={name}>
+      <label className="detalle-usuario-label" htmlFor={name}>{labelText}:</label>
+      <input
+        className="detalle-usuario-value"
+        id={name}
+        type={type}
+        name={name}
+        value={editableFields[name] || ''} // Default to empty string
+        onChange={handleInputChange}
+      />
+    </p>
+  ), [editableFields, handleInputChange]);
+  
 
   const renderSelect = useCallback((name, options, labelText) => (
-    <p>
-      <label className="detalle-usuario-label">{labelText}:</label>
+    <p key={name}>
+      <label className="detalle-usuario-label" htmlFor={name}>{labelText}:</label>
       <select
         className="detalle-usuario-value"
+        id={name}
         name={name}
         value={editableFields[name]}
         onChange={handleInputChange}
@@ -152,19 +197,6 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
     </p>
   ), [editableFields, handleInputChange]);
 
-  const renderInput = useCallback((name, type, labelText) => (
-    <p>
-      <label className="detalle-usuario-label">{labelText}:</label>
-      <input
-        className="detalle-usuario-value"
-        type={type}
-        name={name}
-        value={editableFields[name]}
-        onChange={handleInputChange}
-      />
-    </p>
-  ), [editableFields, handleInputChange]);
-
   const formattedCompanies = useMemo(() => companies?.map(c => ({ id: c.company_id, name: c.company_name })), [companies]);
   const formattedRegions = useMemo(() => regions?.map(r => ({ id: r.region_id, name: r.region_name })), [regions]);
   const formattedCommunes = useMemo(() => communes?.map(c => ({ id: c.commune_id, name: c.commune_name })), [communes]);
@@ -173,6 +205,10 @@ const DetalleUsuarioPage = ({ userId, onBack }) => {
 
   if (userLoading) {
     return <div>Cargando...</div>;
+  }
+
+  if (userError) {
+    return <div>Error: {userError}</div>;
   }
 
   return (

@@ -151,6 +151,8 @@ const IngresarVentasPage = () => {
       geo_reference: formValues.geo_reference,
       promotion_id: formValues.promotion_id,
       additional_comments: formValues.additional_comments,
+      sale_status_id: 1,
+      sale_status_reason_id: null,
     };
   
     const files = selectedFiles;
@@ -252,273 +254,272 @@ const IngresarVentasPage = () => {
 
   return (
     <div className="ingresar-venta-wrapper">
-      <h1 className="ingresar-venta-header">Ingresar venta</h1>
-      <form className="ingresar-venta-form" onSubmit={handleSubmit}>
-        <div className="ingresar-venta-fields-group">
-          <div className="ingresar-venta-field-group">
-            <label htmlFor="client_first_name">Nombres (Primer y Segundo Nombre):</label>
-            <input
-              type="text"
-              className="ingresar-venta-field-control"
-              id="client_first_name"
-              name="client_first_name"
-              value={formValues.client_first_name}
-              onChange={handleInputChange}
-              autoComplete="given-name"
-              required
-            />
-          </div>
-  
-          <div className="ingresar-venta-field-group">
-            <label htmlFor="client_last_name">Apellidos (Primer y Segundo Apellido):</label>
-            <input
-              type="text"
-              className="ingresar-venta-field-control"
-              id="client_last_name"
-              name="client_last_name"
-              value={formValues.client_last_name}
-              onChange={handleInputChange}
-              autoComplete="family-name"
-            />
-          </div>
-  
-          <div className="ingresar-venta-field-group">
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <label htmlFor="client_rut">RUT:</label>
-              <label>
-                <input
-                  id="client_rut"
-                  name="client_rut"
-                  type="checkbox"
-                  checked={isForeignRut}
-                  onChange={handleForeignRutChange}
-                />
-                RUT extranjero
-              </label>
-            </div>
-            <input
-              type="text"
-              className="ingresar-venta-field-control"
-              id="client_rut"
-              name="client_rut"
-              placeholder="123456789"
-              value={formValues.client_rut}
-              onChange={handleRutChange}
-              autoComplete="off"
-              required
-            />
-          </div>
-  
-          <div className="ingresar-venta-field-group">
-            <label htmlFor="client_email">Email:</label>
-            <input
-              type="email"
-              className="ingresar-venta-field-control"
-              id="client_email"
-              name="client_email"
-              value={formValues.client_email}
-              onChange={handleInputChange}
-              autoComplete="email"
-            />
-          </div>
-  
-          <div className="ingresar-venta-field-group">
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <label htmlFor="client_phone">Número celular:</label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={isForeignPhone}
-                  onChange={handleForeignPhoneChange}
-                />
-                Otros
-              </label>
-            </div>
-            <div style={{ display: 'flex' }}>
-              <input
-                type="text"
-                className="ingresar-venta-field-control"
-                id="client_phone"
-                name="client_phone"
-                value={formValues.client_phone}
-                onChange={handleInputChange}
-                autoComplete="tel"
-                placeholder={isForeignPhone ? '' : '+569'}
-                style={{width: '100%'}}
-              />
-            </div>
-          </div>
+        <h1 className="ingresar-venta-header">Ingresar venta</h1>
+        <form className="ingresar-venta-form" onSubmit={handleSubmit}>
+            <div className="ingresar-venta-fields-group">
+                <div className="ingresar-venta-field-group">
+                    <label htmlFor="client_first_name">Nombres (Primer y Segundo Nombre):</label>
+                    <input
+                        type="text"
+                        className="ingresar-venta-field-control"
+                        id="client_first_name"
+                        name="client_first_name"
+                        value={formValues.client_first_name}
+                        onChange={handleInputChange}
+                        autoComplete="given-name"
+                        required
+                    />
+                </div>
 
-          <div className="ingresar-venta-field-group">
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <label htmlFor="client_secondary_phone">2do Número celular(Opcional):</label>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={isForeignSecondaryPhone}
-                  onChange={handleForeignSecondaryPhoneChange}
-                />
-                Otros
-              </label>
-            </div>
-            <div style={{ display: 'flex' }}>
-              <input
-                type="text"
-                className="ingresar-venta-field-control"
-                id="client_secondary_phone"
-                name="client_secondary_phone"
-                value={formValues.client_secondary_phone}
-                onChange={handleInputChange}
-                autoComplete="tel"
-                placeholder={isForeignPhone ? '' : '+569'}
-                style={{width: '100%'}}
-              />
-            </div>
-          </div>
-  
-          <div className="ingresar-venta-field-group">
-            <label htmlFor="region_id">Región:</label>
-            <select
-              className="ingresar-venta-field-control"
-              id="region_id"
-              name="region_id"
-              value={formValues.region_id}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Seleccione la región</option>
-              {regions.map((region) => (
-                <option key={region.region_id} value={region.region_id}>
-                  {region.region_name}
-                </option>
-              ))}
-            </select>
-          </div>
-  
-          <div className="ingresar-venta-field-group">
-            <label htmlFor="commune_id">Comuna:</label>
-            <select
-              className="ingresar-venta-field-control"
-              id="commune_id"
-              name="commune_id"
-              value={formValues.commune_id}
-              onChange={handleInputChange}
-              required
-            >
-              <option value="">Seleccione la comuna</option>
-              {communes.map((commune) => (
-                <option key={commune.commune_id} value={commune.commune_id}>
-                  {commune.commune_name}
-                </option>
-              ))}
-            </select>
-          </div>
-  
-          <div className="ingresar-venta-field-group">
-            <label htmlFor="street">Calle/Avenida:</label>
-            <input
-              type="text"
-              className="ingresar-venta-field-control"
-              id="street"
-              name="street"
-              value={formValues.street}
-              onChange={handleInputChange}
-            />
-          </div>
-  
-          <div className="ingresar-venta-field-group">
-            <label htmlFor="number">Número Casa:</label>
-            <input
-              type="text"
-              className="ingresar-venta-field-control"
-              id="number"
-              name="number"
-              value={formValues.number}
-              onChange={handleInputChange}
-            />
-          </div>
-  
-          <div className="ingresar-venta-field-group">
-            <label htmlFor="department_office_floor">Departamento/Oficina/Piso:</label>
-            <input
-              type="text"
-              className="ingresar-venta-field-control"
-              id="department_office_floor"
-              name="department_office_floor"
-              value={formValues.department_office_floor}
-              onChange={handleInputChange}
-            />
-          </div>
-  
-          <div className="ingresar-venta-field-group">
-            <label htmlFor="geo_reference">Referencia geográfica:</label>
-            <input
-              type="text"
-              className="ingresar-venta-field-control"
-              id="geo_reference"
-              name="geo_reference"
-              value={formValues.geo_reference}
-              onChange={handleInputChange}
-            />
-          </div>
-  
-          <div className="ingresar-venta-field-group">
-            <label htmlFor="promotion_id">Promoción:</label>
-            <select
-              className="ingresar-venta-field-control"
-              id="promotion_id"
-              name="promotion_id"
-              value={formValues.promotion_id}
-              onChange={handleInputChange}
-            >
-              <option value="">Seleccione la promoción</option>
-              {promotions.map((promotion) => (
-                <option key={promotion.promotion_id} value={promotion.promotion_id}>
-                  {promotion.promotion}
-                </option>
-              ))}
-            </select>
-          </div>
+                <div className="ingresar-venta-field-group">
+                    <label htmlFor="client_last_name">Apellidos (Primer y Segundo Apellido):</label>
+                    <input
+                        type="text"
+                        className="ingresar-venta-field-control"
+                        id="client_last_name"
+                        name="client_last_name"
+                        value={formValues.client_last_name}
+                        onChange={handleInputChange}
+                        autoComplete="family-name"
+                        required
+                    />
+                </div>
 
-  
-          <div className="ingresar-venta-field-group">
-            <label>Monto de instalación:</label>
-            <input
-              type="text"
-              className="ingresar-venta-field-control no-border"
-              value={loading ? 'Cargando...' : installationAmount}
-              placeholder='Seleccione la promoción'
-              readOnly
-            />
-          </div>
-  
-          <div className="ingresar-venta-field-group">
-            <label htmlFor="additional_comments">Comentarios adicionales</label>
-            <textarea
-              className="ingresar-venta-field-control"
-              id="additional_comments"
-              name="additional_comments"
-              value={formValues.additional_comments}
-              onChange={handleInputChange}
-            />
-          </div>
-  
-          <div className="ingresar-venta-field-group">
-            <label>Imagen de la cédula de identidad</label>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleFileChange}
-            />
-          </div>
-        </div>
-        <button type="submit" className="ingresar-venta-submit-button">Enviar venta</button>
-        {successMessage && <div className="success-message">{successMessage}</div>}
-        {errorMessage && <div className="error-message">{errorMessage}</div>}
-      </form>
+                <div className="ingresar-venta-field-group">
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <label htmlFor="client_rut">RUT:</label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={isForeignRut}
+                                onChange={handleForeignRutChange}
+                            />
+                            RUT extranjero
+                        </label>
+                    </div>
+                    <input
+                        type="text"
+                        className="ingresar-venta-field-control"
+                        id="client_rut"
+                        name="client_rut"
+                        placeholder="123456789"
+                        value={formValues.client_rut}
+                        onChange={handleRutChange}
+                        autoComplete="off"
+                        required
+                    />
+                </div>
+
+                <div className="ingresar-venta-field-group">
+                    <label htmlFor="client_email">Email:</label>
+                    <input
+                        type="email"
+                        className="ingresar-venta-field-control"
+                        id="client_email"
+                        name="client_email"
+                        value={formValues.client_email}
+                        onChange={handleInputChange}
+                        autoComplete="email"
+                        required
+                    />
+                </div>
+
+                <div className="ingresar-venta-field-group">
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <label htmlFor="client_phone">Número celular:</label>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={isForeignPhone}
+                                onChange={handleForeignPhoneChange}
+                            />
+                            Otros
+                        </label>
+                    </div>
+                    <input
+                        type="text"
+                        className="ingresar-venta-field-control"
+                        id="client_phone"
+                        name="client_phone"
+                        value={formValues.client_phone}
+                        onChange={handleInputChange}
+                        autoComplete="tel"
+                        placeholder={isForeignPhone ? '' : '+569'}
+                        required
+                    />
+                </div>
+
+                <div className="ingresar-venta-field-group">
+                    <label htmlFor="client_secondary_phone">2do Número celular (Opcional):</label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <label>
+                            <input
+                                type="checkbox"
+                                checked={isForeignSecondaryPhone}
+                                onChange={handleForeignSecondaryPhoneChange}
+                            />
+                            Otros
+                        </label>
+                    </div>
+                    <input
+                        type="text"
+                        className="ingresar-venta-field-control"
+                        id="client_secondary_phone"
+                        name="client_secondary_phone"
+                        value={formValues.client_secondary_phone}
+                        onChange={handleInputChange}
+                        autoComplete="tel"
+                        placeholder={isForeignPhone ? '' : '+569'}
+                    />
+                </div>
+
+                <div className="ingresar-venta-field-group">
+                    <label htmlFor="region_id">Región:</label>
+                    <select
+                        className="ingresar-venta-field-control"
+                        id="region_id"
+                        name="region_id"
+                        value={formValues.region_id}
+                        onChange={handleInputChange}
+                        required
+                    >
+                        <option value="">Seleccione la región</option>
+                        {regions.map((region) => (
+                            <option key={region.region_id} value={region.region_id}>
+                                {region.region_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="ingresar-venta-field-group">
+                    <label htmlFor="commune_id">Comuna:</label>
+                    <select
+                        className="ingresar-venta-field-control"
+                        id="commune_id"
+                        name="commune_id"
+                        value={formValues.commune_id}
+                        onChange={handleInputChange}
+                        required
+                    >
+                        <option value="">Seleccione la comuna</option>
+                        {communes.map((commune) => (
+                            <option key={commune.commune_id} value={commune.commune_id}>
+                                {commune.commune_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="ingresar-venta-field-group">
+                    <label htmlFor="street">Calle/Avenida:</label>
+                    <input
+                        type="text"
+                        className="ingresar-venta-field-control"
+                        id="street"
+                        name="street"
+                        value={formValues.street}
+                        onChange={handleInputChange}
+                        autoComplete="address-line1"
+                    />
+                </div>
+
+                <div className="ingresar-venta-field-group">
+                    <label htmlFor="number">Número Casa:</label>
+                    <input
+                        type="text"
+                        className="ingresar-venta-field-control"
+                        id="number"
+                        name="number"
+                        value={formValues.number}
+                        onChange={handleInputChange}
+                        autoComplete="address-line2"
+                    />
+                </div>
+
+                <div className="ingresar-venta-field-group">
+                    <label htmlFor="department_office_floor">Departamento/Oficina/Piso:</label>
+                    <input
+                        type="text"
+                        className="ingresar-venta-field-control"
+                        id="department_office_floor"
+                        name="department_office_floor"
+                        value={formValues.department_office_floor}
+                        onChange={handleInputChange}
+                        autoComplete="address-line2"
+                    />
+                </div>
+
+                <div className="ingresar-venta-field-group">
+                    <label htmlFor="geo_reference">Referencia geográfica:</label>
+                    <input
+                        type="text"
+                        className="ingresar-venta-field-control"
+                        id="geo_reference"
+                        name="geo_reference"
+                        value={formValues.geo_reference}
+                        onChange={handleInputChange}
+                        autoComplete="off"
+                    />
+                </div>
+
+                <div className="ingresar-venta-field-group">
+                    <label htmlFor="promotion_id">Promoción:</label>
+                    <select
+                        className="ingresar-venta-field-control"
+                        id="promotion_id"
+                        name="promotion_id"
+                        value={formValues.promotion_id}
+                        onChange={handleInputChange}
+                    >
+                        <option value="">Seleccione la promoción</option>
+                        {promotions.map((promotion) => (
+                            <option key={promotion.promotion_id} value={promotion.promotion_id}>
+                                {promotion.promotion}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="ingresar-venta-field-group">
+                    <label>Monto de instalación:</label>
+                    <input
+                        type="text"
+                        className="ingresar-venta-field-control no-border"
+                        value={loading ? 'Cargando...' : installationAmount}
+                        placeholder='Seleccione la promoción'
+                        readOnly
+                    />
+                </div>
+
+                <div className="ingresar-venta-field-group">
+                    <label htmlFor="additional_comments">Comentarios adicionales</label>
+                    <textarea
+                        className="ingresar-venta-field-control"
+                        id="additional_comments"
+                        name="additional_comments"
+                        value={formValues.additional_comments}
+                        onChange={handleInputChange}
+                    />
+                </div>
+
+                <div className="ingresar-venta-field-group">
+                    <label>Imagen de la cédula de identidad</label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleFileChange}
+                    />
+                </div>
+            </div>
+            <button type="submit" className="ingresar-venta-submit-button">Enviar venta</button>
+            {successMessage && <div className="success-message">{successMessage}</div>}
+            {errorMessage && <div className="error-message">{errorMessage}</div>}
+        </form>
     </div>
-  );  
+  );
 };
+
 
 export default withAuthorization(IngresarVentasPage, [1, 2, 3]);
