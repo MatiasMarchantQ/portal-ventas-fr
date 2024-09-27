@@ -3,6 +3,7 @@
 * {
   box-sizing: border-box;
   font-family: Montserrat;
+ 
 }
 
 .sale-detail-page {
@@ -31,17 +32,19 @@
 }
 
 /* Estilos de formulario */
+.executive-info li{
+  margin-bottom: 0.5rem;
+}
 
 .sale-detail-form {
   display: flex;
   flex-direction: column;
-  gap: 20px;
 }
 
 .sale-detail-fields-group {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 4rem;
 }
 
 .sale-detail-field-group {
@@ -57,14 +60,13 @@
   color: #99235C;
   font-weight: bold;
   display: block;
-  margin-bottom: 4px;
 }
 
 .sale-detail-field-group input,
 .sale-detail-field-group select,
 .sale-detail-field-group textarea,
 .sale-detail-field-group input[type="email"] {
-  width: 100%;
+  width: 105%;
   padding: 8px;
   margin: 4px 0;
   border: 1px solid #ccc;
@@ -81,13 +83,59 @@
   pointer-events: none;
 }
 
+.file-list-container {
+  width: 105%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+  margin-top: -3rem;
+
+}
+
+.attached-files {
+  display: flex;
+  flex-direction: column;
+}
+
+.file-item {
+  display: flex;
+  align-items:baseline;
+  font-size: 12px;
+}
+
+.file-item a {
+  color: #99235C;
+  text-decoration: none;
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-item a:hover {
+  text-decoration: underline;
+}
+
+.file-list-container .delete-button-files {
+  background-color: transparent;
+  color: red;
+  border: none;
+  padding: 0 1px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+.file-list-container .delete-button-files:hover {
+  background-color: #ff0000;
+  color: #fff;
+}
 /* Estilos de botones */
 
 .sale-detail-page button {
-  align-self: flex-start;
-  width: 10%;
+  width: 15%;
   margin-top: 3rem;
-  padding: 10px 20px;
+  padding: 5px 15px;
   background-color: #99235C;
   color: #fff;
   border: none;

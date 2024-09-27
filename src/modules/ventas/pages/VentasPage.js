@@ -65,7 +65,7 @@ const VentasPage = ({ onSaleClick }) => {
     setLoading(true);
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/all/search?search=${encodeURIComponent(searchTerm)}`, {
-        headers: { Authorization: `Bearer ${token.substring(0, 100)}`, 'Content-Type': 'application/json' },
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
 
       if (!response.ok) throw new Error(`Error al buscar ventas: ${response.status} ${response.statusText}`);

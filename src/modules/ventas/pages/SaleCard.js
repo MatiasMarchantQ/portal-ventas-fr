@@ -31,6 +31,7 @@ const SaleCard = ({ sale, onSaleClick, getStatusColor }) => (
           {sale.client_phone && <p className="info-item purple">{`Celular: ${sale.client_phone}`}</p>}
         </div>
         <div className="info-bottom">
+        {sale.company?.company_name && <p className="info-item gray">{`${sale.company?.company_name}`}</p>}
           {sale.created_at && (
             <p className="info-item gray">
               Fecha de ingreso:{" "}

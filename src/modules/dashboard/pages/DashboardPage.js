@@ -30,11 +30,13 @@ const DashboardPage = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [selectedSaleId, setSelectedSaleId] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [pagination, setPagination] = useState({}); // Add a pagination state
 
   const handleMenuClick = (option) => {
     if (accessControl[option]?.includes(roleId)) {
       setSelectedOption(option);
       setErrorMessage('');
+      setPagination({}); // Reset pagination when navigating to a new page
     } else {
       setErrorMessage('Acceso denegado: No tienes permisos para ver esta página.');
     }
@@ -53,6 +55,7 @@ const DashboardPage = () => {
   const handleBackToUsers = () => {
     setSelectedUserId(null);
     setSelectedOption('Usuarios');
+    setPagination({ page: pagination.page }); // Preserve pagination when navigating back
   };
 
   const renderContent = () => {
@@ -61,17 +64,17 @@ const DashboardPage = () => {
     } else if (selectedOption === 'Detalle Usuario' && selectedUserId) {
       return <DetalleUsuarioPage idUser={selectedUserId} onBack={handleBackToUsers} />;
     }
-    
+
     const components = {
-      'Ventas': <VentasPage onSaleClick={handleSaleClick} />,
+      'Ventas': <VentasPage onSaleClick={handleSaleClick} pagination={pagination} setPagination={setPagination} />,
       'Ingresar venta': <IngresarVentasPage />,
       'Registrar usuario': <RegistrarUsuarioPage />,
-      'Usuarios': <UsuariosPage onUserClick={handleUserClick} />,
+      'Usuarios': <UsuariosPage onUserClick={handleUserClick} pagination={pagination} setPagination={setPagination} />,
       'Comunas y tarifas': <ComunasTarifasPage />,
       'Mi perfil': <MiPerfilPage />,
     };
-  
-    return components[selectedOption] || <VentasPage onSaleClick={handleSaleClick} />;
+
+    return components[selectedOption] || <VentasPage onSaleClick={handleSaleClick} pagination={pagination} setPagination={setPagination} />;
   };
 
   return (

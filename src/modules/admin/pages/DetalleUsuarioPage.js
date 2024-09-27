@@ -3,65 +3,6 @@ import { UserContext } from '../../../contexts/UserContext';
 import withAuthorization from '../../../contexts/withAuthorization';
 import './DetalleUsuario.css';
 
-// Custom hook for data fetching with caching
-const useCachedFetch = (url, options) => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (!url) {
-      setLoading(false);
-      return;
-    }
-
-    let isMounted = true;
-    const controller = new AbortController();
-    const signal = controller.signal;
-
-    const fetchData = async () => {
-      try {
-        const cachedData = sessionStorage.getItem(url);
-        if (cachedData) {
-          if (isMounted) {
-            setData(JSON.parse(cachedData));
-            setLoading(false);
-          }
-          return;
-        }
-
-        const response = await fetch(url, { ...options, signal });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const result = await response.json();
-        if (isMounted) {
-          setData(result);
-          sessionStorage.setItem(url, JSON.stringify(result));
-        }
-      } catch (err) {
-        if (err.name !== 'AbortError' && isMounted) {
-          console.error('Fetch error:', err);
-          setError(err.message);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-      controller.abort();
-    };
-  }, [url]);
-
-  return { data, loading, error };
-};
-
 const DetalleUsuarioPage = ({ onBack, idUser }) => {
   const { token } = useContext(UserContext);
   const [editableFields, setEditableFields] = useState({
@@ -80,68 +21,130 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
     number: '',
     department_office_floor: '',
     role_id: '',
-    password: ''
+    password: '',
   });
-  
+
   const [isEnabled, setIsEnabled] = useState(false);
+  const [isUpdated, setIsUpdated] = useState(false); // New state to track updates
+  const [userLoading, setUserLoading] = useState(true);
+  const [userError, setUserError] = useState(null);
 
   // Fetch user data
-  const { data: userData, loading: userLoading, error: userError } = useCachedFetch(
-    idUser ? `${process.env.REACT_APP_API_URL}/users/${idUser}` : null,
-    {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-      },
-    }
-  );
+  useEffect(() => {
+    if (!idUser) return;
+
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/users/${idUser}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const userData = await response.json();
+        setEditableFields(prevFields => ({
+          ...prevFields,
+          ...userData.user,
+          company_id: userData.user.company_id,
+          region_id: userData.user.region_id,
+          commune_id: userData.user.commune_id,
+          sales_channel_id: userData.user.sales_channel_id,
+          role_id: userData.user.role_id,
+        }));
+        setIsEnabled(userData.user.status);
+      } catch (error) {
+        console.error('Fetch error:', error);
+        setUserError(error.message);
+      } finally {
+        setUserLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [idUser, token]);
 
   // Fetch auxiliary data
-  const { data: regions } = useCachedFetch(`${process.env.REACT_APP_API_URL}/regions`);
-  const { data: companies } = useCachedFetch(`${process.env.REACT_APP_API_URL}/companies`);
-  const { data: roles } = useCachedFetch(`${process.env.REACT_APP_API_URL}/roles`);
-  const { data: channels } = useCachedFetch(`${process.env.REACT_APP_API_URL}/channels`);
-
-  // Fetch communes based on selected region
-  const { data: communes } = useCachedFetch(
-    editableFields.region_id ? `${process.env.REACT_APP_API_URL}/communes/${editableFields.region_id}` : null
-  );
+  const [regions, setRegions] = useState([]);
+  const [companies, setCompanies] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [channels, setChannels] = useState([]);
+  const [communes, setCommunes] = useState([]);
 
   useEffect(() => {
-    if (userData && userData.user) {
-      setEditableFields(prevFields => ({
-        ...prevFields,
-        ...userData.user,
-        company_id: userData.user.company?.company_id || '',
-        region_id: userData.user.region?.region_id || '',
-        commune_id: userData.user.commune?.commune_id || '',
-        sales_channel_id: userData.user.salesChannel?.sales_channel_id || '',
-        role_id: userData.user.role?.role_id || '',
-      }));
-      setIsEnabled(userData.user.status === 1);
-    }
-  }, [userData]);
+    const fetchAuxiliaryData = async () => {
+      try {
+        const [regionsResponse, companiesResponse, rolesResponse, channelsResponse] = await Promise.all([
+          fetch(`${process.env.REACT_APP_API_URL}/regions`),
+          fetch(`${process.env.REACT_APP_API_URL}/companies`),
+          fetch(`${process.env.REACT_APP_API_URL}/roles`),
+          fetch(`${process.env.REACT_APP_API_URL}/channels`),
+        ]);
+
+        if (!regionsResponse.ok || !companiesResponse.ok || !rolesResponse.ok || !channelsResponse.ok) {
+          throw new Error('Error fetching auxiliary data');
+        }
+
+        const [regionsData, companiesData, rolesData, channelsData] = await Promise.all([
+          regionsResponse.json(),
+          companiesResponse.json(),
+          rolesResponse.json(),
+          channelsResponse.json(),
+        ]);
+
+        setRegions(regionsData);
+        setCompanies(companiesData);
+        setRoles(rolesData);
+        setChannels(channelsData);
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    };
+
+    fetchAuxiliaryData();
+  }, []);
+
+  // Fetch communes based on selected region
+  useEffect(() => {
+    if (!editableFields.region_id) return;
+
+    const fetchCommunes = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/communes/communes/${editableFields.region_id}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const communesData = await response.json();
+        setCommunes(communesData);
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    };
+
+    fetchCommunes();
+  }, [editableFields.region_id]);
 
   const handleInputChange = useCallback((event) => {
     const { name, value } = event.target;
-    setEditableFields(prev => ({
-      ...prev,
-      [name]: ['company_id', 'region_id', 'commune_id', 'sales_channel_id', 'role_id'].includes(name)
-        ? (value === '' ? '' : Number(value))
-        : value || ''  // Ensure the value is always a string
-    }));
-  }, []);
-  
-
-  const handleCheckboxChange = useCallback(() => {
-    setIsEnabled(prev => !prev);
+    if (name === 'sale_status_id' && value === '1') {
+      setEditableFields(prev => ({ ...prev, sale_status_reason_id: '1' }));
+    } else {
+      setEditableFields(prev => ({
+        ...prev,
+        [name]: ['company_id', 'region_id', 'commune_id', 'sales_channel_id', 'role_id', 'status'].includes(name)
+          ? (value === '' ? '' : Number(value))
+          : value || ''  // Ensure the value is always a string
+      }));
+    }
   }, []);
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     const dataToSend = { ...editableFields };
-    if (dataToSend.password === '') {
-      delete dataToSend.password; // Elimina la contraseña si está vacía
-    }
+      
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/users/update/${idUser}`, {
         method: 'PUT',
@@ -151,7 +154,9 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
         },
         body: JSON.stringify(dataToSend),
       });
+      console.log(dataToSend);
       if (response.ok) {
+        setIsUpdated(true);
         alert('Usuario actualizado con éxito');
       } else {
         alert('Error al actualizar el usuario');
@@ -172,10 +177,10 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
         name={name}
         value={editableFields[name] || ''} // Default to empty string
         onChange={handleInputChange}
+        autoComplete={name === 'password' ? "off" : "on"} // Prevent autocomplete for password
       />
     </p>
   ), [editableFields, handleInputChange]);
-  
 
   const renderSelect = useCallback((name, options, labelText) => (
     <p key={name}>
@@ -184,12 +189,12 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
         className="detalle-usuario-value"
         id={name}
         name={name}
-        value={editableFields[name]}
+        value={editableFields[name] || ''} // Default to empty string
         onChange={handleInputChange}
       >
         <option value="">Seleccione {labelText.toLowerCase()}</option>
         {options && options.map(option => (
-          <option key={option.id} value={option.id}>
+          <option key={option.id} value={option.id} selected={editableFields[name] === option.id.toString()}>
             {option.name}
           </option>
         ))}
@@ -230,19 +235,18 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
           <div>
             {renderInput('last_name', 'text', 'Apellido Paterno')}
             {renderInput('second_last_name', 'text', 'Apellido Materno')}
-            {renderInput('email', 'text', 'Email')}
+            {renderInput('email', 'email', 'Correo Electrónico')}
             {renderInput('number', 'text', 'Número')}
             {renderSelect('commune_id', formattedCommunes, 'Comuna')}
             {renderSelect('sales_channel_id', formattedChannels, 'Canal de Venta')}
-            {renderInput('department_office_floor', 'text', 'Piso/Departamento')}
+            {renderInput('department_office_floor', 'text', 'Departamento/Oficina/Piso')}
             {renderInput('password', 'password', 'Contraseña')}
-            <p>
-              <label className="detalle-usuario-label">Estado:</label>
-              <input type="checkbox" checked={isEnabled} onChange={handleCheckboxChange} />
-            </p>
           </div>
-          <button type="submit" className="detalle-usuario-button" id='update-user'>Actualizar Usuario</button>
+          <button className="detalle-usuario-submit" type="submit" disabled={isUpdated}>
+            {isUpdated ? 'Actualizado' : 'Actualizar Usuario'}
+          </button>
         </form>
+        {isUpdated && <div className="update-confirmation">Usuario actualizado con éxito!</div>}
       </div>
     </div>
   );

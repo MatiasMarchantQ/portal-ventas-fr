@@ -14,8 +14,8 @@ const IngresarVentasPage = () => {
     client_last_name: '',
     client_rut: '',
     client_email: '',
-    client_phone: '',
-    client_secondary_phone: '',
+    client_phone: '+56',
+    client_secondary_phone: '+56',
     region_id: '',
     commune_id: '',
     street: '',
@@ -32,7 +32,7 @@ const IngresarVentasPage = () => {
   const [loading, setLoading] = useState(false);
   const [isForeignPhone, setIsForeignPhone] = useState(false);
   const [isForeignSecondaryPhone, setIsForeignSecondaryPhone] = useState(false);
-
+  const [files, setFiles] = useState([]);
 
   useEffect(() => {
     const allowedRoles = [1, 2, 3];
@@ -114,20 +114,24 @@ const IngresarVentasPage = () => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    if (files.length > 3) {
-      setErrorMessage('Solo se pueden subir un máximo de 3 archivos');
+    if (files.length > 5) {
+      setErrorMessage('Solo se pueden subir un máximo de 5 archivos');
       return;
     }
     setErrorMessage('');
     setSelectedFiles(files);
+    const formData = new FormData();
+    files.forEach((file, index) => {
+      formData.append(`other_images_${index}`, file); // Utiliza un nombre único para cada archivo
+    });
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'client_phone' && !isForeignPhone && !value.startsWith('+569')) {
-      setFormValues({ ...formValues, client_phone: '+569' });
-    } else if (name === 'client_phone' && !isForeignPhone && value.startsWith('+569')) {
-      setFormValues({ ...formValues, client_phone: '+569' + value.replace('+569', '') });
+    if (name === 'client_phone' && !isForeignPhone && !value.startsWith('+56')) {
+      setFormValues({ ...formValues, client_phone: '+56' });
+    } else if (name === 'client_secondary_phone' && !isForeignPhone && value.startsWith('+56')) {
+      setFormValues({ ...formValues, client_secondary_phone: '+56' + value.replace('+56', '') });
     } else {
       setFormValues({ ...formValues, [name]: value });
     }
@@ -151,36 +155,42 @@ const IngresarVentasPage = () => {
       geo_reference: formValues.geo_reference,
       promotion_id: formValues.promotion_id,
       additional_comments: formValues.additional_comments,
-      sale_status_id: 1,
-      sale_status_reason_id: null,
+      sale_status_id: 1
     };
   
-    const files = selectedFiles;
+    const files = selectedFiles || []; // Asegúrate de que selectedFiles no sea null
   
     const formData = new FormData();
     Object.keys(data).forEach((key) => {
       formData.append(key, data[key]);
     });
+  
     files.forEach((file) => {
-      formData.append('id_card_image', file);
+      formData.append('other_images', file); // Asegúrate de que los archivos se agregan correctamente
+    });
+  
+    // Imprimir contenido de FormData para depuración
+    console.log('Contenido de FormData:');
+    formData.forEach((value, key) => {
+      console.log(key, value);
     });
   
     try {
       const response = await fetch('http://localhost:3001/api/sales/create', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`, // No agregues Content-Type
         },
         body: formData,
       });
-
-      console.log(formData);
+  
+      console.log(response);
       if (!response.ok) {
         throw new Error('Error al enviar la venta');
       }
   
-      const data = await response.json();
-      console.log(data);
+      const responseData = await response.json();
+      console.log(responseData);
       setSuccessMessage('Venta enviada con éxito');
       setErrorMessage('');
       setFormValues({
@@ -207,6 +217,7 @@ const IngresarVentasPage = () => {
       setSuccessMessage('');
     }
   };
+  
 
   if (!userId) {
     return <div>Loading...</div>;
@@ -224,31 +235,23 @@ const IngresarVentasPage = () => {
     }
   };
 
-  const handleForeignRutChange = (e) => {
-    setIsForeignRut(e.target.checked);
-    if (e.target.checked) {
-      setFormValues({ ...formValues, client_rut: formValues.client_rut.replace(/\D+/g, '') });
-    } else {
-      const formattedRut = formValues.client_rut.replace(/\D+/g, '').replace(/^(\d{1,2})(\d{3})(\d{3})(\w{1})$/, '$1.$2.$3-$4');
-      setFormValues({ ...formValues, client_rut: formattedRut });
-    }
-  };
-
   const handleForeignPhoneChange = (e) => {
     setIsForeignPhone(e.target.checked);
     if (e.target.checked) {
-      setFormValues({ ...formValues, client_phone: formValues.client_phone.replace('+569', '') });
+      setFormValues({ ...formValues, client_phone: '' });
     } else {
-      setFormValues({ ...formValues, client_phone: '+569' + formValues.client_phone.replace('+569', '') });
+      if (!formValues.client_phone.startsWith('+56')) {
+        setFormValues({ ...formValues, client_phone: '+56' });
+      }
     }
   };
 
   const handleForeignSecondaryPhoneChange = (e) => {
     setIsForeignSecondaryPhone(e.target.checked);
     if (e.target.checked) {
-      setFormValues({ ...formValues, client_secondary_phone: formValues.client_secondary_phone.replace('+569', '') });
+      setFormValues({ ...formValues, client_secondary_phone: '' });
     } else {
-      setFormValues({ ...formValues, client_secondary_phone: '+569' + formValues.client_secondary_phone.replace('+569', '') });
+      setFormValues({ ...formValues, client_secondary_phone: '+56' });
     }
   };
 
@@ -286,17 +289,7 @@ const IngresarVentasPage = () => {
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <label htmlFor="client_rut">RUT:</label>
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={isForeignRut}
-                                onChange={handleForeignRutChange}
-                            />
-                            RUT extranjero
-                        </label>
-                    </div>
+                    <label htmlFor="client_rut">RUT:</label>
                     <input
                         type="text"
                         className="ingresar-venta-field-control"
@@ -325,52 +318,49 @@ const IngresarVentasPage = () => {
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <label htmlFor="client_phone">Número celular:</label>
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={isForeignPhone}
-                                onChange={handleForeignPhoneChange}
-                            />
-                            Otros
-                        </label>
-                    </div>
-                    <input
-                        type="text"
-                        className="ingresar-venta-field-control"
-                        id="client_phone"
-                        name="client_phone"
-                        value={formValues.client_phone}
-                        onChange={handleInputChange}
-                        autoComplete="tel"
-                        placeholder={isForeignPhone ? '' : '+569'}
-                        required
-                    />
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <label htmlFor="client_phone">Número celular:</label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={isForeignPhone}
+                        onChange={handleForeignPhoneChange}
+                      />
+                      Otros
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    className="ingresar-venta-field-control"
+                    id="client_phone"
+                    name="client_phone"
+                    value={formValues.client_phone}
+                    onChange={handleInputChange}
+                    autoComplete="tel"
+                    required
+                  />
                 </div>
-
                 <div className="ingresar-venta-field-group">
-                    <label htmlFor="client_secondary_phone">2do Número celular (Opcional):</label>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <label>
-                            <input
-                                type="checkbox"
-                                checked={isForeignSecondaryPhone}
-                                onChange={handleForeignSecondaryPhoneChange}
-                            />
-                            Otros
-                        </label>
-                    </div>
-                    <input
-                        type="text"
-                        className="ingresar-venta-field-control"
-                        id="client_secondary_phone"
-                        name="client_secondary_phone"
-                        value={formValues.client_secondary_phone}
-                        onChange={handleInputChange}
-                        autoComplete="tel"
-                        placeholder={isForeignPhone ? '' : '+569'}
-                    />
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <label htmlFor="client_secondary_phone" style={{fontSize: 12}}>2do Número celular (Opcional):</label>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={isForeignSecondaryPhone}
+                        onChange={handleForeignSecondaryPhoneChange}
+                      />
+                      Otros
+                    </label>
+                  </div>
+                  <input
+                    type="text"
+                    className="ingresar-venta-field-control"
+                    id="client_secondary_phone"
+                    name="client_secondary_phone"
+                    value={formValues.client_secondary_phone}
+                    onChange={handleInputChange}
+                    autoComplete="tel"
+                  />
                 </div>
 
                 <div className="ingresar-venta-field-group">
@@ -504,14 +494,15 @@ const IngresarVentasPage = () => {
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                    <label>Imagen de la cédula de identidad</label>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileChange}
-                    />
-                </div>
+                  <label>Imagenes de la venta</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    name="other_images"
+                    onChange={handleFileChange}
+                  />
+              </div>
             </div>
             <button type="submit" className="ingresar-venta-submit-button">Enviar venta</button>
             {successMessage && <div className="success-message">{successMessage}</div>}

@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState, useCallback } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import withAuthorization from '../../../contexts/withAuthorization';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faImage, faArrowLeftLong } from '@fortawesome/free-solid-svg-icons';
 import './DetalleVenta.css';
 
 const DetalleVentaPage = ({ saleId, onBack }) => {
@@ -16,13 +18,43 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   const [saleStatuses, setSaleStatuses] = useState([]);
   const [reasons, setReasons] = useState([]);
   const [updateMessage, setUpdateMessage] = useState('');
-  const id_card_image_url = sale?.id_card_image_url;
-  const simple_power_image_url = sale?.simple_power_image_url;
-  const house_image_url = sale?.house_image_url;
+  const [images, setImages] = useState([]);
+  const [existingImages, setExistingImages] = useState([]);
+  const [newImages, setNewImages] = useState([]);
 
+  const currentSaleId = saleId;
+
+  useEffect(() => {
+    if (sale && sale.other_images) {
+      setExistingImages(sale.other_images.split(','));
+    }
+  }, [sale]);
+
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    if (existingImages.length + newImages.length + files.length > 5) {
+      alert('No puedes subir más de 5 imágenes en total');
+      return;
+    }
+    setNewImages([...newImages, ...files]);
+  };
+
+  const handleDeleteExistingImage = (index) => {
+    const newExistingImages = [...existingImages];
+    newExistingImages.splice(index, 1);
+    setExistingImages(newExistingImages);
+  };
+
+  const handleDeleteNewImage = (index) => {
+    const newNewImages = [...newImages];
+    newNewImages.splice(index, 1);
+    setNewImages(newNewImages);
+  };
+
+  // Fetch functions
   const fetchSaleDetails = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/sales/${saleId}`, {
+      const response = await fetch(`http://localhost:3001/api/sales/${currentSaleId}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -35,67 +67,44 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       const data = await response.json();
       setSale(data);
       setUpdatedSale(data);
+      if (data.other_images_url) {
+        setImages(data.other_images_url);
+      }
     } catch (error) {
       console.error('Error in request:', error);
     } finally {
       setLoading(false);
     }
-  }, [saleId, token]);
+  }, [currentSaleId, token]);
 
-  useEffect(() => {
-    fetchSaleDetails();
-  }, [fetchSaleDetails]);
+  const fetchSaleStatuses = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/sale-statuses', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      if (!response.ok) throw new Error('Error fetching sale statuses');
+      const data = await response.json();
+      setSaleStatuses(data);
+    } catch (error) {
+      console.error('Error fetching sale statuses:', error);
+    }
+  };
 
-  useEffect(() => {
-    const fetchSaleStatuses = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/api/sale-statuses', {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (!response.ok) throw new Error('Error fetching sale statuses');
-        const data = await response.json();
-        setSaleStatuses(data);
-      } catch (error) {
-        console.error('Error fetching sale statuses:', error);
-      }
-    };
-    fetchSaleStatuses();
-  }, []);
-
-  useEffect(() => {
-    const fetchReasons = async () => {
-      try {
-        const response = await fetch(`http://localhost:3001/api/sale-statuses/reasons/${updatedSale.sale_status_id}`);
-        if (!response.ok) throw new Error('Error fetching reasons');
-        const data = await response.json();
-        setReasons(data);
-      } catch (error) {
-        console.error('Error fetching reasons:', error);
-      }
-    };
-    fetchReasons();
-  }, [updatedSale.sale_status_id]);
-
-  useEffect(() => {
-    fetchRegions();
-  }, []);
-
-  useEffect(() => {
-    if (updatedSale.region_id) fetchCommunes(updatedSale.region_id);
-  }, [updatedSale.region_id]);
-
-  useEffect(() => {
-    if (updatedSale.commune_id) fetchPromotions();
-  }, [updatedSale.commune_id]);
-
-  useEffect(() => {
-    if (updatedSale.promotion_id) fetchInstallationAmount();
-  }, [updatedSale.promotion_id]);
+  const fetchReasons = async () => {
+    try {
+      const response = await fetch(`http://localhost:3001/api/sale-statuses/reasons/${updatedSale.sale_status_id}`);
+      if (!response.ok) throw new Error('Error fetching reasons');
+      const data = await response.json();
+      setReasons(data);
+    } catch (error) {
+      console.error('Error fetching reasons:', error);
+    }
+  };
 
   const fetchRegions = async () => {
     try {
@@ -134,60 +143,107 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
     }
   };
 
-  const fetchInstallationAmount = async () => {
+  const fetchInstallationAmount = async (promotionId) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/sales/installation-amounts/promotion/${updatedSale.promotion_id}`);
-      if (!response.ok) throw new Error('Error fetching installation amount');
+      const response = await fetch(`http://localhost:3001/api/sales/installation-amounts/promotion/${promotionId}`);
       const data = await response.json();
-      setInstallationAmount(data);
+      setInstallationAmount(data.amount);
     } catch (error) {
-      console.error('Error fetching installation amount:', error);
-    }
-  };
-  
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUpdatedSale((prev) => ({ ...prev, [name]: value }));
-  
-    if (name === 'sale_status_reason_id') {
-      const reasonId = value;
-      const reason = reasons.find((reason) => reason.reason_name === reasonId);
-      if (reason) {
-        setUpdatedSale((prev) => ({ ...prev, sale_status_reason_id: reason.sale_status_reason_id }));
-      }
+      console.error('Error al obtener el monto de instalación:', error);
+      setInstallationAmount('Error al cargar');
     }
   };
 
-  const handleUpdate = async () => {
-    let endpoint;
-  
-    if (roleId === 3) {
-      endpoint = `http://localhost:3001/api/sales/update/executive/${saleId}`;
-    } else if ([1, 2, 4, 5].includes(roleId)) {
-      endpoint = `http://localhost:3001/api/sales/update/${saleId}`;
-    } else {
-      setUpdateMessage('No tienes permisos para actualizar esta venta');
-      return;
+  // Effect hooks
+  useEffect(() => {
+    fetchSaleDetails();
+    fetchSaleStatuses();
+    fetchRegions();
+  }, [fetchSaleDetails]);
+
+  useEffect(() => {
+    if (updatedSale.region_id) fetchCommunes(updatedSale.region_id);
+  }, [updatedSale.region_id]);
+
+  useEffect(() => {
+    if (updatedSale.commune_id) fetchPromotions();
+  }, [updatedSale.commune_id]);
+
+  useEffect(() => {
+    if (updatedSale.promotion_id) {
+      fetchInstallationAmount(updatedSale.promotion_id);
     }
+  }, [updatedSale.promotion_id]);
+
+  useEffect(() => {
+    fetchReasons();
+  }, [updatedSale.sale_status_id]);
+
+  // Event handlers
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUpdatedSale((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleUpdateSale = async () => {
+    if (roleId === 3) {
+      updatedSale.sale_status_id = 1;
+      updatedSale.sale_status_reason_id = 22;
+    }
+    const formData = new FormData();
+
+    // Agregar todos los campos del formulario al FormData
+    formData.append('sales_channel_id', updatedSale.sales_channel_id);
+    formData.append('client_first_name', updatedSale.client_first_name);
+    formData.append('client_last_name', updatedSale.client_last_name);
+    formData.append('client_rut', updatedSale.client_rut);
+    formData.append('client_email', updatedSale.client_email);
+    formData.append('client_phone', updatedSale.client_phone);
+    formData.append('region_id', updatedSale.region_id);
+    formData.append('commune_id', updatedSale.commune_id);
+    formData.append('street', updatedSale.street);
+    formData.append('number', updatedSale.number);
+    formData.append('geo_reference', updatedSale.geo_reference);
+    formData.append('promotion_id', updatedSale.promotion_id);
+    formData.append('is_priority', updatedSale.is_priority);
+    formData.append('sale_status_id', updatedSale.sale_status_id);
+    formData.append('company_id', updatedSale.company_id);
+    formData.append('company_priority_id', updatedSale.company_priority_id);
+    formData.append('sale_status_reason_id', updatedSale.sale_status_reason_id);
+    formData.append('installation_amount_id', updatedSale.promotion_id);
+
+    // Agregar imágenes existentes
+    formData.append("existing_images", Array.isArray(existingImages) ? existingImages.join(',') : existingImages);
+    newImages.forEach((image, index) => {
+      formData.append(`other_images`, image);
+    });
+
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+    
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetch(`http://localhost:3001/api/sales/update/${currentSaleId}`, {
         method: 'PUT',
         headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          // No incluyas 'Content-Type': 'application/json' aquí, ya que estamos enviando FormData
         },
-        body: JSON.stringify(updatedSale),
+        body: formData
       });
   
-      if (!response.ok) throw new Error(`Error updating sale: ${response.status} ${response.statusText}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Error actualizando la venta: ${response.status} ${response.statusText}. ${errorData.message}`);
+      }
   
-      const data = await response.json();
-      setSale(data);
-      setUpdatedSale(data);
+      const responseData = await response.json();
+      console.log(responseData);
+      setSale(responseData);
+      setUpdatedSale(responseData);
       setIsEditing(false);
       setUpdateMessage('Venta actualizada con éxito!');
-      
-      // Refresh the sale details to ensure we have the most up-to-date information
+  
       await fetchSaleDetails();
     } catch (error) {
       console.error('Error updating:', error);
@@ -196,27 +252,19 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
     }
   };
 
-  if (loading) {
-    return <div>Loading sale details...</div>;
-  }
-
-  if (!sale) {
-    return <div>No details found for this sale.</div>;
-  }
-
   const handleCancelEdit = () => {
     setIsEditing(false);
     setUpdatedSale(sale);
   };
 
+  // Render functions
   const renderEditForm = () => (
     <div className="sale-detail-form">
-      {/* Form Fields */}
       {renderFormFields()}
-      {updateMessage && <div className="update-message">{updateMessage}</div>} {/* Mensaje de actualización */}
+      {updateMessage && <div className="update-message">{updateMessage}</div>}
     </div>
   );
-  
+
   const renderFormFields = () => (
     <div className="sale-detail-fields-group">
       {renderInputField("Nombres", "client_first_name", "text")}
@@ -225,115 +273,21 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       {renderInputField("Correo Electrónico", "client_email", "email")}
       {renderInputField("Número de Teléfono", "client_phone", "text")}
       {renderInputField("Número Secundario (Opcional)", "client_secondary_phone", "text")}
-  
-
-      <div className="sale-detail-field-group">
-          <strong>Región:</strong>
-          <select 
-            name="region_id" 
-            value={updatedSale.region_id || ''} 
-            onChange={handleChange} 
-            disabled={roleId === 5}
-          >
-            <option value="">Selecciona una región</option>
-            {regions.map((region) => (
-              <option key={region.region_id} value={region.region_id}>
-                {region.region_name}
-              </option>
-            ))}
-          </select>
-        </div>
-    
-        <div className="sale-detail-field-group">
-        <strong>Comuna:</strong>
-        <select 
-          name="commune_id" 
-          value={updatedSale.commune_id || ''} 
-          onChange={handleChange} 
-          disabled={roleId === 5}
-        >
-          <option value="">Selecciona una comuna</option>
-          {communes.map((commune) => (
-            <option key={commune.commune_id} value={commune.commune_id}>
-              {commune.commune_name}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div></div>
-  
+      {renderSelectField("Región", "region_id", regions, "region_id", "region_name")}
+      {renderSelectField("Comuna", "commune_id", communes, "commune_id", "commune_name")}
       {renderInputField("Calle/Avenida", "street", "text")}
       {renderInputField("Número", "number", "text")}
       {renderInputField("Departamento/Oficina/Piso", "department_office_floor", "text")}
-      {renderInputField("Georeferencia", "geo_reference", "text")}
-
-      <div className="sale-detail-field-group">
-        <div className="sale-detail-field-group">
-          <strong>Promoción:</strong>
-          <select 
-            name="promotion_id" 
-            value={updatedSale.promotion_id || ''} 
-            onChange={handleChange} 
-            disabled={roleId === 5}
-          >
-            <option value="">Selecciona una promoción</option>
-            {promotions.map((promotion) => (
-              <option key={promotion.promotion_id} value={promotion.promotion_id}>
-                {promotion.promotion}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-  
-      <div className="sale-detail-field-group">
-        <label>Monto de Instalación:
-          <input type="text" value={installationAmount ? installationAmount.amount : ''} readOnly />
-        </label>
-      </div>
-
-      {renderInputField("Número Orden(Wisphub)", "service_id", "textarea", true, true)}
+      {renderTextarea("Georeferencia", "geo_reference", 2)}
+      {renderSelectField("Promoción", "promotion_id", promotions, "promotion_id", "promotion")}
+      {renderReadOnlyField("Monto de Instalación", installationAmount)}
+      {renderInputField("Número Orden(Wisphub)", "service_id", "text", true, true)}
       {[1, 2, 3, 4, 5].includes(roleId) && renderEditableSaleStatus()}
       {[1, 2, 4, 5].includes(roleId) && renderEditableReason()}
-      <p></p>
-      <p></p>
-      {renderTextarea("Comentarios adicionales", "additional_comments")}
-    </div>
-  );
-  const renderEditableSaleStatus = () => (
-    <div className="sale-detail-field-group">
-      <strong>Estado de Venta:</strong>
-      <select 
-        name="sale_status_id" 
-        value={updatedSale.sale_status_id || ''} 
-        onChange={handleChange}
-      >
-        <option value="">Selecciona un estado</option>
-        {saleStatuses.map((saleStatus) => (
-          <option key={saleStatus.sale_status_id} value={saleStatus.sale_status_id}>
-            {saleStatus.status_name}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-
-  const renderEditableReason = () => (
-    <div className="sale-detail-field-group">
-      <strong>Motivo:</strong>
-      <select 
-        name="sale_status_reason_id" 
-        value={updatedSale.sale_status_reason_id || ''} 
-        onChange={handleChange}
-      >
-        <option value="">Selecciona un motivo</option>
-        {reasons.map((reason) => (
-          <option key={reason.sale_status_reason_id} value={reason.reason_id}>
-            {reason.reason_name}
-          </option>
-        ))}
-      </select>
+      {roleId === 3 
+        ? renderImageInputs ("Archivos adjuntos", "other_images")
+        : renderTextarea("Comentarios adicionales", "additional_comments")
+      }
     </div>
   );
 
@@ -345,31 +299,149 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
           name={name}
           value={updatedSale[name] !== null ? updatedSale[name] : ""}
           onChange={handleChange}
-          readOnly={roleId === 5}
+          readOnly={roleId === 5 || !editable}
           required={required}
         />
       </label>
     </div>
   );
-  
 
-  const renderTextarea = (label, name) => (
+  const renderSelectField = (label, name, options, valueKey, labelKey) => (
     <div className="sale-detail-field-group">
-      <label>{label}</label>
+      <strong>{label}:</strong>
+      <select 
+        name={name} 
+        value={updatedSale[name] || ''} 
+        onChange={handleChange} 
+        disabled={roleId === 5}
+      >
+        <option value="">Selecciona una opción</option>
+        {options.map((option) => (
+          <option key={option[valueKey]} value={option[valueKey]}>
+            {option[labelKey]}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+
+  const renderTextarea = (label, name, rows = 2) => (
+    <div className="sale-detail-field-group">
+      <label>{label}:</label>
       <textarea
-        className="sale-detail-field-group-adittional-comments"
         name={name}
         value={updatedSale[name] !== null ? updatedSale[name] : ""}
         onChange={handleChange}
+        rows={rows}
         readOnly={roleId === 5}
-      ></textarea>
+        style={{ resize: 'none' }}
+        onInput={(e) => {
+          e.target.rows = Math.min(10, Math.max(2, e.target.scrollHeight / 20));
+        }}
+      />
+    </div>
+  );
+
+  const renderReadOnlyField = (label, value) => (
+    <div className="sale-detail-field-group">
+      <label>{label}:</label>
+      <input
+        type="text"
+        value={loading ? 'Cargando...' : value}
+        readOnly
+      />
+    </div>
+  );
+
+  const renderEditableSaleStatus = () => (
+    <div className="sale-detail-field-group">
+      {roleId !== 3 && (
+        <>
+          {[1, 2, 4, 5].includes(roleId) && (
+            <strong>Estado de Venta:</strong>
+          )}
+          <select
+            name="sale_status_id"
+            value={updatedSale.sale_status_id || ''}
+            onChange={handleChange}
+          >
+            <option value="">Selecciona un estado</option>
+            {saleStatuses.map((saleStatus) => (
+              <option key={saleStatus.sale_status_id} value={saleStatus.sale_status_id}>
+                {saleStatus.status_name}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
+      {roleId === 3 && (
+        renderTextarea("Comentarios adicionales:", "additional_comments")
+      )}
+    </div>
+  );
+
+  const renderEditableReason = () => (
+    <div className="sale-detail-field-group">
+      <strong>Motivo:</strong>
+      <select
+        name="sale_status_reason_id"
+        value={updatedSale.sale_status_reason_id || ''}
+        onChange={handleChange}
+      >
+        <option value="">Selecciona un motivo</option>
+        {reasons.map((reason) => (
+          <option key={reason.sale_status_reason_id} value={reason.sale_status_reason_id}>
+            {reason.reason_name}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+
+  const renderImageInputs = () => (
+    <div className="sale-detail-field-group">
+      <label>Imágenes:</label>
+      <input
+        type="file"
+        name="other_images"
+        multiple
+        onChange={handleImageUpload}
+        accept="image/*"
+      />
+      <div className="file-list-container">
+        {existingImages.map((image, index) => (
+          <div key={`existing-${index}`} className="file-item">
+            <a href={image} target="_blank" rel="noopener noreferrer">
+              {image.split('/').pop()}
+            </a>
+            <button
+              type="button"
+              onClick={() => handleDeleteExistingImage(index)}
+              className="delete-button-files"
+            >
+              X
+            </button>
+          </div>
+        ))}
+        {newImages.map((image, index) => (
+          <div key={`new-${index}`} className="file-item">
+            <span>{image.name}</span>
+            <button
+              type="button"
+              onClick={() => handleDeleteNewImage(index)}
+              className="delete-button-files"
+            >
+              X
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 
   const renderSaleDetails = () => (
     <>
       <div className="sale-detail-fields-group">
-        {/* Fecha de Ingreso */}
         <div className="sale-detail-field-group">
           <strong>Fecha de Ingreso:</strong> 
           <p>{new Date(sale.created_at).toLocaleString('es-CL', { 
@@ -385,173 +457,108 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
         <p></p>
         <div className="executive-info">
           <strong>{sale.executive?.role.role_name}</strong>
-          <p>Nombre: {sale.executive?.first_name} {sale.executive?.second_name} {sale.executive?.last_name} {sale.executive?.second_last_name} - Rut: {sale.executive?.rut} - Email: {sale.executive?.email} - Celular: {sale.executive?.phone_number}</p>
+          <ul>
+            <li>Nombre: {sale.executive?.first_name} {sale.executive?.last_name}</li>
+            <li>Rut: {sale.executive?.rut}</li>
+            <li>Email: {sale.executive?.email}</li>
+            <li>Celular: {sale.executive?.phone_number}</li>
+            {sale.executive?.company && <li>Empresa: {sale.executive.company.company_name}</li>}
+            {sale.executive?.salesChannel && <li>Canal de ventas: {sale.executive.salesChannel.channel_name}</li>}
+          </ul>
         </div>
         <p></p>
         <p></p>
   
-        {/* Nombres del Cliente */}
-        <div className="sale-detail-field-group">
-          <strong>Nombres:</strong> 
-          <p>{sale.client_first_name}</p>
-        </div>
-    
-        {/* Apellidos del Cliente */}
-        <div className="sale-detail-field-group">
-          <strong>Apellidos:</strong> 
-          <p>{sale.client_last_name}</p>
-        </div>
-    
-        {/* RUT del Cliente */}
-        <div className="sale-detail-field-group">
-          <strong>RUT:</strong> 
-          <p>{sale.client_rut}</p>
-        </div>
-    
-        {/* Correo Electrónico del Cliente */}
-        <div className="sale-detail-field-group">
-          <strong>Correo Electrónico:</strong> 
-          <p>{sale.client_email}</p>
-        </div>
-    
-        {/* Número de Teléfono del Cliente */}
-        <div className="sale-detail-field-group">
-          <strong>Número de Teléfono:</strong> 
-          <p>{sale.client_phone}</p>
-        </div>
-    
-        {/* Número Secundario del Cliente */}
-        <div className="sale-detail-field-group">
-          <strong>Número Secundario (Opcional):</strong> 
-          <p>{sale.client_secondary_phone}</p>
-        </div>
-    
-        {/* Región del Cliente */}
-        <div className="sale-detail-field-group">
-          <strong>Región:</strong> 
-          <p>{sale.region?.region_name}</p>
-        </div>
-    
-        {/* Comuna del Cliente */}
-        <div className="sale-detail-field-group">
-          <strong>Comuna:</strong> 
-          <p>{sale.commune?.commune_name}</p>
-        </div>
+        {renderDetailField("Nombres", sale.client_first_name)}
+        {renderDetailField("Apellidos", sale.client_last_name)}
+        {renderDetailField("RUT", sale.client_rut)}
+        {renderDetailField("Correo Electrónico", sale.client_email)}
+        {renderDetailField("Número de Teléfono", sale.client_phone)}
+        {renderDetailField("Número Secundario (Opcional)", sale.client_secondary_phone)}
+        {renderDetailField("Región", sale.region?.region_name)}
+        {renderDetailField("Comuna", sale.commune?.commune_name)}
         <p></p>
-    
-        {/* Calle/Avenida */}
-        <div className="sale-detail-field-group">
-          <strong>Calle/Avenida:</strong> 
-          <p>{sale.street}</p>
-        </div>
-    
-        {/* Número de Calle */}
-        <div className="sale-detail-field-group">
-          <strong>Número casa:</strong> 
-          <p>{sale.number}</p>
-        </div>
-    
-        {/* Departamento/Oficina/Piso */}
-        <div className="sale-detail-field-group">
-          <strong>Departamento/Oficina/Piso:</strong> 
-          <p>{sale.department_office_floor}</p>
-        </div>
-    
-        {/* Geo Referencia */}
-        <div className="sale-detail-field-group">
-          <strong>Geo Referencia:</strong> 
-          <p>{sale.geo_reference}</p>
-        </div>
+        {renderDetailField("Calle/Avenida", sale.street)}
+        {renderDetailField("Número casa", sale.number)}
+        {renderDetailField("Departamento/Oficina/Piso", sale.department_office_floor)}
+        {renderDetailField("Geo Referencia", sale.geo_reference, true)}
         <p></p>
         <p></p>
-    
-        {/* Promoción */}
-        <div className="sale-detail-field-group">
-          <strong>Promoción:</strong> 
-          <p>{sale.promotion?.promotion}</p>
-        </div>
-    
-        {/* Monto de Instalación */}
-        <div className="sale-detail-field-group">
-          <strong>Monto de Instalación:</strong> 
-          <p>{sale.installationAmount?.amount}</p>
-        </div>
-  
-        {/* Número de Orden */}
-        <div className="sale-detail-field-group">
-          <strong>Número de Orden:</strong> 
-          <p>{sale.order_number}</p>
-        </div>
-  
-        {/* Estado de la Venta */}
-        <div className="sale-detail-field-group">
-          <strong>Estado de la Venta:</strong> 
-          <p>{sale.saleStatus?.status_name}</p>
-        </div>
-  
-        {/* Motivo de la Venta */}
-        <div className="sale-detail-field-group">
-          <strong>Motivo:</strong> 
-          <p>{sale.reason?.reason_name}</p>
-        </div>
+        {renderDetailField("Promoción", sale.promotion?.promotion)}
+        {renderDetailField("Monto de Instalación", sale.installationAmount?.amount)}
+        {renderDetailField("Número de Orden", sale.order_number)}
+        {renderDetailField("Estado de la Venta", sale.saleStatus?.status_name)}
+        {renderDetailField("Motivo", sale.reason?.reason_name)}
         <p></p>
-    
-        {/* Comentarios Adicionales */}
-        <div className="sale-detail-field-group">
-          <strong>Comentarios Adicionales:</strong> 
-          <p>{sale.additional_comments}</p>
-        </div>
+        {renderDetailField("Comentarios Adicionales", sale.additional_comments)}
       </div>
     
-      {/* Imágenes Contenedor */}
       <div className="sale-detail-field-group">
-        <div className="sale-detail-images" style={{display: 'flex', justifyContent:'flex-end', marginTop: '-3.5rem'}}>
+        <div className="sale-detail-images" style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: '-4rem', marginRight: '9rem'}}>
           <strong>Imágenes:</strong>
-          {id_card_image_url || simple_power_image_url || house_image_url ? (
-            <ul style={{marginLeft: '-7rem'}}>
-              {id_card_image_url && (
-                <li>
-                  <a href={id_card_image_url} target="_blank" rel="noopener noreferrer">
-                    <i className="fas fa-image"></i> Ver imagen Cédula
+          {sale.other_images_url && sale.other_images_url.length > 0 ? (
+            <>
+              <p>{sale.other_images_url.length === 1 ? "Imagen adjunta:" : "Imágenes adjuntas:"}</p>
+              {sale.other_images_url.map((image, index) => (
+                <div key={index} style={{marginTop: '10px'}}>
+                  <FontAwesomeIcon icon={faImage} style={{fontSize: '24px', color: '#99235C'}} />
+                  <a href={image} target="_blank" rel="noopener noreferrer" style={{marginLeft: '5px'}}>
+                    Ver imagen {index + 1}
                   </a>
-                </li>
-              )}
-              {simple_power_image_url && (
-                <li>
-                  <a href={simple_power_image_url} target="_blank" rel="noopener noreferrer">
-                    <i className="fas fa-image"></i> Ver imagen Poder Simple
-                  </a>
-                </li>
-              )}
-              {house_image_url && (
-                <li>
-                  <a href={house_image_url} target="_blank" rel="noopener noreferrer">
-                    <i className="fas fa-image"></i> Ver Imagen Casa
-                  </a>
-                </li>
-              )}
-            </ul>
+                </div>
+              ))}
+            </>
           ) : (
-            <p>No disponible</p>
+            <p>No hay imágenes adjuntadas</p>
           )}
         </div>
       </div>
     </>
   );
+
+  const renderDetailField = (label, value, isGeoReference = false) => (
+    <div className="sale-detail-field-group">
+      <strong>{label}:</strong> 
+      {isGeoReference ? (
+        <a href={`https://www.google.com/maps/place/${value}`} target="_blank" rel="noopener noreferrer">
+          {value}
+        </a>
+      ) : (
+        <p>{value}</p>
+      )}
+    </div>
+  );
   
+  if (loading) {
+    return <div>Loading sale details...</div>;
+  }
+
+  if (!sale) {
+    return <div>No details found for this sale.</div>;
+  }
   
   return (
     <div className="sale-detail-page">
-      <button onClick={onBack}>Atrás</button>
+      <button onClick={onBack}>
+        <FontAwesomeIcon icon={faArrowLeftLong} style={{ marginRight: '5px' }} />
+        Atrás
+      </button>
       <h2>{roleId === 4 ? 'Validar venta' : 'Detalle venta'}</h2>
       {isEditing ? renderEditForm() : renderSaleDetails()}
 
+      {roleId === 3 && (
+        <div className="update-message" style={{marginTop: 20}}>
+          Atención: Si deseas reingresar la venta, haz clic en el botón "Reingresar" para volver a enviar la venta. Recuerda verificar cuidadosamente los datos para evitar errores.
+        </div>
+      )}
+
       <div className='button-group'>
         {isEditing && (
-          <button onClick={handleUpdate}>Guardar Cambios</button>
+          <button onClick={handleUpdateSale}>
+            {roleId === 3 ? "Reingresar" : "Actualizar"}
+          </button>
         )}
-    
-        {!(roleId === 3 && sale.sale_status_id === 1) && (
+        {[1, 2, 3, 4, 5].includes(roleId) && (
           <button onClick={() => {
             if (isEditing) {
               handleCancelEdit();
@@ -565,6 +572,6 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       </div>
     </div>
   );
-}
+};
 
 export default withAuthorization(DetalleVentaPage, [1, 2, 3, 4, 5]);
