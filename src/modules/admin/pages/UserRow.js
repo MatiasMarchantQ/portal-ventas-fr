@@ -2,7 +2,7 @@ import React from 'react';
 
 const UserRow = ({ user, onUserClick }) => (
   <tr>
-    <td>{`${user.first_name} ${user.second_name} ${user.last_name} ${user.second_last_name}`}</td>
+    <td>{`${user.first_name} ${user.last_name}`}</td>
     <td>{user.rut}</td>
     <td>{user.email}</td>
     <td>{user.phone_number}</td>

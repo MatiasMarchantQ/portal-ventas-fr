@@ -97,7 +97,13 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
 
   const fetchReasons = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/sale-statuses/reasons/${updatedSale.sale_status_id}`);
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+      };
+      const response = await fetch(`http://localhost:3001/api/sale-statuses/reasons/${updatedSale.sale_status_id}`, {
+        method: 'GET',
+        headers: headers,
+      });
       if (!response.ok) throw new Error('Error fetching reasons');
       const data = await response.json();
       setReasons(data);
@@ -108,7 +114,13 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
 
   const fetchRegions = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/regions');
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+      };
+      const response = await fetch('http://localhost:3001/api/regions', {
+        method: 'GET',
+        headers: headers,
+      });
       if (!response.ok) throw new Error('Error fetching regions');
       const data = await response.json();
       setRegions(data);
@@ -123,7 +135,13 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:3001/api/communes/communes/${regionId}`);
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+      };
+      const response = await fetch(`http://localhost:3001/api/communes/communes/${regionId}`, {
+        method: 'GET',
+        headers: headers,
+      });
       if (!response.ok) throw new Error('Error fetching communes');
       const data = await response.json();
       setCommunes(data);
@@ -131,10 +149,16 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       console.error('Error fetching communes:', error);
     }
   };
-
+  
   const fetchPromotions = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/sales/promotions/commune/${updatedSale.commune_id}`);
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+      };
+      const response = await fetch(`http://localhost:3001/api/sales/promotions/commune/${updatedSale.commune_id}`, {
+        method: 'GET',
+        headers: headers,
+      });
       if (!response.ok) throw new Error('Error fetching promotions');
       const data = await response.json();
       setPromotions(data);
@@ -142,10 +166,16 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       console.error('Error fetching promotions:', error);
     }
   };
-
+  
   const fetchInstallationAmount = async (promotionId) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/sales/installation-amounts/promotion/${promotionId}`);
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+      };
+      const response = await fetch(`http://localhost:3001/api/sales/installation-amounts/promotion/${promotionId}`, {
+        method: 'GET',
+        headers: headers,
+      });
       const data = await response.json();
       setInstallationAmount(data.amount);
     } catch (error) {
@@ -218,6 +248,10 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       formData.append(`other_images`, image);
     });
 
+    if (updatedSale.service_id !== null) {
+      formData.append('service_id', updatedSale.service_id);
+    }
+
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
@@ -227,10 +261,11 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
-          // No incluyas 'Content-Type': 'application/json' aquí, ya que estamos enviando FormData
         },
         body: formData
       });
+
+      console.log(formData);
   
       if (!response.ok) {
         const errorData = await response.json();
@@ -558,7 +593,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
             {roleId === 3 ? "Reingresar" : "Actualizar"}
           </button>
         )}
-        {[1, 2, 3, 4, 5].includes(roleId) && (
+        {(roleId !== 3 || (roleId === 3 && sale.sale_status_id === 4)) && (
           <button onClick={() => {
             if (isEditing) {
               handleCancelEdit();
@@ -570,6 +605,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
           </button>
         )}
       </div>
+
     </div>
   );
 };

@@ -51,7 +51,11 @@ const RegistrarUsuarioPage = () => {
 
   const fetchData = async (url, setData, errorMessage) => {
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) throw new Error(errorMessage);
       const data = await response.json();
       setData(data);
@@ -59,7 +63,7 @@ const RegistrarUsuarioPage = () => {
       console.error(errorMessage, error);
     }
   };
-
+  
   const fetchRoles = () => fetchData('http://localhost:3001/api/roles', setRoles, 'Error al obtener los roles');
   const fetchCompanies = () => fetchData('http://localhost:3001/api/companies', setCompanies, 'Error al obtener las empresas');
   const fetchRegions = () => fetchData('http://localhost:3001/api/regions', setRegions, 'Error al obtener las regiones');
@@ -70,7 +74,10 @@ const RegistrarUsuarioPage = () => {
       setCommunes([]);
       return;
     }
-    await fetchData(`http://localhost:3001/api/communes/communes/${regionId}`, setCommunes, 'Error al obtener las comunas');
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+    await fetchData(`http://localhost:3001/api/communes/communes/${regionId}`, setCommunes, 'Error al obtener las comunas', headers);
   };
 
   const handleChange = (e) => {

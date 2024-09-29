@@ -52,6 +52,8 @@ const SaleCard = ({ sale, onSaleClick, getStatusColor }) => (
           {sale.additional_comments && (
             <p className="info-item gray">{`Comentarios adicionales: ${sale.additional_comments}`}</p>
           )}
+
+          {sale.Company?.company_name && <p className="info-item gray">{sale.Company?.company_name}</p>}
         </div>
       </div>
     </div>

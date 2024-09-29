@@ -93,3 +93,23 @@
   font-size: 14px;
   margin-top: 10px;
 }
+
+/* Responsive Design */
+
+@media (max-width: 768px) {
+  .ingresar-venta-fields-group {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .ingresar-venta-fields-group {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  .ingresar-venta-field-group {
+    margin-bottom: 20px;
+  }
+  .ingresar-venta-submit-button {
+    width: 100%;
+  }
+}

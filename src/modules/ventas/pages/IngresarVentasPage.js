@@ -64,7 +64,11 @@ const IngresarVentasPage = () => {
 
   const fetchRegions = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/regions');
+      const response = await fetch('http://localhost:3001/api/regions', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) throw new Error('Error al obtener las regiones');
       const data = await response.json();
       setRegions(data);
@@ -79,7 +83,11 @@ const IngresarVentasPage = () => {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:3001/api/communes/communes/${regionId}`);
+      const response = await fetch(`http://localhost:3001/api/communes/communes/${regionId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) throw new Error('Error al obtener las comunas');
       const data = await response.json();
       setCommunes(data);
@@ -90,7 +98,11 @@ const IngresarVentasPage = () => {
 
   const fetchPromotions = async (communeId) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/sales/promotions/commune/${communeId}`);
+      const response = await fetch(`http://localhost:3001/api/sales/promotions/commune/${communeId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) throw new Error('Error al obtener las promociones');
       const data = await response.json();
       setPromotions(data);
@@ -101,7 +113,12 @@ const IngresarVentasPage = () => {
 
   const fetchInstallationAmount = async (promotionId) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/sales/installation-amounts/promotion/${promotionId}`);
+      const response = await fetch(`http://localhost:3001/api/sales/installation-amounts/promotion/${promotionId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error('Error al obtener el monto de instalación');
       const data = await response.json();
       setInstallationAmount(data.amount);
     } catch (error) {
@@ -122,7 +139,7 @@ const IngresarVentasPage = () => {
     setSelectedFiles(files);
     const formData = new FormData();
     files.forEach((file, index) => {
-      formData.append(`other_images_${index}`, file); // Utiliza un nombre único para cada archivo
+      formData.append(`other_images_${index}`, file);
     });
   };
 
@@ -158,7 +175,7 @@ const IngresarVentasPage = () => {
       sale_status_id: 1
     };
   
-    const files = selectedFiles || []; // Asegúrate de que selectedFiles no sea null
+    const files = selectedFiles || [];
   
     const formData = new FormData();
     Object.keys(data).forEach((key) => {
@@ -166,11 +183,9 @@ const IngresarVentasPage = () => {
     });
   
     files.forEach((file) => {
-      formData.append('other_images', file); // Asegúrate de que los archivos se agregan correctamente
+      formData.append('other_images', file);
     });
   
-    // Imprimir contenido de FormData para depuración
-    console.log('Contenido de FormData:');
     formData.forEach((value, key) => {
       console.log(key, value);
     });
@@ -179,7 +194,7 @@ const IngresarVentasPage = () => {
       const response = await fetch('http://localhost:3001/api/sales/create', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${token}`, // No agregues Content-Type
+          Authorization: `Bearer ${token}`,
         },
         body: formData,
       });
@@ -226,10 +241,8 @@ const IngresarVentasPage = () => {
   const handleRutChange = (e) => {
     const rut = e.target.value;
     if (isForeignRut) {
-      // Formato de RUT extranjero (sin puntos ni guión)
       setFormValues({ ...formValues, client_rut: rut.replace(/\D+/g, '') });
     } else {
-      // Formato de RUT chileno (con puntos y guión)
       const formattedRut = rut.replace(/\D+/g, '').replace(/^(\d{1,2})(\d{3})(\d{3})(\w{1})$/, '$1.$2.$3-$4');
       setFormValues({ ...formValues, client_rut: formattedRut });
     }
@@ -494,15 +507,16 @@ const IngresarVentasPage = () => {
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                  <label>Imagenes de la venta</label>
+                  <label>Imágenes de la venta (Máx. 5 archivos):</label>
                   <input
                     type="file"
                     accept="image/*"
                     multiple
                     name="other_images"
                     onChange={handleFileChange}
+                    className='input-file'
                   />
-              </div>
+                </div>
             </div>
             <button type="submit" className="ingresar-venta-submit-button">Enviar venta</button>
             {successMessage && <div className="success-message">{successMessage}</div>}

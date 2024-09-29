@@ -16,8 +16,8 @@
   /* Sección de detalles del usuario */
   .mi-perfil-container .user-details {
     display: grid;
-    grid-template-columns: repeat(4, 4fr); /* Tres columnas */
-    gap: 5rem;
+    grid-template-columns: repeat(3, 3fr); /* Tres columnas */
+    gap: 3rem;
 }
   
   /* Etiquetas de los campos */

@@ -1,157 +1,542 @@
 import React, { useEffect, useState, useContext, useCallback, lazy, Suspense } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faTimes, faFilter } from '@fortawesome/free-solid-svg-icons';
 import withAuthorization from '../../../contexts/withAuthorization';
 import './Ventas.css';
 
-const STATUS_COLORS = {
-  1: '#ffa500', 2: '#87ceeb', 3: '#ffff00', 4: '#a3d300', 5: '#4169E1', 6: '#008000', 7: '#ff0000',
-};
-
-const ITEMS_PER_PAGE = 18;
-
-// Lazy load components
 const SaleCard = lazy(() => import('./SaleCard'));
 const Pagination = lazy(() => import('./Pagination'));
+
+const ITEMS_PER_PAGE = 30;
+const STATUS_COLORS = { 1: '#ffa500', 2: '#87ceeb', 3: '#ffff00', 4: '#a3d300', 5: '#4169E1', 6: '#008000', 7: '#ff0000' };
 
 const VentasPage = ({ onSaleClick }) => {
   const { token, roleId } = useContext(UserContext);
   const [sales, setSales] = useState([]);
   const [filteredSales, setFilteredSales] = useState([]);
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [originalTotalPages, setOriginalTotalPages] = useState(1);
+  
+  // Listados de los select
+  const [salesChannels, setSalesChannels] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const [communes, setCommunes] = useState([]);
+  const [installationAmounts, setInstallationAmounts] = useState([]);
+  const [saleStatuses, setSaleStatuses] = useState([]);
+  const [companies, setCompanies] = useState([]);
+  const [promotions, setPromotions] = useState([]);
+  const [roles, setRoles] = useState([]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
-  const cleanSaleData = useCallback((sale) => (
-    Object.fromEntries(Object.entries(sale).map(([key, value]) => [key, value !== 'null' ? value : null]))
-  ), []);
 
-  const fetchSales = useCallback(async (page) => {
+  const [selectedSalesChannel, setSelectedSalesChannel] = useState('');
+  const [selectedRegion, setSelectedRegion] = useState('');
+  const [selectedCommune, setSelectedCommune] = useState('');
+  const [selectedInstallationAmount, setSelectedInstallationAmount] = useState('');
+  const [selectedSaleStatus, setSelectedSaleStatus] = useState('');
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [selectedPromotion, setSelectedPromotion] = useState('');
+  const [filterPriority, setFilterPriority] = useState('');
+  const [selectedPriority, setSelectedPriority] = useState('');
+  const [selectedRole, setSelectedRole] = useState('');
+
+  const [filters, setFilters] = useState({
+    sales_channel_id: '',
+    region_id: '',
+    commune_id: '',
+    promotion_id: '',
+    installation_amount_id: '',
+    sale_status_id: '',
+    company_id: '',
+  });
+  
+  const [originalFilters, setOriginalFilters] = useState({
+    sales_channel_id: '',
+    region_id: '',
+    commune_id: '',
+    promotion_id: '',
+    installation_amount_id: '',
+    sale_status_id: '',
+    company_id: '',
+  });
+  
+  const cleanSaleData = useCallback(sale => Object.fromEntries(Object.entries(sale).map(([key, value]) => [key, value !== 'null' ? value : null])), []);
+
+  const fetchSales = useCallback(async (page = 1) => {
     setLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/all?page=${page}&limit=${ITEMS_PER_PAGE}`, {
+      const filtersWithDates = {
+        ...filters,
+        start_date: startDate,
+        end_date: endDate,
+      };
+  
+      const filteredParams = Object.entries(filtersWithDates)
+        .filter(([key, value]) => value !== undefined && value !== '')
+        .concat([
+          ['page', page],
+          ['limit', ITEMS_PER_PAGE],
+          ['is_priority', filterPriority],
+        ]);
+  
+      const queryString = new URLSearchParams(filteredParams).toString();
+  
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/all?${queryString}`, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
-
-      if (!response.ok) throw new Error(`Error al obtener las ventas: ${response.status} ${response.statusText}`);
-
+  
+      if (!response.ok) throw new Error(`Error fetching sales: ${response.status} ${response.statusText}`);
+      console.log('Q', queryString);
       const { sales: fetchedSales, totalPages: fetchedTotalPages } = await response.json();
-      const cleanedSales = fetchedSales.map(cleanSaleData);
-      setSales(cleanedSales);
-      setFilteredSales(cleanedSales);
-      setTotalPages(fetchedTotalPages);
-      setOriginalTotalPages(fetchedTotalPages);
+      setSales(fetchedSales.map(cleanSaleData));
+      setFilteredSales(fetchedSales.map(cleanSaleData));
+      setTotalPages(fetchedTotalPages || 1);
     } catch (error) {
-      console.error('Error en la solicitud:', error);
+      console.error('Error fetching sales:', error);
+      setSales([]);
+      setFilteredSales([]);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
-  }, [token, cleanSaleData]);
+  }, [token, filters, filterPriority, cleanSaleData, endDate, startDate]);
 
   useEffect(() => {
-    if (![1, 2, 3, 4, 5].includes(roleId)) {
-      console.error('Acceso denegado: No tienes permisos para ver las ventas.');
-      return;
-    }
-    fetchSales(currentPage);
+    if ([1, 2, 3, 4, 5].includes(roleId)) fetchSales(currentPage);
+    else console.error('Acceso denegado: You do not have permission to view sales.');
   }, [fetchSales, roleId, currentPage]);
 
-  const handleSearchChange = (e) => setSearchTerm(e.target.value);
+  useEffect(() => {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+  
+    fetch(`${process.env.REACT_APP_API_URL}/channels`, {
+      headers,
+    })
+      .then(response => response.json())
+      .then(data => setSalesChannels(data));
+  }, [token]);
+  
+  useEffect(() => {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+  
+    fetch(`${process.env.REACT_APP_API_URL}/promotions/installation-amounts`, {
+      headers,
+    })
+      .then(response => response.json())
+      .then(data => setInstallationAmounts(data));
+  }, [token]);
 
-  const handleSearchClick = useCallback(async () => {
+  useEffect(() => {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+  
+    fetch(`${process.env.REACT_APP_API_URL}/companies`, {
+      headers,
+    })
+      .then(response => response.json())
+      .then(data => setCompanies(data));
+  }, [token]);
+
+useEffect(() => {
+    const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  fetch(`${process.env.REACT_APP_API_URL}/regions`, { headers })
+    .then(response => response.json())
+    .then(data => setRegions(data));
+}, [token]);
+  
+useEffect(() => {
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  if (selectedRegion) {
+    setSelectedCommune('');
+    fetch(`${process.env.REACT_APP_API_URL}/communes/communes/${selectedRegion}`, { headers })
+      .then(response => response.json())
+      .then(data => setCommunes(data));
+  } else {
+    setCommunes([]);
+  }
+}, [selectedRegion, token]);
+
+useEffect(() => {
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
+  fetch(`${process.env.REACT_APP_API_URL}/sale-statuses`, {
+    headers,
+  })
+    .then(response => response.json())
+    .then(data => setSaleStatuses(data));
+}, [token]);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/roles', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const rolesData = data.map(role => ({
+            role_id: role.role_id,
+            role_name: role.role_name,
+          }));
+          setRoles(rolesData);
+        } else {
+          console.error('La respuesta no es un arreglo');
+        }
+      });
+  }, [token]);
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/promotions', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          const promotions = data.map(promotion => ({
+            promotion_id: promotion.promotion_id,
+            promotion: promotion.promotion,
+          }));
+          setPromotions(promotions);
+        } else {
+          console.error('La respuesta no es un arreglo');
+        }
+      });
+  }, [token]);
+  
+  useEffect(() => {
+    const headers = {
+      Authorization: `Bearer ${token}`,
+    };
+  
+    if (selectedPromotion) {
+      fetch(`http://localhost:3001/api/sale-statuses/reasons/${selectedPromotion}`, { headers })
+        .then(response => response.json())
+    }
+  }, [selectedPromotion, token]);
+
+  const handleSearch = async () => {
     setLoading(true);
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/all/search?search=${encodeURIComponent(searchTerm)}`, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
-
-      if (!response.ok) throw new Error(`Error al buscar ventas: ${response.status} ${response.statusText}`);
-
-      const cleanedSales = await response.json();
-      setFilteredSales(cleanedSales.map(cleanSaleData));
-      setTotalPages(Math.ceil(cleanedSales.length / ITEMS_PER_PAGE));
+      if (!response.ok) throw new Error('Error searching sales');
+      
+      const results = await response.json();
+      setFilteredSales(results.map(cleanSaleData));
+      setTotalPages(Math.ceil(results.length / ITEMS_PER_PAGE));
       setCurrentPage(1);
     } catch (error) {
-      console.error('Error en la búsqueda:', error);
+      console.error('Error searching sales:', error);
     } finally {
       setLoading(false);
     }
-  }, [token, searchTerm, cleanSaleData]);
-
-  const handleClearSearch = useCallback(() => {
-    setSearchTerm('');
-    setFilteredSales(sales);
-    setTotalPages(originalTotalPages);
-    setCurrentPage(1);
-    fetchSales(1);
-  }, [sales, originalTotalPages, fetchSales]);
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-      if (searchTerm === '') {
-        fetchSales(newPage);
-      }
-    }
   };
 
-  if (loading) return <div>Cargando ventas...</div>;
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    fetchSales(newPage);
+  };
+
+  const handleSearchChange = (e) => setSearchTerm(e.target.value);
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setFilteredSales(sales);
+    setCurrentPage(1);
+    fetchSales(1);
+  };
+
+  const handleExport = async (format) => {
+    try {
+      // Aplicar los filtros actuales y fechas a los parámetros de exportación
+      const filtersWithDates = {
+        ...filters,
+        start_date: startDate,
+        end_date: endDate,
+      };
+  
+      const filteredParams = Object.entries(filtersWithDates)
+        .filter(([key, value]) => value !== undefined && value !== '')
+        .concat([['format', format]]);
+  
+      const queryString = new URLSearchParams(filteredParams).toString();
+  
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/export?${queryString}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      if (!response.ok) throw new Error('Error al exportar los datos');
+  
+      // Descargar el archivo dependiendo del formato
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+  
+      // Asignar nombre al archivo basado en el formato
+      a.download = `ventas.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (error) {
+      console.error('Error al exportar los datos:', error);
+    }
+  };
+  
+
+  if (loading) return <div>Loading sales...</div>;
 
   return (
     <div className="ventas-page">
       <h1>Ventas</h1>
       <div className="search-bar">
-        <label htmlFor="search-input" className="visually-hidden"></label>
         <input
           type="text"
-          id="search-input"
-          name="search"
           placeholder="Buscar ventas..."
           value={searchTerm}
           onChange={handleSearchChange}
           autoComplete="off"
         />
-        {searchTerm && (
-          <button className="clear-button" onClick={handleClearSearch} aria-label="Limpiar búsqueda">
-            <FontAwesomeIcon icon={faTimes} />
-          </button>
-        )}
-        <button className="search-button" onClick={handleSearchClick}>
-          <FontAwesomeIcon icon={faSearch} />
-          Buscar
+        {searchTerm && <button className="clear-button" onClick={handleClearSearch}><FontAwesomeIcon icon={faTimes} /></button>}
+        <button className="search-button" onClick={handleSearch}><FontAwesomeIcon icon={faSearch} /> Buscar</button>
+        <button className="filter-button" onClick={() => setIsFilterVisible(!isFilterVisible)}>
+          <FontAwesomeIcon icon={faFilter} /> Filtros
         </button>
       </div>
-      {filteredSales.length > 0 ? (
-        <>
+
+      <div className={`filter-section ${isFilterVisible ? 'active' : ''}`}>
+        <div className='column-1'>
+          <div className="filters">
+            <h4>Fecha</h4>
+            <div>
+              <label>Fecha de inicio:</label>
+              <input type="date" key="input-start-date"  value={startDate} onChange={e => setStartDate(e.target.value)} />
+            </div>
+            <div>
+              <label>Fecha de fin:</label>
+              <input type="date" key="input-end-date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+            </div>
+          </div>
+      
+          <div className="filters">
+            <h4>Canales de Venta</h4>
+            <select value={selectedSalesChannel} onChange={e => setSelectedSalesChannel(e.target.value)}>
+              <option key="default-channel" value="" disabled>Selecciona un canal de venta</option>
+              {salesChannels.map(channel => (
+                <option key={channel.sales_channel_id} value={channel.sales_channel_id}>{channel.channel_name}</option>
+              ))}
+            </select>
+            {selectedSalesChannel && (
+              <button onClick={() => setSelectedSalesChannel('')}>Borrar</button>
+            )}
+          </div>
+
+          <div className="filters">
+            <h4>Empresas</h4>
+            <select value={selectedCompany} onChange={e => setSelectedCompany(e.target.value)}>
+              <option key="default-company" value="" disabled>Selecciona una empresa</option>
+              {companies.map((company) => (
+                <option key={company.company_id} value={company.company_id}>{company.company_name}</option>
+              ))}
+            </select>
+            {selectedCompany && (
+              <button onClick={() => setSelectedCompany('')}>Borrar</button>
+            )}
+          </div>
+        </div>
+        <div className='='filter-section>
+          <div className="filters">
+            <h4>Regiones</h4>
+            <select value={selectedRegion} onChange={e => setSelectedRegion(e.target.value)}>
+              <option key="default-region" value="" disabled>Selecciona una región</option>
+              {regions.map(region => (
+                <option key={region.region_id} value={region.region_id}>{region.region_name}</option>
+              ))}
+            </select>
+            {selectedRegion && (
+              <button onClick={() => setSelectedRegion('')}>Borrar</button>
+            )}
+          </div>
+        </div>
+
+
+        <div className="filters">
+          <h4>Comunas</h4>
+          <select value={selectedCommune} onChange={e => setSelectedCommune(e.target.value)}>
+            <option key="default-commune" value="" disabled>Selecciona una comuna</option>
+            {communes.map((commune) => (
+              <option key={commune.commune_id} value={commune.commune_id}>{commune.commune_name}</option>
+            ))}
+          </select>
+          {selectedCommune && (
+            <button onClick={() => setSelectedCommune('')}>Borrar</button>
+          )}
+        </div>
+
+
+        <div className="filters">
+          <h4>Promociones</h4>
+          <select value={selectedPromotion} onChange={e => setSelectedPromotion(e.target.value)}>
+            <option key="default-promotion" value="" disabled>Selecciona una promoción</option>
+            {promotions.map(promotion => (
+              <option key={promotion.promotion_id} value={promotion.promotion_id}>{promotion.promotion}</option>
+            ))}
+          </select>
+          {selectedPromotion && (
+            <button onClick={() => setSelectedPromotion('')}>Borrar</button>
+          )}
+        </div>
+
+    
+        <div className="filters">
+          <h4>Monto de instalación</h4>
+          <select value={selectedInstallationAmount} onChange={e => setSelectedInstallationAmount(e.target.value)}>
+            <option key="default-amount" value="" disabled>Selecciona un monto de instalación</option>
+            {installationAmounts.map((amount) => (
+              <option key={amount.installations_amount_id} value={amount.installation_amount_id}>{amount.amount}</option>
+            ))}
+          </select>
+          {selectedInstallationAmount && (
+            <button onClick={() => setSelectedInstallationAmount('')}>Borrar</button>
+          )}
+        </div>
+   
+    
+        <div className="filters">
+          <h4>Estado de venta</h4>
+          <select value={selectedSaleStatus} onChange={e => setSelectedSaleStatus(e.target.value)}>
+            <option key="default-status" value="" disabled>Selecciona un estado de venta</option>
+            {saleStatuses.map(status => (
+              <option key={status.sale_status_id} value={status.sale_status_id}>{status.status_name}</option>
+            ))}
+          </select>
+          {selectedSaleStatus && (
+            <button onClick={() => setSelectedSaleStatus('')}>Borrar</button>
+          )}
+        </div>
+
+        <div className="filters">
+          <h4>Rol</h4>
+          <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)}>
+            <option key="default-role" value="" disabled>Selecciona un rol</option>
+            {roles.map(role => (
+              <option key={role.role_id} value={role.role_id}>{role.role_name}</option>
+            ))}
+          </select>
+          {selectedRole && (
+            <button onClick={() => setSelectedRole('')}>Borrar</button>
+          )}
+        </div>
+ 
+
+        <div className="filters">
+          <h4>Prioridad</h4>
+          <select value={selectedPriority} onChange={e => setSelectedPriority(e.target.value)}>
+            <option key="default-priority" value="" disabled>Selecciona una opción</option>
+            <option key="prioridad" value="1">Prioridad</option>
+            <option key="no-prioridad" value="0">No prioridad</option>
+          </select>
+          {selectedPriority && (
+            <button onClick={() => setSelectedPriority('')}>Borrar</button>
+          )}
+        </div>
+
+
+        <button onClick={() => {
+
+          setFilters({
+            sales_channel_id: selectedSalesChannel,
+            region_id: selectedRegion,
+            commune_id: selectedCommune,
+            promotion_id: selectedPromotion,
+            installation_amount_id: selectedInstallationAmount,
+            sale_status_id: selectedSaleStatus,
+            company_id: selectedCompany,
+            role_id: selectedRole,
+            is_priority: selectedPriority,
+            start_date: startDate,
+            end_date: endDate,
+          });
+          fetchSales(currentPage);
+        }}>Aplicar filtros</button>
+
+        <button onClick={() => {
+          // Limpiar todos los valores de los filtros
+          setFilters(originalFilters); 
+
+          // Limpiar las fechas del estado
+          setStartDate(''); 
+          setEndDate(''); 
+
+          // Limpiar los selectores y demás valores de los filtros
+          setSelectedSalesChannel('');
+          setSelectedRegion('');
+          setSelectedCommune('');
+          setSelectedPromotion('');
+          setSelectedInstallationAmount('');
+          setSelectedSaleStatus('');
+          setSelectedCompany('');
+          setSelectedRole('');
+          setSelectedPriority('');
+
+          // Volver a cargar todas las ventas (sin filtro)
+          fetchSales(1);
+        }}>Limpiar filtros</button>
+      </div>
+
+      <div className="export-buttons">
+        <button onClick={() => handleExport('excel')}>Exportar Excel</button>
+        <button onClick={() => handleExport('csv')}>Exportar CSV</button>
+        <button onClick={() => handleExport('pdf')}>Exportar PDF</button>
+        <button onClick={() => handleExport('word')}>Exportar Word</button>
+      </div>
+
+
+
+      <div className="sales-container">
+        {loading ? (
+          <div>Loading sales...</div>
+        ) : filteredSales.length > 0 ? (
           <div className="sales-list">
-            <Suspense fallback={<div>Cargando tarjetas de venta...</div>}>
-              {filteredSales.map((sale) => (
-                <SaleCard
-                  key={sale.sale_id}
-                  sale={sale}
-                  onSaleClick={onSaleClick}
-                  getStatusColor={getStatusColor}
-                />
+            <Suspense fallback={<div>Loading sales...</div>}>
+              {filteredSales.map(sale => (
+                <SaleCard key={`${sale.sale_id}-${sale.created_at}`} sale={sale} onSaleClick={onSaleClick} getStatusColor={getStatusColor} />
               ))}
             </Suspense>
           </div>
-          <Suspense fallback={<div>Cargando paginación...</div>}>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-          </Suspense>
-        </>
-      ) : (
-        <div>No se encontraron ventas.</div>
-      )}
+        ) : (
+          <div>No se encontraron ventas.</div>
+        )}
+      </div>
+      
+      <Suspense fallback={<div>Loading pagination...</div>}>
+        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+      </Suspense>
     </div>
   );
-};
+} 
 
 const getStatusColor = (saleStatusId) => STATUS_COLORS[saleStatusId] || '#ffffff';
 

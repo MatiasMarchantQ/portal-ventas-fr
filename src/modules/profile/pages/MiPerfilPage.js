@@ -11,9 +11,7 @@ const MiPerfilPage = () => {
     const [error, setError] = useState(null);
     const [formValues, setFormValues] = useState({
         first_name: '',
-        second_name: '',
         last_name: '',
-        second_last_name: '',
         rut: '',
         email: '',
         phone_number: '',
@@ -42,9 +40,7 @@ const MiPerfilPage = () => {
     const fieldLabels = {
         role_id: 'Rol',
         first_name: 'Nombre',
-        second_name: 'Segundo Nombre',
         last_name: 'Apellido',
-        second_last_name: 'Segundo Apellido',
         rut: 'RUT',
         email: 'Correo Electrónico',
         phone_number: 'Número de Teléfono',
@@ -80,18 +76,26 @@ const MiPerfilPage = () => {
 
     const fetchRoles = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/roles');
-            if (!response.ok) throw new Error('Error al obtener los roles');
-            const data = await response.json();
-            setRoles(data);
+          const headers = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          };
+          const response = await fetch('http://localhost:3001/api/roles', { headers });
+          if (!response.ok) throw new Error('Error al obtener los roles');
+          const data = await response.json();
+          setRoles(data);
         } catch (error) {
-            setError(error.message);
+          setError(error.message);
         }
-    };
+      };
 
     const fetchRegions = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/regions/');
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              };
+            const response = await fetch('http://localhost:3001/api/regions/', { headers });
             if (!response.ok) throw new Error('Error al obtener las regiones');
             const data = await response.json();
             setRegions(data);
@@ -102,7 +106,11 @@ const MiPerfilPage = () => {
 
     const fetchCompanies = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/companies');
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              };
+            const response = await fetch('http://localhost:3001/api/companies', { headers });
             if (!response.ok) throw new Error('Error al obtener las empresas');
             const data = await response.json();
             setCompanies(data);
@@ -113,7 +121,11 @@ const MiPerfilPage = () => {
 
     const fetchSalesChannels = async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/channels');
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              };
+            const response = await fetch('http://localhost:3001/api/channels', { headers });
             if (!response.ok) throw new Error('Error al obtener los canales de venta');
             const data = await response.json();
             setSalesChannels(data);
@@ -124,7 +136,11 @@ const MiPerfilPage = () => {
 
     const fetchCommunes = async (regionId) => {
         try {
-            const response = await fetch(`http://localhost:3001/api/communes/communes/${regionId}`);
+            const headers = {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              };
+            const response = await fetch(`http://localhost:3001/api/communes/communes/${regionId}`, { headers });
             if (!response.ok) throw new Error('Error al obtener las comunas');
             const data = await response.json();
             setCommunes(data);
@@ -241,7 +257,7 @@ const MiPerfilPage = () => {
                     <div></div>
                     <div></div>
                     <div></div>
-                    {['first_name', 'second_name', 'last_name', 'second_last_name'].map((field, index) => (
+                    {['first_name', 'last_name'].map((field, index) => (
                         <div className="user-info" key={index}>
                             <strong>{fieldLabels[field]}: </strong>
                             {isEditing ? (

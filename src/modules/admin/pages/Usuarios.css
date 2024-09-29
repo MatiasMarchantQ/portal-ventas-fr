@@ -11,7 +11,68 @@
   color: #99235C;
 }
 
-.table-container {
+/* Estilos para la sección de filtros */
+.usuarios-page .filter-section {
+  margin-bottom: 20px;
+}
+
+.usuarios-page .filter-button {
+  background-color: #99235C;
+  color: #ffffff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease;
+}
+
+.usuarios-page .filter-button:hover {
+  background-color: #8b2353;
+}
+
+.usuarios-page .filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
+
+.usuarios-page .filters select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.usuarios-page .filters button {
+  width: 15%;
+  background-color: #99235C;
+  color: #ffffff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.usuarios-page .filters button:hover {
+  background-color: #8b2353;
+}
+
+.usuarios-page .filters button:last-child {
+  background-color: #6c757d;
+}
+
+.usuarios-page .filters button:last-child:hover {
+  background-color: #5a6268;
+}
+
+.usuarios-page .table-container {
   overflow-x: auto;
 }
 
@@ -58,7 +119,7 @@
   color: #666;
 }
 
-.detalle-button {
+.usuarios-page .detalle-button {
   background-color: #99235C;
   color: #ffffff;
   border: none;
@@ -68,7 +129,7 @@
   transition: background-color 0.3s ease;
 }
 
-.detalle-button:hover {
+.usuarios-page .detalle-button:hover {
   background-color: #8b2353;
 }
 
@@ -128,5 +189,15 @@
   .usuarios-page .pagination-number {
     padding: 6px 10px;
     font-size: 14px;
+  }
+
+  /* Estilos responsive para los filtros */
+  .usuarios-page .filters {
+    flex-direction: column;
+  }
+
+  .usuarios-page .filters select,
+  .usuarios-page .filters button {
+    width: 100%;
   }
 }

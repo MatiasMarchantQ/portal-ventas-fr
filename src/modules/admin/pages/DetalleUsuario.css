@@ -99,9 +99,17 @@
     margin-top: 20px;
   }
   
-  
   .detalle-usuario-button:hover {
     background-color: #b93775;
+  }
+
+  .detalle-usuario-submit{
+    background-color: #99235C;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
   }
   
   /* Responsiveness for small screens */

@@ -65,36 +65,36 @@ const ViewOptions = ({ token, regions }) => {
   // Cargar comunas cuando se selecciona una región
   useEffect(() => {
     if (selectedRegionId) {
-      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`)
+      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`,'GET', null, token)
         .then(setCommunes)
         .catch(error => console.error('Error al cargar las comunas:', error));
     } else {
       setCommunes([]); // Limpiar comunas si no hay región seleccionada
     }
-  }, [selectedRegionId]);
+  }, [selectedRegionId, token]);
 
   // Cargar promociones cuando se selecciona una comuna
   useEffect(() => {
     if (selectedCommuneId) {
       // Cambiar el endpoint para obtener promociones por comuna
-      apiCall(`http://localhost:3001/api/sales/promotions/commune/${selectedCommuneId}`)
+      apiCall(`http://localhost:3001/api/sales/promotions/commune/${selectedCommuneId}`,'GET', null, token)
         .then(setPromotions)
         .catch(error => console.error('Error al cargar las promociones:', error));
     } else {
       setPromotions([]); // Limpiar promociones si no hay comuna seleccionada
     }
-  }, [selectedCommuneId]);
+  }, [selectedCommuneId, token]);
 
   // Cargar monto de instalación cuando se selecciona una promoción
   useEffect(() => {
     if (selectedPromotionId) {
-      apiCall(`http://localhost:3001/api/sales/installation-amounts/promotion/${selectedPromotionId}`)
+      apiCall(`http://localhost:3001/api/sales/installation-amounts/promotion/${selectedPromotionId}`,'GET', null, token)
         .then(response => setInstallationAmount(response))
         .catch(error => console.error('Error al cargar el monto de instalación:', error));
     } else {
       setInstallationAmount(''); // Limpiar el monto si no hay promoción seleccionada
     }
-  }, [selectedPromotionId]);
+  }, [selectedPromotionId, token]);
 
   // Manejar cambios de selección
   const handleRegionChange = (event) => {
@@ -243,11 +243,11 @@ const UpdateCommune = ({ token, regions }) => {
 
   useEffect(() => {
     if (selectedRegionId) {
-      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`)
+      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`,'GET', null, token)
         .then(setCommunes)
         .catch(error => console.error('Error loading communes:', error));
     }
-  }, [selectedRegionId]);
+  }, [selectedRegionId, token]);
 
   const handleRegionChange = (regionId) => {
     setSelectedRegionId(regionId);
@@ -465,11 +465,11 @@ const DisablePromotions = ({ token, regions, promotions }) => {
   useEffect(() => {
     if (selectedRegionId) {
       // Cargar comunas para la región seleccionada
-      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`)
+      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`,'GET', null, token)
         .then(setCommunes)
         .catch(error => console.error('Error al cargar comunas:', error));
     }
-  }, [selectedRegionId]);
+  }, [selectedRegionId, token]);
 
   const handleRegionChange = (event) => {
     const regionId = event.target.value; // Obtener el ID de la región seleccionada
@@ -571,13 +571,13 @@ const AssignPromotion = ({ token, regions, promotions }) => {
   useEffect(() => {
     if (selectedRegionId) {
       // Cargar las comunas para la región seleccionada
-      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`)
+      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`,'GET', null, token)
         .then(setCommunes)
         .catch(error => console.error('Error al cargar las comunas:', error));
     } else {
       setCommunes([]); // Limpiar las comunas si no hay región seleccionada
     }
-  }, [selectedRegionId]);
+  }, [selectedRegionId, token]);
 
   const handleRegionChange = (event) => {
     setSelectedRegionId(event.target.value); // Guardar el ID de la región seleccionada
@@ -632,7 +632,7 @@ const AssignPromotion = ({ token, regions, promotions }) => {
         className="comunas-tarifas-field"
         value={selectedCommuneId}
         onChange={handleCommuneChange}
-        disabled={!selectedRegionId} // Desactivar si no hay región seleccionada
+        disabled={!selectedRegionId}
       >
         <option value="">Seleccione una comuna</option>
         {communes.map(commune => (
@@ -750,8 +750,8 @@ const ComunasTarifas = () => {
     const fetchData = async () => {
       try {
         const [regionsData, installationAmountsData, promotionsData] = await Promise.all([
-          apiCall('http://localhost:3001/api/regions'),
-          apiCall('http://localhost:3001/api/promotions/installation-amounts'),
+          apiCall('http://localhost:3001/api/regions','GET', null, token),
+          apiCall('http://localhost:3001/api/promotions/installation-amounts','GET', null, token),
           apiCall('http://localhost:3001/api/promotions', 'GET', null, token)
         ]);
         setRegions(regionsData);
