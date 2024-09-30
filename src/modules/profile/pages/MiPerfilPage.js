@@ -254,9 +254,14 @@ const MiPerfilPage = () => {
                         <strong>Rol: </strong>
                         <span>{roles.find(role => role.role_id === userData.role_id)?.role_name}</span>
                     </div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+                    <div className="user-info">
+                        <strong>{fieldLabels.company_id}: </strong>
+                        <span>{companies.find(company => company.company_id === userData.company_id)?.company_name}</span>
+                    </div>
+                    <div className="user-info">
+                        <strong>{fieldLabels.sales_channel_id}: </strong>
+                        <span>{salesChannels.find(c => c.sales_channel_id === userData.sales_channel_id)?.channel_name}</span>
+                    </div>
                     {['first_name', 'last_name'].map((field, index) => (
                         <div className="user-info" key={index}>
                             <strong>{fieldLabels[field]}: </strong>
@@ -301,10 +306,7 @@ const MiPerfilPage = () => {
                             )}
                         </div>
                     ))}
-                    <div className="user-info">
-                        <strong>{fieldLabels.company_id}: </strong>
-                        <span>{companies.find(company => company.company_id === userData.company_id)?.company_name}</span>
-                    </div>
+                    <div></div>
                     <div className="user-info">
                         <strong>{fieldLabels.region_id}: </strong>
                         {isEditing ? (
@@ -367,23 +369,19 @@ const MiPerfilPage = () => {
                         <span>{userData.number}</span>
                         )}
                     </div>
-                    <div>
-                        <strong>{fieldLabels.department_office_floor}</strong><br/>
-                        {isEditing ? (
-                        <input
-                            type="text"
-                            name="department_office_floor"
-                            value={formValues.department_office_floor}
-                            onChange={handleInputChange}
-                        />
-                        ) : (
-                        <span>{userData.department_office_floor}</span>
-                        )}
-                    </div>
-                    </div>
-                    <div className="user-info">
-                        <strong>{fieldLabels.sales_channel_id}: </strong>
-                        <span>{salesChannels.find(c => c.sales_channel_id === userData.sales_channel_id)?.channel_name}</span>
+                        <div>
+                            <strong>{fieldLabels.department_office_floor}</strong><br/>
+                            {isEditing ? (
+                            <input
+                                type="text"
+                                name="department_office_floor"
+                                value={formValues.department_office_floor}
+                                onChange={handleInputChange}
+                            />
+                            ) : (
+                            <span>{userData.department_office_floor}</span>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div className="user-actions">

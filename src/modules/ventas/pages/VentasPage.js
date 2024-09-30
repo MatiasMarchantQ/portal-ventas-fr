@@ -32,6 +32,7 @@ const VentasPage = ({ onSaleClick }) => {
   const [roles, setRoles] = useState([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [exportFormat, setExportFormat] = useState('');
 
 
   const [selectedSalesChannel, setSelectedSalesChannel] = useState('');
@@ -81,7 +82,6 @@ const VentasPage = ({ onSaleClick }) => {
         .concat([
           ['page', page],
           ['limit', ITEMS_PER_PAGE],
-          ['is_priority', filterPriority],
         ]);
   
       const queryString = new URLSearchParams(filteredParams).toString();
@@ -269,42 +269,71 @@ useEffect(() => {
   };
 
   const handleExport = async (format) => {
+    const filters = {
+      sale_status_id: selectedSaleStatus,
+      region_id: selectedRegion,
+      commune_id: selectedCommune,
+      promotion_id: selectedPromotion,
+      installation_amount_id: selectedInstallationAmount,
+      company_id: selectedCompany,
+      start_date: startDate,
+      end_date: endDate,
+    };
+  
+    const queryString = Object.keys(filters)
+      .filter(key => filters[key] !== '')
+      .map(key => `${key}=${filters[key]}`)
+      .join('&');
+  
+    let url = '';
+    let responseType = '';
+    let filename = '';
+  
+    switch (format) {
+      case 'excel':
+        url = `http://localhost:3001/api/sales/all/export/excel?${queryString}`;
+        responseType = 'blob';
+        filename = 'ventas.xlsx';
+        break;
+      case 'pdf':
+        url = `http://localhost:3001/api/sales/all/export/pdf?${queryString}`;
+        responseType = 'blob';
+        filename = 'ventas.pdf';
+        break;
+      case 'word':
+        url = `http://localhost:3001/api/sales/all/export/word?${queryString}`;
+        responseType = 'blob';
+        filename = 'ventas.docx';
+        break;
+      case 'csv':
+        url = `http://localhost:3001/api/sales/all/export/csv?${queryString}`;
+        responseType = 'text/csv';
+        filename = 'ventas.csv';
+        break;
+      default:
+        console.error('Formato de exportación no válido');
+        return;
+    }
+  
     try {
-      // Aplicar los filtros actuales y fechas a los parámetros de exportación
-      const filtersWithDates = {
-        ...filters,
-        start_date: startDate,
-        end_date: endDate,
-      };
-  
-      const filteredParams = Object.entries(filtersWithDates)
-        .filter(([key, value]) => value !== undefined && value !== '')
-        .concat([['format', format]]);
-  
-      const queryString = new URLSearchParams(filteredParams).toString();
-  
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/export?${queryString}`, {
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        responseType,
       });
-  
-      if (!response.ok) throw new Error('Error al exportar los datos');
-  
-      // Descargar el archivo dependiendo del formato
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
+      const data = await response.blob();
+      const urlBlob = window.URL.createObjectURL(data);
       const a = document.createElement('a');
-      a.href = url;
-  
-      // Asignar nombre al archivo basado en el formato
-      a.download = `ventas.${format}`;
-      document.body.appendChild(a);
+      a.href = urlBlob;
+      a.download = filename;
       a.click();
-      a.remove();
+      window.URL.revokeObjectURL(urlBlob);
     } catch (error) {
-      console.error('Error al exportar los datos:', error);
+      console.error(error);
     }
   };
-  
 
   if (loading) return <div>Loading sales...</div>;
 
@@ -506,11 +535,15 @@ useEffect(() => {
         }}>Limpiar filtros</button>
       </div>
 
-      <div className="export-buttons">
-        <button onClick={() => handleExport('excel')}>Exportar Excel</button>
-        <button onClick={() => handleExport('csv')}>Exportar CSV</button>
-        <button onClick={() => handleExport('pdf')}>Exportar PDF</button>
-        <button onClick={() => handleExport('word')}>Exportar Word</button>
+      <div className="export-buttons" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <select value={exportFormat} onChange={e => setExportFormat(e.target.value)}>
+          <option value="">Seleccione un formato</option>
+          <option value="excel">Exportar Excel</option>
+          <option value="csv">Exportar CSV</option>
+          <option value="pdf">Exportar PDF</option>
+          <option value="word">Exportar Word</option>
+        </select>
+        <button onClick={() => handleExport(exportFormat)}>Exportar</button>
       </div>
 
 
