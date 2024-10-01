@@ -32,7 +32,6 @@ const IngresarVentasPage = () => {
   const [loading, setLoading] = useState(false);
   const [isForeignPhone, setIsForeignPhone] = useState(false);
   const [isForeignSecondaryPhone, setIsForeignSecondaryPhone] = useState(false);
-  const [files, setFiles] = useState([]);
 
   useEffect(() => {
     const allowedRoles = [1, 2, 3];
@@ -73,7 +72,7 @@ const IngresarVentasPage = () => {
       const data = await response.json();
       setRegions(data);
     } catch (error) {
-      console.error('Error al obtener las regiones:', error);
+      throw new Error(error.message);
     }
   };
 
@@ -92,7 +91,7 @@ const IngresarVentasPage = () => {
       const data = await response.json();
       setCommunes(data);
     } catch (error) {
-      console.error('Error al obtener las comunas:', error);
+      throw new Error(error.message);
     }
   };
 
@@ -107,7 +106,7 @@ const IngresarVentasPage = () => {
       const data = await response.json();
       setPromotions(data);
     } catch (error) {
-      console.error('Error al obtener las promociones:', error);
+      throw new Error(error.message);
     }
   };
 
@@ -122,8 +121,8 @@ const IngresarVentasPage = () => {
       const data = await response.json();
       setInstallationAmount(data.amount);
     } catch (error) {
-      console.error('Error al obtener el monto de instalación:', error);
       setInstallationAmount('Error al cargar');
+      throw new Error(error.message);
     } finally {
       setLoading(false);
     }
@@ -145,10 +144,14 @@ const IngresarVentasPage = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'client_phone' && !isForeignPhone && !value.startsWith('+56')) {
-      setFormValues({ ...formValues, client_phone: '+56' });
-    } else if (name === 'client_secondary_phone' && !isForeignPhone && value.startsWith('+56')) {
-      setFormValues({ ...formValues, client_secondary_phone: '+56' + value.replace('+56', '') });
+    if ((name === 'client_phone' || name === 'client_secondary_phone') && !isForeignPhone && !isForeignSecondaryPhone) {
+      if (value === '') {
+        setFormValues({ ...formValues, [name]: '+56' });
+      } else if (!value.startsWith('+56')) {
+        setFormValues({ ...formValues, [name]: '+56' + value });
+      } else {
+        setFormValues({ ...formValues, [name]: value });
+      }
     } else {
       setFormValues({ ...formValues, [name]: value });
     }
@@ -160,18 +163,18 @@ const IngresarVentasPage = () => {
     const data = {
       client_first_name: formValues.client_first_name,
       client_last_name: formValues.client_last_name,
-      client_rut: formValues.client_rut,
+      client_rut: formValues.client_rut.replace(/\D+/g, ''),
       client_email: formValues.client_email,
-      client_phone: formValues.client_phone,
-      client_secondary_phone: formValues.client_secondary_phone,
+      client_phone: isForeignPhone ? (formValues.client_phone || null) : (formValues.client_phone.replace('+56', '') || null),
+      client_secondary_phone: isForeignSecondaryPhone ? (formValues.client_secondary_phone || null) : (formValues.client_secondary_phone.replace('+56', '') || null),    
       region_id: formValues.region_id,
       commune_id: formValues.commune_id,
-      street: formValues.street,
-      number: formValues.number,
-      department_office_floor: formValues.department_office_floor,
-      geo_reference: formValues.geo_reference,
+      street: formValues.street || null,
+      number: formValues.number || null,
+      department_office_floor: formValues.department_office_floor || null,
+      geo_reference: formValues.geo_reference || null,
       promotion_id: formValues.promotion_id,
-      additional_comments: formValues.additional_comments,
+      additional_comments: formValues.additional_comments || null,
       sale_status_id: 1
     };
   
@@ -179,12 +182,24 @@ const IngresarVentasPage = () => {
   
     const formData = new FormData();
     Object.keys(data).forEach((key) => {
-      formData.append(key, data[key]);
+      if (data[key] === null) {
+        formData.append(key, '');
+      } else {
+        formData.append(key, data[key]);
+      }
     });
   
     files.forEach((file) => {
       formData.append('other_images', file);
     });
+
+    if (files.length === 0) {
+      formData.append('other_images', null);
+    } else {
+      files.forEach((file) => {
+        formData.append('other_images', file);
+      });
+    }
   
     formData.forEach((value, key) => {
       console.log(key, value);
@@ -199,9 +214,9 @@ const IngresarVentasPage = () => {
         body: formData,
       });
   
-      console.log(response);
       if (!response.ok) {
-        throw new Error('Error al enviar la venta');
+        const errorData = await response.json();
+        throw new Error(errorData.message);
       }
   
       const responseData = await response.json();
@@ -225,10 +240,11 @@ const IngresarVentasPage = () => {
         additional_comments: '',
       });
       setSelectedFiles([]);
+      document.querySelector('input[type="file"]').value = '';
       setInstallationAmount('');
     } catch (error) {
       console.error('Error al enviar la venta:', error);
-      setErrorMessage('Error al enviar la venta');
+      setErrorMessage(error.message);
       setSuccessMessage('');
     }
   };
@@ -247,34 +263,35 @@ const IngresarVentasPage = () => {
       setFormValues({ ...formValues, client_rut: formattedRut });
     }
   };
-
+  
   const handleForeignPhoneChange = (e) => {
     setIsForeignPhone(e.target.checked);
     if (e.target.checked) {
       setFormValues({ ...formValues, client_phone: '' });
     } else {
-      if (!formValues.client_phone.startsWith('+56')) {
-        setFormValues({ ...formValues, client_phone: '+56' });
-      }
+      const phoneNumber = formValues.client_phone.replace('+56', '');
+      setFormValues({ ...formValues, client_phone: '+56' + phoneNumber });
     }
   };
-
+  
   const handleForeignSecondaryPhoneChange = (e) => {
     setIsForeignSecondaryPhone(e.target.checked);
     if (e.target.checked) {
       setFormValues({ ...formValues, client_secondary_phone: '' });
     } else {
-      setFormValues({ ...formValues, client_secondary_phone: '+56' });
+      const phoneNumber = formValues.client_secondary_phone.replace('+56', '');
+      setFormValues({ ...formValues, client_secondary_phone: '+56' + phoneNumber });
     }
   };
 
   return (
     <div className="ingresar-venta-wrapper">
         <h1 className="ingresar-venta-header">Ingresar venta</h1>
+        <h3>Cliente</h3>
         <form className="ingresar-venta-form" onSubmit={handleSubmit}>
             <div className="ingresar-venta-fields-group">
                 <div className="ingresar-venta-field-group">
-                    <label htmlFor="client_first_name">Nombres (Primer y Segundo Nombre):</label>
+                    <label htmlFor="client_first_name">Nombres (Primer y Segundo Nombre)*</label>
                     <input
                         type="text"
                         className="ingresar-venta-field-control"
@@ -282,13 +299,14 @@ const IngresarVentasPage = () => {
                         name="client_first_name"
                         value={formValues.client_first_name}
                         onChange={handleInputChange}
+                        placeholder='Ej: Juan Pablo Andrés'
                         autoComplete="given-name"
                         required
                     />
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                    <label htmlFor="client_last_name">Apellidos (Primer y Segundo Apellido):</label>
+                    <label htmlFor="client_last_name">Apellidos (Primer y Segundo Apellido)*</label>
                     <input
                         type="text"
                         className="ingresar-venta-field-control"
@@ -296,13 +314,14 @@ const IngresarVentasPage = () => {
                         name="client_last_name"
                         value={formValues.client_last_name}
                         onChange={handleInputChange}
+                        placeholder='Ej: García López'
                         autoComplete="family-name"
                         required
                     />
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                    <label htmlFor="client_rut">RUT:</label>
+                    <label htmlFor="client_rut">RUT*</label>
                     <input
                         type="text"
                         className="ingresar-venta-field-control"
@@ -317,22 +336,32 @@ const IngresarVentasPage = () => {
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                    <label htmlFor="client_email">Email:</label>
+                    <label htmlFor="client_email">Email</label>
                     <input
                         type="email"
                         className="ingresar-venta-field-control"
                         id="client_email"
                         name="client_email"
                         value={formValues.client_email}
+                        placeholder='Ej: jpa.garcia@dominio.com'
                         onChange={handleInputChange}
                         autoComplete="email"
                         required
+                        rows={1}
+                        style={{ resize: 'none', overflow: 'hidden' }}
+                        onInput={(e) => {
+                          const textarea = e.target;
+                          const rows = textarea.value.split('\n').length;
+                          textarea.rows = rows;
+                          textarea.style.height = 'auto';
+                          textarea.style.height = textarea.scrollHeight + 'px';
+                        }}
                     />
                 </div>
 
                 <div className="ingresar-venta-field-group">
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <label htmlFor="client_phone">Número celular:</label>
+                    <label htmlFor="client_phone">Número celular</label>
                     <label>
                       <input
                         type="checkbox"
@@ -350,12 +379,11 @@ const IngresarVentasPage = () => {
                     value={formValues.client_phone}
                     onChange={handleInputChange}
                     autoComplete="tel"
-                    required
                   />
                 </div>
                 <div className="ingresar-venta-field-group">
                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <label htmlFor="client_secondary_phone" style={{fontSize: 12}}>2do Número celular (Opcional):</label>
+                    <label htmlFor="client_secondary_phone" style={{fontSize: 12}}>2do Número celular (Opcional)</label>
                     <label>
                       <input
                         type="checkbox"
@@ -377,7 +405,7 @@ const IngresarVentasPage = () => {
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                    <label htmlFor="region_id">Región:</label>
+                    <label htmlFor="region_id">Región</label>
                     <select
                         className="ingresar-venta-field-control"
                         id="region_id"
@@ -396,7 +424,7 @@ const IngresarVentasPage = () => {
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                    <label htmlFor="commune_id">Comuna:</label>
+                    <label htmlFor="commune_id">Comuna</label>
                     <select
                         className="ingresar-venta-field-control"
                         id="commune_id"
@@ -413,22 +441,31 @@ const IngresarVentasPage = () => {
                         ))}
                     </select>
                 </div>
-
                 <div className="ingresar-venta-field-group">
-                    <label htmlFor="street">Calle/Avenida:</label>
-                    <input
-                        type="text"
-                        className="ingresar-venta-field-control"
-                        id="street"
-                        name="street"
-                        value={formValues.street}
-                        onChange={handleInputChange}
-                        autoComplete="address-line1"
-                    />
+                  <label htmlFor="street">Calle/Avenida</label>
+                  <textarea
+                    type="text"
+                    className="ingresar-venta-field-control"
+                    id="street"
+                    name="street"
+                    value={formValues.street}
+                    onChange={handleInputChange}
+                    placeholder="Ej: Avenida Santa María"
+                    autoComplete="address-line1"
+                    rows={1}
+                    style={{ resize: 'none', overflow: 'hidden' }}
+                    onInput={(e) => {
+                      const textarea = e.target;
+                      const rows = textarea.value.split('\n').length;
+                      textarea.rows = rows;
+                      textarea.style.height = 'auto';
+                      textarea.style.height = textarea.scrollHeight + 'px';
+                    }}
+                  />
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                    <label htmlFor="number">Número Casa:</label>
+                    <label htmlFor="number">Número Casa</label>
                     <input
                         type="text"
                         className="ingresar-venta-field-control"
@@ -436,12 +473,13 @@ const IngresarVentasPage = () => {
                         name="number"
                         value={formValues.number}
                         onChange={handleInputChange}
+                        placeholder='Ej: 1234'
                         autoComplete="address-line2"
                     />
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                    <label htmlFor="department_office_floor">Departamento/Oficina/Piso:</label>
+                    <label htmlFor="department_office_floor">Departamento/Oficina/Piso (Opcional)</label>
                     <input
                         type="text"
                         className="ingresar-venta-field-control"
@@ -449,31 +487,43 @@ const IngresarVentasPage = () => {
                         name="department_office_floor"
                         value={formValues.department_office_floor}
                         onChange={handleInputChange}
+                        placeholder='Ej: Departamento 3, Piso 2'
                         autoComplete="address-line2"
                     />
                 </div>
 
                 <div className="ingresar-venta-field-group">
                     <label htmlFor="geo_reference">Referencia geográfica:</label>
-                    <input
+                    <textarea
                         type="text"
                         className="ingresar-venta-field-control"
                         id="geo_reference"
                         name="geo_reference"
                         value={formValues.geo_reference}
                         onChange={handleInputChange}
+                        placeholder='Ej: https://maps.app.goo.gl/jcyUsAFpiGem5xcK8'
                         autoComplete="off"
+                        rows={3}
+                        style={{ resize: 'none', overflow: 'hidden' }}
+                        onInput={(e) => {
+                          const textarea = e.target;
+                          const rows = textarea.value.split('\n').length;
+                          textarea.rows = rows;
+                          textarea.style.height = 'auto';
+                          textarea.style.height = textarea.scrollHeight + 'px';
+                        }}
                     />
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                    <label htmlFor="promotion_id">Promoción:</label>
+                    <label htmlFor="promotion_id">Promoción</label>
                     <select
                         className="ingresar-venta-field-control"
                         id="promotion_id"
                         name="promotion_id"
                         value={formValues.promotion_id}
                         onChange={handleInputChange}
+                        required
                     >
                         <option value="">Seleccione la promoción</option>
                         {promotions.map((promotion) => (
@@ -485,7 +535,7 @@ const IngresarVentasPage = () => {
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                    <label>Monto de instalación:</label>
+                    <label>Monto de instalación</label>
                     <input
                         type="text"
                         className="ingresar-venta-field-control no-border"
@@ -507,8 +557,7 @@ const IngresarVentasPage = () => {
                 </div>
 
                 <div className="ingresar-venta-field-group">
-                  <label>Imágenes de la venta (Máx. 5 archivos):</label>
-                  <input
+                  <label>Imágenes de la venta (Máx. 5 archivos, jpg, jpeg, png, raw, webp, máximo 5MB)</label>                  <input
                     type="file"
                     accept="image/*"
                     multiple
@@ -519,7 +568,16 @@ const IngresarVentasPage = () => {
                 </div>
             </div>
             <button type="submit" className="ingresar-venta-submit-button">Enviar venta</button>
-            {successMessage && <div className="success-message">{successMessage}</div>}
+            {successMessage && (
+              <div>
+                <div className="success-message">{successMessage}</div>
+                <a href="/dashboard" className="link-to-dashboard">Ir a ventas</a><br/><br/>
+                <button onClick={() => {
+                  setSuccessMessage('');
+                  window.scrollTo(0, 0);
+                }} className="link-to-new-sale">Ingresar otra venta</button>
+              </div>
+            )}
             {errorMessage && <div className="error-message">{errorMessage}</div>}
         </form>
     </div>

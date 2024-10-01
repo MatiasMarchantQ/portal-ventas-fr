@@ -179,6 +179,10 @@
     align-items: flex-start;
     margin-bottom: 20px;
   }
+
+  .ventas-page .sale-priority{
+    margin-left: 1.5rem;
+  }
   
   .ventas-page .sale-status {
     flex: 0 0 100px;

@@ -18,7 +18,7 @@ const decryptToken = (token) => {
 const isTokenExpired = (token) => {
   const decryptedToken = decryptToken(token);
   if (decryptedToken && decryptedToken.exp) {
-    return Date.now() >= decryptedToken.exp * 1000; // Verificar si el token ha expirado
+    return Date.now() >= decryptedToken.exp * 1000;
   }
   return true;
 };

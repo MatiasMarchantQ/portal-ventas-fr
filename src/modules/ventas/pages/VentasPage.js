@@ -128,12 +128,17 @@ const VentasPage = ({ onSaleClick }) => {
       Authorization: `Bearer ${token}`,
     };
   
-    fetch(`${process.env.REACT_APP_API_URL}/promotions/installation-amounts`, {
+    let url = `${process.env.REACT_APP_API_URL}/promotions/installation-amounts`;
+    if (roleId === 3) {
+      url = `${process.env.REACT_APP_API_URL}/promotions/installationAmountsByUser`;
+    }
+  
+    fetch(url, {
       headers,
     })
       .then(response => response.json())
       .then(data => setInstallationAmounts(data));
-  }, [token]);
+  }, [token, roleId]);
 
   useEffect(() => {
     const headers = {
@@ -205,7 +210,12 @@ useEffect(() => {
   }, [token]);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/promotions', {
+    let url = 'http://localhost:3001/api/promotions';
+    if (roleId === 3) {
+      url = `${process.env.REACT_APP_API_URL}/promotions/by-user`;
+    }
+  
+    fetch(url, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -222,7 +232,7 @@ useEffect(() => {
           console.error('La respuesta no es un arreglo');
         }
       });
-  }, [token]);
+  }, [token, roleId]);
   
   useEffect(() => {
     const headers = {
@@ -295,11 +305,6 @@ useEffect(() => {
         responseType = 'blob';
         filename = 'ventas.xlsx';
         break;
-      case 'pdf':
-        url = `http://localhost:3001/api/sales/all/export/pdf?${queryString}`;
-        responseType = 'blob';
-        filename = 'ventas.pdf';
-        break;
       case 'word':
         url = `http://localhost:3001/api/sales/all/export/word?${queryString}`;
         responseType = 'blob';
@@ -369,31 +374,35 @@ useEffect(() => {
             </div>
           </div>
       
-          <div className="filters">
-            <h4>Canales de Venta</h4>
-            <select value={selectedSalesChannel} onChange={e => setSelectedSalesChannel(e.target.value)}>
-              <option key="default-channel" value="" disabled>Selecciona un canal de venta</option>
-              {salesChannels.map(channel => (
-                <option key={channel.sales_channel_id} value={channel.sales_channel_id}>{channel.channel_name}</option>
-              ))}
-            </select>
-            {selectedSalesChannel && (
-              <button onClick={() => setSelectedSalesChannel('')}>Borrar</button>
-            )}
-          </div>
+          {roleId !== 3 && (
+            <div className="filters">
+              <h4>Canales de Venta</h4>
+              <select value={selectedSalesChannel} onChange={e => setSelectedSalesChannel(e.target.value)}>
+                <option key="default-channel" value="" disabled>Selecciona un canal de venta</option>
+                {salesChannels.map(channel => (
+                  <option key={channel.sales_channel_id} value={channel.sales_channel_id}>{channel.channel_name}</option>
+                ))}
+              </select>
+              {selectedSalesChannel && (
+                <button onClick={() => setSelectedSalesChannel('')}>Borrar</button>
+              )}
+            </div>
+          )}
 
-          <div className="filters">
-            <h4>Empresas</h4>
-            <select value={selectedCompany} onChange={e => setSelectedCompany(e.target.value)}>
-              <option key="default-company" value="" disabled>Selecciona una empresa</option>
-              {companies.map((company) => (
-                <option key={company.company_id} value={company.company_id}>{company.company_name}</option>
-              ))}
-            </select>
-            {selectedCompany && (
-              <button onClick={() => setSelectedCompany('')}>Borrar</button>
-            )}
-          </div>
+          {![2, 3].includes(roleId) && (
+            <div className="filters">
+              <h4>Empresas</h4>
+              <select value={selectedCompany} onChange={e => setSelectedCompany(e.target.value)}>
+                <option key="default-company" value="" disabled>Selecciona una empresa</option>
+                {companies.map((company) => (
+                  <option key={company.company_id} value={company.company_id}>{company.company_name}</option>
+                ))}
+              </select>
+              {selectedCompany && (
+                <button onClick={() => setSelectedCompany('')}>Borrar</button>
+              )}
+            </div>
+          )}
         </div>
         <div className='='filter-section>
           <div className="filters">
@@ -535,12 +544,10 @@ useEffect(() => {
         }}>Limpiar filtros</button>
       </div>
 
-      <div className="export-buttons" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <div className="export-buttons" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 5 }}>
         <select value={exportFormat} onChange={e => setExportFormat(e.target.value)}>
-          <option value="">Seleccione un formato</option>
           <option value="excel">Exportar Excel</option>
           <option value="csv">Exportar CSV</option>
-          <option value="pdf">Exportar PDF</option>
           <option value="word">Exportar Word</option>
         </select>
         <button onClick={() => handleExport(exportFormat)}>Exportar</button>

@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../../contexts/UserContext';
 import {jwtDecode} from 'jwt-decode';  // Corregir esta importación
-import Cookies from 'js-cookie';
 import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -21,17 +20,18 @@ const LoginPage = () => {
   // Este effect es para manejar el token almacenado
   useEffect(() => {
     const storedToken = sessionStorage.getItem('token');
-    const storedCookie = Cookies.get('token');
-
+    const storedLocalToken = localStorage.getItem('token');
+    const storedExpiresAt = localStorage.getItem('expiresAt');
+  
     const processToken = (token) => {
       const decodedToken = jwtDecode(token);
-
+  
       // Verificar si la cuenta está suspendida
       if (decodedToken.status === 0) {
-        setError('Su cuenta se encuentra suspendida. Por favor, comuníquese con un administrador para obtener más información.');
+        setError('Su cuenta se encuentra suspendida. Comuníquese con un administrador para obtener más información.');
         return;
       }
-
+  
       // Verificar si debe cambiar contraseña
       if (decodedToken.must_change_password === 1) {
         navigate(`/changepassword/${token}`);
@@ -40,9 +40,14 @@ const LoginPage = () => {
         navigate('/dashboard');
       }
     };
-
-    if (storedCookie) {
-      processToken(storedCookie);
+  
+    if (storedLocalToken && storedExpiresAt) {
+      if (storedExpiresAt < Date.now()) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('expiresAt');
+      } else {
+        processToken(storedLocalToken);
+      }
     } else if (storedToken) {
       processToken(storedToken);
     }
@@ -53,7 +58,7 @@ const LoginPage = () => {
     const handleBeforeUnload = () => {
       if (!rememberMe) {
         sessionStorage.removeItem('token');
-        Cookies.remove('token');
+        localStorage.removeItem('token');
       }
     };
 
@@ -67,6 +72,7 @@ const LoginPage = () => {
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
+      console.log(rememberMe);
       const response = await fetch('http://localhost:3001/api/auth/login', {
         method: 'POST',
         headers: {
@@ -87,7 +93,7 @@ const LoginPage = () => {
   
         // Verificar el estado de la cuenta
         if (decodedToken.status === 0) {
-          setError('Su cuenta se encuentra suspendida. Por favor, comuníquese con un administrador para obtener más información.');
+          setError('Su cuenta se encuentra suspendida. Comuníquese con un administrador para obtener más información.');
           return;
         }
   
@@ -99,10 +105,10 @@ const LoginPage = () => {
           setToken(data.token);
   
           if (rememberMe) {
-            // Almacenar el token en las Cookies con expiración de 2 horas
-            Cookies.set('token', data.token, { expires: 2 / 24 });
+            const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 días
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('expiresAt', expiresAt);
           } else {
-            // Almacenar el token en sessionStorage
             sessionStorage.setItem('token', data.token);
           }
   
@@ -201,7 +207,7 @@ const LoginPage = () => {
             </div>
             <button className="submit-button" onClick={handleLogin}>Iniciar sesión</button>
             {error && (
-              <p style={{ color: 'white' }}>
+              <p style={{ color: 'white', fontSize: '0.8rem' }}>
                 <FontAwesomeIcon icon={faExclamationCircle} /> {error}
               </p>
             )}

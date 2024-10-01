@@ -122,7 +122,7 @@ const Menu = ({ role_id, onMenuClick }) => {
         localStorage.removeItem('token');
         sessionStorage.removeItem('token');
         document.cookie.split(';').forEach((c) => {
-          document.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
+        document.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
         });
         navigate('/'); // Redirige al usuario a la página de inicio
       } else {

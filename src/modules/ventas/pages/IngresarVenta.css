@@ -57,6 +57,7 @@
   background-color: #fff;
 }
 
+
 .ingresar-venta-field-control[readonly] {
   border: none;
   background-color: transparent;
@@ -92,6 +93,30 @@
   color: red;
   font-size: 14px;
   margin-top: 10px;
+}
+
+.link-to-dashboard{
+  color: #99235C;
+  text-decoration: none;
+}
+
+.link-to-dashboard:hover{
+  color: #b93775;
+}
+
+
+.link-to-new-sale {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  color: #99235C;
+}
+
+.link-to-new-sale:hover {
+  color: #b93775;
 }
 
 /* Responsive Design */

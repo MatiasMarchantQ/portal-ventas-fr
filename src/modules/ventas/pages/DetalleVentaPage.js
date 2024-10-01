@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useCallback } from 'react';
+import React, { useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import withAuthorization from '../../../contexts/withAuthorization';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -21,6 +21,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   const [images, setImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
+  const fileInputRef = useRef(null);
 
   const currentSaleId = saleId;
 
@@ -32,23 +33,29 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
-    if (existingImages.length + newImages.length + files.length > 5) {
-      alert('No puedes subir más de 5 imágenes en total');
-      return;
+    const totalImages = existingImages.length + newImages.length + files.length;
+    
+    if (totalImages > 5) {
+      alert('No puedes subir más de 5 imágenes en total. Se añadirán solo las primeras imágenes hasta alcanzar el límite.');
+      const availableSlots = 5 - (existingImages.length + newImages.length);
+      const filesToAdd = files.slice(0, availableSlots);
+      setNewImages(prevImages => [...prevImages, ...filesToAdd]);
+    } else {
+      setNewImages(prevImages => [...prevImages, ...files]);
     }
-    setNewImages([...newImages, ...files]);
+    
+    // Reseteamos el valor del input para permitir la selección del mismo archivo
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleDeleteExistingImage = (index) => {
-    const newExistingImages = [...existingImages];
-    newExistingImages.splice(index, 1);
-    setExistingImages(newExistingImages);
+    setExistingImages(prevImages => prevImages.filter((_, i) => i !== index));
   };
 
   const handleDeleteNewImage = (index) => {
-    const newNewImages = [...newImages];
-    newNewImages.splice(index, 1);
-    setNewImages(newNewImages);
+    setNewImages(prevImages => prevImages.filter((_, i) => i !== index));
   };
 
   // Fetch functions
@@ -316,7 +323,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       {renderTextarea("Georeferencia", "geo_reference", 2)}
       {renderSelectField("Promoción", "promotion_id", promotions, "promotion_id", "promotion")}
       {renderReadOnlyField("Monto de Instalación", installationAmount)}
-      {renderInputField("Número Orden(Wisphub)", "service_id", "text", true, true)}
+      {renderInputField("Número Orden(Wisphub)", "service_id", "text", true, updatedSale.sale_status_id === 2)}
       {[1, 2, 3, 4, 5].includes(roleId) && renderEditableSaleStatus()}
       {[1, 2, 4, 5].includes(roleId) && renderEditableReason()}
       {roleId === 3 
@@ -436,13 +443,32 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   const renderImageInputs = () => (
     <div className="sale-detail-field-group">
       <label>Imágenes:</label>
-      <input
-        type="file"
-        name="other_images"
-        multiple
-        onChange={handleImageUpload}
-        accept="image/*"
-      />
+      <div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          name="other_images"
+          multiple
+          onChange={handleImageUpload}
+          accept="image/*"
+          style={{ display: 'none' }}
+        />
+        <button 
+          onClick={() => fileInputRef.current.click()}
+          style={{
+            padding: '10px 5px',
+            width: '8rem',
+            marginLeft: 5,
+            backgroundColor: '#99235C',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Elegir archivos
+        </button>
+      </div>
       <div className="file-list-container">
         {existingImages.map((image, index) => (
           <div key={`existing-${index}`} className="file-item">
@@ -471,6 +497,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
           </div>
         ))}
       </div>
+      <p>Total de imágenes: {existingImages.length + newImages.length}/5</p>
     </div>
   );
 
@@ -485,21 +512,50 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
             day: '2-digit', 
             hour: '2-digit', 
             minute: '2-digit', 
-            second: '2-digit' 
+            second: '2-digit',
+            hour12: false
           })}</p>
         </div>
         <p></p>
         <p></p>
         <div className="executive-info">
-          <strong>{sale.executive?.role.role_name}</strong>
-          <ul>
-            <li>Nombre: {sale.executive?.first_name} {sale.executive?.last_name}</li>
-            <li>Rut: {sale.executive?.rut}</li>
-            <li>Email: {sale.executive?.email}</li>
-            <li>Celular: {sale.executive?.phone_number}</li>
-            {sale.executive?.company && <li>Empresa: {sale.executive.company.company_name}</li>}
-            {sale.executive?.salesChannel && <li>Canal de ventas: {sale.executive.salesChannel.channel_name}</li>}
-          </ul>
+          {sale.executive ? (
+            <div>
+              <strong>{sale.executive.role.role_name}</strong>
+              <ul>
+                <li>Nombre: {sale.executive.first_name} {sale.executive.last_name}</li>
+                <li>Rut: {sale.executive.rut}</li>
+                <li>Email: {sale.executive.email}</li>
+                <li>Celular: {sale.executive.phone_number}</li>
+                {sale.executive.company && <li>Empresa: {sale.executive.company.company_name}</li>}
+                {sale.executive.salesChannel && <li>Canal de ventas: {sale.executive.salesChannel.channel_name}</li>}
+              </ul>
+            </div>
+          ) : sale.admin ? (
+            <div>
+              <strong>{sale.admin.role.role_name}</strong>
+              <ul>
+                <li>Nombre: {sale.admin.first_name} {sale.admin.last_name}</li>
+                <li>Rut: {sale.admin.rut}</li>
+                <li>Email: {sale.admin.email}</li>
+                <li>Celular: {sale.admin.phone_number}</li>
+                {sale.admin.company && <li>Empresa: {sale.admin.company.company_name}</li>}
+                {sale.admin.salesChannel && <li>Canal de ventas: {sale.admin.salesChannel.channel_name}</li>}
+              </ul>
+            </div>
+          ) : (
+            <div>
+              <strong>{sale.superadmin.role.role_name}</strong>
+              <ul>
+                <li>Nombre: {sale.superadmin.first_name} {sale.superadmin.last_name}</li>
+                <li>Rut: {sale.superadmin.rut}</li>
+                <li>Email: {sale.superadmin.email}</li>
+                <li>Celular: {sale.superadmin.phone_number}</li>
+                {sale.superadmin.company && <li>Empresa: {sale.superadmin.company.company_name}</li>}
+                {sale.superadmin.salesChannel && <li>Canal de ventas: {sale.superadmin.salesChannel.channel_name}</li>}
+              </ul>
+            </div>
+          )}
         </div>
         <p></p>
         <p></p>

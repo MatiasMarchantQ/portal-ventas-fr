@@ -4,6 +4,9 @@ const SaleCard = ({ sale, onSaleClick, getStatusColor }) => (
   <div className="sale-card" onClick={() => onSaleClick(sale.sale_id)}>
     <div className="sale-card-header">
       <div>
+        {sale.is_priority === 1 && (
+          <p className="sale-priority" style={{width: 80, textAlign: 'center', borderRadius: 5, backgroundColor: 'green' , color: 'white'}}>Prioridad</p>
+        )}
         <p className="sale-status" style={{ 
           width: 100,
           padding: 5, 
@@ -23,21 +26,22 @@ const SaleCard = ({ sale, onSaleClick, getStatusColor }) => (
       </div>
       <div className="sale-info">
         <div className="info-top">
-          {sale.service_id && <p className="info-item purple">{`ID Servicio: ${sale.service_id}`}</p>}
+          {sale.service_id && <p className="info-item purple">{`ID Wisphub: ${sale.service_id}`}</p>}
           {sale.client_first_name && sale.client_last_name && (
             <p className="info-item purple">{`Cliente: ${sale.client_first_name} ${sale.client_last_name}`}</p>
           )}
-          {sale.client_rut && <p className="info-item purple">{`Rut: ${sale.client_rut}`}</p>}
-          {sale.client_phone && <p className="info-item purple">{`Celular: ${sale.client_phone}`}</p>}
+          {sale.client_rut && <p className="info-item purple">{`${sale.client_rut}`}</p>}
+          {sale.client_phone && <p className="info-item purple">{`${sale.client_phone}`}</p>}
         </div>
         <div className="info-bottom">
         {sale.company?.company_name && <p className="info-item gray">{`${sale.company?.company_name}`}</p>}
           {sale.created_at && (
             <p className="info-item gray">
-              Fecha de ingreso:{" "}
+              Ingresada:{" "}
               {new Date(sale.created_at).toLocaleString("es-CL", {
                 year: "numeric", month: "2-digit", day: "2-digit",
                 hour: "2-digit", minute: "2-digit", second: "2-digit",
+                hour12: false
               })}
             </p>
           )}
