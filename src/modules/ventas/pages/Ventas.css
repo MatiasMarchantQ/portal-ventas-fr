@@ -39,6 +39,7 @@
   }
   
   .ventas-page .filter-section {
+    height: auto;
     background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -49,7 +50,7 @@
   }
 
   .ventas-page .filter-section .column-1 {
-    margin-top: -20px; /* ajusta el valor según sea necesario */
+    margin-top: -20px;
 }
   
   .ventas-page .filter-section.active {

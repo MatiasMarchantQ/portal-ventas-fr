@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState, useCallback, useRef } from 'rea
 import { UserContext } from '../../../contexts/UserContext';
 import withAuthorization from '../../../contexts/withAuthorization';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImage, faArrowLeftLong } from '@fortawesome/free-solid-svg-icons';
+import { faImage, faArrowLeftLong, faDownload, faStar as faStarSolid, faStar} from '@fortawesome/free-solid-svg-icons';
 import './DetalleVenta.css';
 
 const DetalleVentaPage = ({ saleId, onBack }) => {
@@ -50,6 +50,30 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
     }
   };
 
+  const handleDownloadAllImages = async () => {
+    if (!sale.other_images_url || sale.other_images_url.length === 0) {
+      alert('No hay imágenes para descargar.');
+      return;
+    }
+
+    for (let i = 0; i < sale.other_images_url.length; i++) {
+      const imageUrl = sale.other_images_url[i];
+      try {
+        const response = await fetch(imageUrl);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `imagen_${i + 1}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error('Error al descargar la imagen:', error);
+      }
+    }
+  };
+
   const handleDeleteExistingImage = (index) => {
     setExistingImages(prevImages => prevImages.filter((_, i) => i !== index));
   };
@@ -57,6 +81,33 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   const handleDeleteNewImage = (index) => {
     setNewImages(prevImages => prevImages.filter((_, i) => i !== index));
   };
+
+  const handlePriorityToggle = async () => {
+    try {
+      const newPriorityValue = sale.is_priority === 1 ? 0 : 1;
+      const response = await fetch(`http://localhost:3001/api/sales/update-priority/${currentSaleId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ is_priority: newPriorityValue }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update priority');
+      }
+
+      const updatedSaleData = await response.json();
+      setSale(prevSale => ({ ...prevSale, is_priority: newPriorityValue }));
+      setUpdatedSale(prevUpdatedSale => ({ ...prevUpdatedSale, is_priority: newPriorityValue }));
+      setUpdateMessage('Prioridad actualizada con éxito!');
+    } catch (error) {
+      console.error('Error updating priority:', error);
+      setUpdateMessage('Error al actualizar la prioridad');
+    }
+  };
+
 
   // Fetch functions
   const fetchSaleDetails = useCallback(async () => {
@@ -300,6 +351,22 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   };
 
   // Render functions
+  const renderPriorityToggle = () => {
+    if (roleId !== 1 && roleId !== 2) return null;
+  
+    return (
+      <div className="priority-toggle">
+        <strong>Prioridad:</strong>
+        <button onClick={handlePriorityToggle} className="priority-button" style={{ backgroundColor: 'transparent', border: 'none', width: '7%', marginBottom: 10 }}>
+          <FontAwesomeIcon 
+            icon={sale.is_priority === 1 ? faStarSolid : faStar} 
+            style={{ color: sale.is_priority === 1 ? 'gold' : 'gray' }}
+          />
+        </button>
+      </div>
+    );
+  };
+
   const renderEditForm = () => (
     <div className="sale-detail-form">
       {renderFormFields()}
@@ -503,6 +570,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
 
   const renderSaleDetails = () => (
     <>
+      {renderPriorityToggle()}
       <div className="sale-detail-fields-group">
         <div className="sale-detail-field-group">
           <strong>Fecha de Ingreso:</strong> 
@@ -598,6 +666,10 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
                   </a>
                 </div>
               ))}
+              <button onClick={handleDownloadAllImages} style={{marginTop: '10px'}}>
+                <FontAwesomeIcon icon={faDownload} style={{marginRight: '5px'}} />
+                Descargar imágen(es)
+              </button>
             </>
           ) : (
             <p>No hay imágenes adjuntadas</p>
@@ -661,7 +733,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
           </button>
         )}
       </div>
-
+      {updateMessage && <div className="update-message">{updateMessage}</div>}
     </div>
   );
 };

@@ -287,7 +287,7 @@ const IngresarVentasPage = () => {
   return (
     <div className="ingresar-venta-wrapper">
         <h1 className="ingresar-venta-header">Ingresar venta</h1>
-        <h3>Cliente</h3>
+        <h3 style={{color: '#99235C'}}>Cliente</h3>
         <form className="ingresar-venta-form" onSubmit={handleSubmit}>
             <div className="ingresar-venta-fields-group">
                 <div className="ingresar-venta-field-group">

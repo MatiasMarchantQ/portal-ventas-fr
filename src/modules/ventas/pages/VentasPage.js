@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext, useCallback, lazy, Suspense } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faTimes, faFilter } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faTimes, faFilter, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
 import withAuthorization from '../../../contexts/withAuthorization';
 import './Ventas.css';
 
@@ -20,6 +20,10 @@ const VentasPage = ({ onSaleClick }) => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  
+
   
   // Listados de los select
   const [salesChannels, setSalesChannels] = useState([]);
@@ -27,12 +31,13 @@ const VentasPage = ({ onSaleClick }) => {
   const [communes, setCommunes] = useState([]);
   const [installationAmounts, setInstallationAmounts] = useState([]);
   const [saleStatuses, setSaleStatuses] = useState([]);
+  const [saleStatusReasons, setSaleStatusReasons] = useState([]);
   const [companies, setCompanies] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [roles, setRoles] = useState([]);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [exportFormat, setExportFormat] = useState('');
+  const [exportFormat, setExportFormat] = useState('excel');
 
 
   const [selectedSalesChannel, setSelectedSalesChannel] = useState('');
@@ -40,6 +45,7 @@ const VentasPage = ({ onSaleClick }) => {
   const [selectedCommune, setSelectedCommune] = useState('');
   const [selectedInstallationAmount, setSelectedInstallationAmount] = useState('');
   const [selectedSaleStatus, setSelectedSaleStatus] = useState('');
+  const [selectedSaleStatusReason, setSelectedSaleStatusReason] = useState('');
   const [selectedCompany, setSelectedCompany] = useState('');
   const [selectedPromotion, setSelectedPromotion] = useState('');
   const [filterPriority, setFilterPriority] = useState('');
@@ -53,6 +59,7 @@ const VentasPage = ({ onSaleClick }) => {
     promotion_id: '',
     installation_amount_id: '',
     sale_status_id: '',
+    sale_status_reason_id: '',
     company_id: '',
   });
   
@@ -63,6 +70,7 @@ const VentasPage = ({ onSaleClick }) => {
     promotion_id: '',
     installation_amount_id: '',
     sale_status_id: '',
+    sale_status_reason_id: '',
     company_id: '',
   });
   
@@ -70,6 +78,7 @@ const VentasPage = ({ onSaleClick }) => {
 
   const fetchSales = useCallback(async (page = 1) => {
     setLoading(true);
+    setIsRefreshing(false);
     try {
       const filtersWithDates = {
         ...filters,
@@ -105,12 +114,28 @@ const VentasPage = ({ onSaleClick }) => {
       setLoading(false);
     }
   }, [token, filters, filterPriority, cleanSaleData, endDate, startDate]);
-
+  
+  const handleRefresh = () => {
+    setIsUpdating(true);
+    fetchSales().finally(() => {
+      setIsUpdating(false);
+    });
+  };
+  
+  useEffect(() => {
+    if (isUpdating) {
+      setIsRefreshing(true);
+      fetchSales().finally(() => {
+        setIsRefreshing(false);
+        setIsUpdating(false);
+      });
+    }
+  }, [isUpdating, fetchSales]);
+  
   useEffect(() => {
     if ([1, 2, 3, 4, 5].includes(roleId)) fetchSales(currentPage);
     else console.error('Acceso denegado: You do not have permission to view sales.');
-  }, [fetchSales, roleId, currentPage]);
-
+  }, [fetchSales, filters, roleId, currentPage]);
   useEffect(() => {
     const headers = {
       Authorization: `Bearer ${token}`,
@@ -232,18 +257,25 @@ useEffect(() => {
           console.error('La respuesta no es un arreglo');
         }
       });
-  }, [token, roleId]);
-  
+  }, [token, roleId]);  
+
   useEffect(() => {
     const headers = {
       Authorization: `Bearer ${token}`,
     };
   
-    if (selectedPromotion) {
-      fetch(`http://localhost:3001/api/sale-statuses/reasons/${selectedPromotion}`, { headers })
+    if (selectedSaleStatus) {
+      fetch(`http://localhost:3001/api/sale-statuses/reasons/${selectedSaleStatus}`, { headers })
         .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          setSaleStatusReasons(data);
+        })
+        .catch(error => {
+          console.error('Error fetching sale statuses reasons:', error);
+        });
     }
-  }, [selectedPromotion, token]);
+  }, [selectedSaleStatus, token]);
 
   const handleSearch = async () => {
     setLoading(true);
@@ -278,9 +310,18 @@ useEffect(() => {
     fetchSales(1);
   };
 
+  const handlePriorityChange = (updatedSale) => {
+    setSales(prevSales => 
+      prevSales.map(sale => 
+        sale.sale_id === updatedSale.sale_id ? updatedSale : sale
+      )
+    );
+  };
+
   const handleExport = async (format) => {
     const filters = {
       sale_status_id: selectedSaleStatus,
+      sale_status_reason_id: selectedSaleStatusReason,
       region_id: selectedRegion,
       commune_id: selectedCommune,
       promotion_id: selectedPromotion,
@@ -433,7 +474,6 @@ useEffect(() => {
           )}
         </div>
 
-
         <div className="filters">
           <h4>Promociones</h4>
           <select value={selectedPromotion} onChange={e => setSelectedPromotion(e.target.value)}>
@@ -461,7 +501,6 @@ useEffect(() => {
           )}
         </div>
    
-    
         <div className="filters">
           <h4>Estado de venta</h4>
           <select value={selectedSaleStatus} onChange={e => setSelectedSaleStatus(e.target.value)}>
@@ -475,18 +514,35 @@ useEffect(() => {
           )}
         </div>
 
+
         <div className="filters">
-          <h4>Rol</h4>
-          <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)}>
-            <option key="default-role" value="" disabled>Selecciona un rol</option>
-            {roles.map(role => (
-              <option key={role.role_id} value={role.role_id}>{role.role_name}</option>
+          <h4>Motivo de estado de venta</h4>
+          <select value={selectedSaleStatusReason} onChange={e => setSelectedSaleStatusReason(e.target.value)}>
+            <option key="default-reason" value="" disabled>Selecciona un motivo de estado de venta</option>
+            {saleStatusReasons.map(reason => (
+              <option key={reason.sale_status_reason_id} value={reason.sale_status_reason_id}>{reason.reason_name}</option>
             ))}
           </select>
-          {selectedRole && (
-            <button onClick={() => setSelectedRole('')}>Borrar</button>
+          {selectedSaleStatusReason && (
+            <button onClick={() => setSelectedSaleStatusReason('')}>Borrar</button>
           )}
         </div>
+
+
+        {roleId !== 3 && (
+          <div className="filters">
+            <h4>Rol</h4>
+            <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)}>
+              <option key="default-role" value="" disabled>Selecciona un rol</option>
+              {roles.map(role => (
+                <option key={role.role_id} value={role.role_id}>{role.role_name}</option>
+              ))}
+            </select>
+            {selectedRole && (
+              <button onClick={() => setSelectedRole('')}>Borrar</button>
+            )}
+          </div>
+        )}
  
 
         <div className="filters">
@@ -501,9 +557,7 @@ useEffect(() => {
           )}
         </div>
 
-
         <button onClick={() => {
-
           setFilters({
             sales_channel_id: selectedSalesChannel,
             region_id: selectedRegion,
@@ -511,13 +565,13 @@ useEffect(() => {
             promotion_id: selectedPromotion,
             installation_amount_id: selectedInstallationAmount,
             sale_status_id: selectedSaleStatus,
+            sale_status_reason_id: selectedSaleStatusReason,
             company_id: selectedCompany,
             role_id: selectedRole,
             is_priority: selectedPriority,
             start_date: startDate,
             end_date: endDate,
           });
-          fetchSales(currentPage);
         }}>Aplicar filtros</button>
 
         <button onClick={() => {
@@ -535,6 +589,7 @@ useEffect(() => {
           setSelectedPromotion('');
           setSelectedInstallationAmount('');
           setSelectedSaleStatus('');
+          setSelectedSaleStatusReason('');
           setSelectedCompany('');
           setSelectedRole('');
           setSelectedPriority('');
@@ -544,14 +599,15 @@ useEffect(() => {
         }}>Limpiar filtros</button>
       </div>
 
-      <div className="export-buttons" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 5 }}>
-        <select value={exportFormat} onChange={e => setExportFormat(e.target.value)}>
-          <option value="excel">Exportar Excel</option>
-          <option value="csv">Exportar CSV</option>
-          <option value="word">Exportar Word</option>
-        </select>
-        <button onClick={() => handleExport(exportFormat)}>Exportar</button>
-      </div>
+
+<div className="export-buttons" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 5 }}>
+  <select value={exportFormat} onChange={e => setExportFormat(e.target.value)}>
+    <option value="excel">Exportar Excel</option>
+    <option value="csv">Exportar CSV</option>
+    <option value="word">Exportar Word</option>
+  </select>
+  <button onClick={() => handleExport(exportFormat)}>Exportar</button>
+</div>
 
 
 
@@ -561,16 +617,23 @@ useEffect(() => {
         ) : filteredSales.length > 0 ? (
           <div className="sales-list">
             <Suspense fallback={<div>Loading sales...</div>}>
+              <div style={{ display: 'flex', justifyContent: 'flex-start', margin: '10px' }}>
+                <button onClick={() => {
+                  setIsUpdating(true);
+                }} disabled={isRefreshing} style={{ background: 'transparent', border: 'none', padding: 0 }}>
+                  <FontAwesomeIcon icon={faSyncAlt} spin={isRefreshing} style={{color: '#99235C', marginBottom: 10}}/>
+                  {isUpdating && <span style={{ marginLeft: 10 }}>Actualizando...</span>}
+                </button>
+              </div>
               {filteredSales.map(sale => (
-                <SaleCard key={`${sale.sale_id}-${sale.created_at}`} sale={sale} onSaleClick={onSaleClick} getStatusColor={getStatusColor} />
-              ))}
+                <SaleCard key={`${sale.sale_id}-${sale.created_at}`} sale={sale} onSaleClick={onSaleClick} getStatusColor={getStatusColor} onPriorityChange={handlePriorityChange} refreshSales={handleRefresh} />              ))}
             </Suspense>
           </div>
         ) : (
           <div>No se encontraron ventas.</div>
         )}
       </div>
-      
+
       <Suspense fallback={<div>Loading pagination...</div>}>
         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
       </Suspense>
