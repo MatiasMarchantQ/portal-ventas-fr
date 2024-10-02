@@ -81,14 +81,11 @@ const LoginPage = () => {
         body: JSON.stringify({ email, password, rememberMe }),
       });
   
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
-      }
-  
       const data = await response.json();
-      console.log('Respuesta del servidor:', data);
   
-      if (data.message === 'Login exitoso' && data.token) {
+      if (!response.ok) {
+        setError(data.message);
+      } else if (data.message === 'Login exitoso' && data.token) {
         const decodedToken = jwtDecode(data.token);
   
         // Verificar el estado de la cuenta
@@ -118,7 +115,7 @@ const LoginPage = () => {
         setError(data.error);
       }
     } catch (error) {
-      setError('Ingrese correctamente sus datos');
+      setError(error.message);
     }
   };
   

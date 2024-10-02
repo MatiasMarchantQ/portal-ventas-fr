@@ -95,6 +95,21 @@
     margin-left: 10px;
   }
   
+  .password-input-container {
+    position: relative;
+  }
+  
+  .password-visibility-button {
+    position: absolute;
+    color: #99235C;
+    right: 10px;
+    top: 45%;
+    transform: translateY(-50%);
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+  }
+
   .detalle-usuario-button {
     margin-top: 20px;
   }

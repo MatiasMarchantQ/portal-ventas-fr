@@ -11,7 +11,7 @@ const Pagination = lazy(() => import('./Pagination'));
 const UsuariosPage = ({ onUserClick }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { token } = useContext(UserContext);
+  const { token, roleId } = useContext(UserContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const limit = 18;
@@ -123,12 +123,14 @@ const UsuariosPage = ({ onUserClick }) => {
 
         {isFilterVisible && (
           <div className="filters">
-            <select name="company_id" value={filters.company_id} onChange={handleFilterChange}>
-              <option value="">Todas las empresas</option>
-              {companies.map(company => (
-                <option key={company.company_id} value={company.company_id}>{company.company_name}</option>
-              ))}
-            </select>
+           {roleId === 1 && (
+              <select name="company_id" value={filters.company_id} onChange={handleFilterChange}>
+                <option value="">Todas las empresas</option>
+                {companies.map(company => (
+                  <option key={company.company_id} value={company.company_id}>{company.company_name}</option>
+                ))}
+              </select>
+            )}
 
             <select name="sales_channel_id" value={filters.sales_channel_id} onChange={handleFilterChange}>
               <option value="">Todos los canales de venta</option>

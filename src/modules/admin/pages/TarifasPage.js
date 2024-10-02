@@ -168,157 +168,6 @@ const ViewOptions = ({ token, regions }) => {
   );
 };
 
-
-
-
-// AddCommuneToRegion component
-const AddCommuneToRegion = ({ token, regions }) => {
-  const [selectedRegionId, setSelectedRegionId] = useState('');
-  const [communeName, setCommuneName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleRegionChange = (regionId) => {
-    setSelectedRegionId(regionId);
-  };
-
-  const handleCommuneNameChange = (e) => {
-    setCommuneName(e.target.value);
-  };
-
-  const handleAddCommuneToRegion = async (e) => {
-    e.preventDefault();
-    if (!communeName || !selectedRegionId) {
-      alert('Por favor complete todos los campos.');
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      const result = await apiCall(`http://localhost:3001/api/communes/regions/${selectedRegionId}/communes`, 'POST', {
-        commune_name: communeName,
-      }, `Bearer ${token}`);
-      alert(result.message);
-      setCommuneName('');
-      setIsSubmitting(false);
-    } catch (error) {
-      console.error('Error al agregar la comuna a la región:', error);
-      alert('Error al agregar comuna a la región');
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <form className="comunas-tarifas-form" onSubmit={handleAddCommuneToRegion}>
-      <h3>Seleccionar Región:</h3>
-      <select value={selectedRegionId} onChange={(e) => handleRegionChange(e.target.value)} className="comunas-tarifas-select">
-        <option value="">Seleccione una región</option>
-        {regions.map((region) => (
-          <option key={region.region_id} value={region.region_id}>{region.region_name}</option>
-        ))}
-      </select>
-
-      <div className="comunas-tarifas-field-group">
-        <label htmlFor='communeName'>Nombre de la Comuna:
-          <input
-            id="communeName"
-            name="communeName"
-            type="text"
-            value={communeName}
-            onChange={handleCommuneNameChange}
-            required
-          />
-        </label>
-      </div>
-
-      <button type="submit" disabled={isSubmitting} className="comunas-tarifas-submit-button">Agregar Comuna</button>
-    </form>
-  );
-};
-
-const UpdateCommune = ({ token, regions }) => {
-  const [selectedRegionId, setSelectedRegionId] = useState('');
-  const [communes, setCommunes] = useState([]);
-  const [selectedCommuneId, setSelectedCommuneId] = useState('');
-  const [communeName, setCommuneName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  useEffect(() => {
-    if (selectedRegionId) {
-      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`,'GET', null, token)
-        .then(setCommunes)
-        .catch(error => console.error('Error loading communes:', error));
-    }
-  }, [selectedRegionId, token]);
-
-  const handleRegionChange = (regionId) => {
-    setSelectedRegionId(regionId);
-    setSelectedCommuneId('');
-  };
-
-  const handleCommuneChange = (communeId) => {
-    setSelectedCommuneId(communeId);
-  };
-
-  const handleCommuneNameChange = (e) => {
-    setCommuneName(e.target.value);
-  };
-
-  const handleUpdateCommune = async (e) => {
-    e.preventDefault();
-    if (!communeName || !selectedCommuneId) {
-      alert('Por favor complete todos los campos.');
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      const result = await apiCall(`http://localhost:3001/api/communes/${selectedCommuneId}`, 'PUT', {
-        commune_name: communeName,
-      }, `Bearer ${token}`);
-      alert(result.message);
-      setCommuneName('');
-      setIsSubmitting(false);
-    } catch (error) {
-      console.error('Error updating commune:', error);
-      alert('Error al actualizar la comuna');
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <form className="comunas-tarifas-form" onSubmit={handleUpdateCommune}>
-      <h3>Seleccionar Región:</h3>
-      <select value={selectedRegionId} onChange={(e) => handleRegionChange(e.target.value)} className="comunas-tarifas-select">
-        <option value="">Seleccione una región</option>
-        {regions.map((region) => (
-          <option key={region.region_id} value={region.region_id}>{region.region_name}</option>
-        ))}
-      </select>
-
-      <h3>Seleccionar Comuna:</h3>
-      <select value={selectedCommuneId} onChange={(e) => handleCommuneChange(e.target.value)} className="comunas-tarifas-select">
-        <option value="">Seleccione una comuna</option>
-        {communes.map((commune) => (
-          <option key={commune.commune_id} value={commune.commune_id}>{commune.commune_name}</option>
-        ))}
-      </select>
-
-      <div className="comunas-tarifas-field-group">
-        <label htmlFor='communeName'>Nombre de la Comuna:
-          <input
-            id="communeName"
-            name="communeName"
-            type="text"
-            value={communeName}
-            onChange={handleCommuneNameChange}
-            required
-          />
-        </label>
-      </div>
-
-      <button type="submit" disabled={isSubmitting} className="comunas-tarifas-submit-button">Actualizar Comuna</button>
-    </form>
-  );
-};
-
 // CreatePromotion component
 const CreatePromotion = ({ token, installationAmounts }) => {
   const [promotionName, setPromotionName] = useState('');
@@ -730,7 +579,7 @@ const UpdateInstallationAmount = ({ token, promotions, installationAmounts }) =>
 };
 
 // Main ComunasTarifas component
-const ComunasTarifas = () => {
+const Tarifas = () => {
   const { token } = useContext(UserContext);
   const [regions, setRegions] = useState([]);
   const [installationAmounts, setInstallationAmounts] = useState([]);
@@ -741,8 +590,6 @@ const ComunasTarifas = () => {
   const [isOpenAssignPromotionToCommune, toggleAssignPromotionToCommune] = useToggleCard();
   const [isOpenUpdateInstallationAmount, toggleUpdateInstallationAmount] = useToggleCard();
   const [isOpenDisablePromotions, toggleDisablePromotions] = useToggleCard();
-  const [isOpenAddCommuneToRegion, toggleAddCommuneToRegion] = useToggleCard();
-  const [isOpenUpdateCommune, toggleUpdateCommune] = useToggleCard();
   const [isOpenViewOptions, toggleViewOptions] = useToggleCard();
 
   useEffect(() => {
@@ -768,14 +615,6 @@ const ComunasTarifas = () => {
     <div className='card-grid'>
       <Card title="Ver Opciones de Promoción e Instalación" isOpen={isOpenViewOptions} toggle={toggleViewOptions}>
         <ViewOptions token={token} regions={regions} />
-      </Card>
-
-      <Card title="Agregar Comuna a Región" isOpen={isOpenAddCommuneToRegion} toggle={toggleAddCommuneToRegion}>
-        <AddCommuneToRegion token={token} regions={regions} />
-      </Card>
-
-      <Card title="Actualizar Comuna" isOpen={isOpenUpdateCommune} toggle={toggleUpdateCommune}>
-        <UpdateCommune token={token} regions={regions} />
       </Card>
 
       <Card title="Crear Nueva Promoción" isOpen={isOpenCreatePromotion} toggle={toggleCreatePromotion}>
@@ -810,4 +649,4 @@ const ComunasTarifas = () => {
 };
 
 
-export default ComunasTarifas;
+export default Tarifas;

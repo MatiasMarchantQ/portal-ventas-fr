@@ -17,7 +17,8 @@ const Menu = ({ role_id, onMenuClick }) => {
         submenu: [
           { label: 'Registrar usuario', action: 'Registrar usuario' },
           { label: 'Usuarios', action: 'Usuarios' },
-          { label: 'Comunas y tarifas', action: 'Comunas y tarifas' },
+          { label: 'Comunas', action: 'Comunas' },
+          { label: 'Tarifas', action: 'Tarifas' },
         ],
       },
       { label: 'Mi perfil', action: 'Mi perfil' },

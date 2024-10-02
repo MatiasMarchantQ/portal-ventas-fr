@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useContext, useCallback, useMemo } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faRandom, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import withAuthorization from '../../../contexts/withAuthorization';
 import './DetalleUsuario.css';
 
 const DetalleUsuarioPage = ({ onBack, idUser }) => {
-  const { token } = useContext(UserContext);
+  const { token , roleId } = useContext(UserContext);
   const [editableFields, setEditableFields] = useState({
     first_name: '',
     last_name: '',
@@ -26,6 +28,7 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
   const [isUpdated, setIsUpdated] = useState(false);
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState(null);
+  const [passwordVisible, setPasswordVisible] = useState(false); // Estado para controlar la visibilidad de la contraseña
 
   // Fetch user data
   useEffect(() => {
@@ -97,7 +100,6 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
           channelsResponse.json(),
         ]);
 
-        console.log('Regions Data:', regionsData);
         setRegions(regionsData);
         setCompanies(companiesData);
         setRoles(rolesData);
@@ -152,7 +154,12 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     const dataToSend = { ...editableFields };
-
+  
+    // Elimina la propiedad password si su valor es vacío
+    if (dataToSend.password === '') {
+      delete dataToSend.password;
+    }
+  
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/users/update/${idUser}`, {
         method: 'PUT',
@@ -190,7 +197,7 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
     </p>
   ), [editableFields, handleInputChange]);
 
-  const renderSelect = useCallback((name, options, labelText) => (
+  const renderSelect = useCallback((name, options, labelText, disabled) => (
     <p key={name}>
       <label className="detalle-usuario-label" htmlFor={name}>{labelText}:</label>
       <select
@@ -199,6 +206,7 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
         name={name}
         value={editableFields[name] || ''}
         onChange={handleInputChange}
+        disabled={disabled}
       >
         <option value="">Seleccione {labelText.toLowerCase()}</option>
         {options && options.map(option => (
@@ -229,7 +237,11 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
   const formattedRoles = useMemo(() => {
     return roles ? roles.map(r => ({ id: r.role_id, name: r.role_name })) : [];
   }, [roles]);
-  
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(prev => !prev);
+  };
+
   if (userLoading) {
     return <div>Cargando...</div>;
   }
@@ -256,16 +268,31 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
               { id: 1, name: 'Activo' },
               { id: 0, name: 'Inactivo' },
             ], 'Estado')}
-          </div>
+          </ div>
           <div>
             {renderInput('last_name', 'text', 'Apellido Paterno')}
             {renderInput('email', 'email', 'Correo Electrónico')}
-            {renderSelect('company_id', formattedCompanies, 'Empresa')}
-            {renderSelect('commune_id', formattedCommunes, 'Comuna')}
+            {renderSelect('company_id', formattedCompanies, 'Empresa', roleId === 2)}            {renderSelect('commune_id', formattedCommunes, 'Comuna')}
             {renderInput('number', 'text', 'Número')}
             {renderSelect('sales_channel_id', formattedChannels, 'Canal de Venta')}
             <div style={{ marginBottom: '6.3rem' }} />
-            {renderInput('password', 'password', 'Contraseña')}
+            <div>
+              <label className="detalle-usuario-label" htmlFor="password">Contraseña:</label>
+              <div className="password-input-container">
+                <input
+                  className="detalle-usuario-value"
+                  id="password"
+                  type={passwordVisible ? 'text' : 'password'}
+                  name="password"
+                  value={editableFields.password || ''}
+                  onChange={handleInputChange}
+                  autoComplete="off"
+                />
+                <button type="button" onClick={togglePasswordVisibility} className="password-visibility-button">
+                  <FontAwesomeIcon icon={passwordVisible ? faEyeSlash : faEye} />
+                </button>
+              </div>
+            </div>
           </div>
           <button className="detalle-usuario-submit" type="submit" disabled={isUpdated}>
             {isUpdated ? 'Actualizado' : 'Actualizar Usuario'}

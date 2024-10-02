@@ -7,7 +7,8 @@ import ContentContainer from '../../../components/ContentContainer';
 import VentasPage from '../../../modules/ventas/pages/VentasPage';
 import RegistrarUsuarioPage from '../../../modules/admin/pages/RegistrarUsuarioPage';
 import UsuariosPage from '../../../modules/admin/pages/UsuariosPage';
-import ComunasTarifasPage from '../../../modules/admin/pages/ComunasTarifasPage';
+import ComunasPage from '../../../modules/admin/pages/ComunasPage';
+import TarifasPage from '../../../modules/admin/pages/TarifasPage';
 import DetalleUsuarioPage from '../../../modules/admin/pages/DetalleUsuarioPage';
 import MiPerfilPage from '../../../modules/profile/pages/MiPerfilPage';
 import IngresarVentasPage from '../../../modules/ventas/pages/IngresarVentasPage';
@@ -20,7 +21,8 @@ const accessControl = {
   'Ingresar venta': [1, 2, 3],
   'Registrar usuario': [1, 2],
   'Usuarios': [1, 2],
-  'Comunas y tarifas': [1],
+  'Comunas': [1],
+  'Tarifas': [1],
   'Mi perfil': [1, 2, 3, 4, 5, 6],
 };
 
@@ -70,7 +72,8 @@ const DashboardPage = () => {
       'Ingresar venta': <IngresarVentasPage />,
       'Registrar usuario': <RegistrarUsuarioPage />,
       'Usuarios': <UsuariosPage onUserClick={handleUserClick} pagination={pagination} setPagination={setPagination} />,
-      'Comunas y tarifas': <ComunasTarifasPage />,
+      'Comunas': <ComunasPage />,
+      'Tarifas': <TarifasPage />,
       'Mi perfil': <MiPerfilPage />,
     };
 

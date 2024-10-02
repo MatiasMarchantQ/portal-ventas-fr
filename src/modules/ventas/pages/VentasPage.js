@@ -22,7 +22,6 @@ const VentasPage = ({ onSaleClick }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  
 
   
   // Listados de los select
@@ -47,9 +46,7 @@ const VentasPage = ({ onSaleClick }) => {
   const [selectedSaleStatus, setSelectedSaleStatus] = useState('');
   const [selectedSaleStatusReason, setSelectedSaleStatusReason] = useState('');
   const [selectedCompany, setSelectedCompany] = useState('');
-  const [selectedPromotion, setSelectedPromotion] = useState('');
-  const [filterPriority, setFilterPriority] = useState('');
-  const [selectedPriority, setSelectedPriority] = useState('');
+  const [selectedPromotion, setSelectedPromotion] = useState('');  const [selectedPriority, setSelectedPriority] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
 
   const [filters, setFilters] = useState({
@@ -63,7 +60,7 @@ const VentasPage = ({ onSaleClick }) => {
     company_id: '',
   });
   
-  const [originalFilters, setOriginalFilters] = useState({
+  const [originalFilters] = useState({
     sales_channel_id: '',
     region_id: '',
     commune_id: '',
@@ -113,7 +110,7 @@ const VentasPage = ({ onSaleClick }) => {
     } finally {
       setLoading(false);
     }
-  }, [token, filters, filterPriority, cleanSaleData, endDate, startDate]);
+  }, [token, filters, cleanSaleData, endDate, startDate]);
   
   const handleRefresh = () => {
     setIsUpdating(true);
@@ -235,7 +232,7 @@ useEffect(() => {
   }, [token]);
 
   useEffect(() => {
-    let url = 'http://localhost:3001/api/promotions';
+    let url = `${process.env.REACT_APP_API_URL}/promotions`;
     if (roleId === 3) {
       url = `${process.env.REACT_APP_API_URL}/promotions/by-user`;
     }
@@ -265,10 +262,9 @@ useEffect(() => {
     };
   
     if (selectedSaleStatus) {
-      fetch(`http://localhost:3001/api/sale-statuses/reasons/${selectedSaleStatus}`, { headers })
+      fetch(`${process.env.REACT_APP_API_URL}/sale-statuses/reasons/${selectedSaleStatus}`, { headers })
         .then(response => response.json())
         .then(data => {
-          console.log(data);
           setSaleStatusReasons(data);
         })
         .catch(error => {
@@ -342,17 +338,17 @@ useEffect(() => {
   
     switch (format) {
       case 'excel':
-        url = `http://localhost:3001/api/sales/all/export/excel?${queryString}`;
+        url = `${process.env.REACT_APP_API_URL}/sales/all/export/excel?${queryString}`;
         responseType = 'blob';
         filename = 'ventas.xlsx';
         break;
       case 'word':
-        url = `http://localhost:3001/api/sales/all/export/word?${queryString}`;
+        url = `${process.env.REACT_APP_API_URL}/sales/all/export/word?${queryString}`;
         responseType = 'blob';
         filename = 'ventas.docx';
         break;
       case 'csv':
-        url = `http://localhost:3001/api/sales/all/export/csv?${queryString}`;
+        url = `${process.env.REACT_APP_API_URL}/sales/all/export/csv?${queryString}`;
         responseType = 'text/csv';
         filename = 'ventas.csv';
         break;
@@ -445,159 +441,161 @@ useEffect(() => {
             </div>
           )}
         </div>
-        <div className='='filter-section>
+        <div className='column-2'>
+          <div className='='filter-section>
+            <div className="filters">
+              <h4>Regiones</h4>
+              <select value={selectedRegion} onChange={e => setSelectedRegion(e.target.value)}>
+                <option key="default-region" value="" disabled>Selecciona una región</option>
+                {regions.map(region => (
+                  <option key={region.region_id} value={region.region_id}>{region.region_name}</option>
+                ))}
+              </select>
+              {selectedRegion && (
+                <button onClick={() => setSelectedRegion('')}>Borrar</button>
+              )}
+            </div>
+          </div>
+
+
           <div className="filters">
-            <h4>Regiones</h4>
-            <select value={selectedRegion} onChange={e => setSelectedRegion(e.target.value)}>
-              <option key="default-region" value="" disabled>Selecciona una región</option>
-              {regions.map(region => (
-                <option key={region.region_id} value={region.region_id}>{region.region_name}</option>
+            <h4>Comunas</h4>
+            <select value={selectedCommune} onChange={e => setSelectedCommune(e.target.value)}>
+              <option key="default-commune" value="" disabled>Selecciona una comuna</option>
+              {communes.map((commune) => (
+                <option key={commune.commune_id} value={commune.commune_id}>{commune.commune_name}</option>
               ))}
             </select>
-            {selectedRegion && (
-              <button onClick={() => setSelectedRegion('')}>Borrar</button>
+            {selectedCommune && (
+              <button onClick={() => setSelectedCommune('')}>Borrar</button>
+            )}
+          </div>
+
+          <div className="filters">
+            <h4>Promociones</h4>
+            <select value={selectedPromotion} onChange={e => setSelectedPromotion(e.target.value)}>
+              <option key="default-promotion" value="" disabled>Selecciona una promoción</option>
+              {promotions.map(promotion => (
+                <option key={promotion.promotion_id} value={promotion.promotion_id}>{promotion.promotion}</option>
+              ))}
+            </select>
+            {selectedPromotion && (
+              <button onClick={() => setSelectedPromotion('')}>Borrar</button>
+            )}
+          </div>
+
+      
+          <div className="filters">
+            <h4>Monto de instalación</h4>
+            <select value={selectedInstallationAmount} onChange={e => setSelectedInstallationAmount(e.target.value)}>
+              <option key="default-amount" value="" disabled>Selecciona un monto de instalación</option>
+              {installationAmounts.map((amount) => (
+                <option key={amount.installations_amount_id} value={amount.installation_amount_id}>{amount.amount}</option>
+              ))}
+            </select>
+            {selectedInstallationAmount && (
+              <button onClick={() => setSelectedInstallationAmount('')}>Borrar</button>
             )}
           </div>
         </div>
-
-
-        <div className="filters">
-          <h4>Comunas</h4>
-          <select value={selectedCommune} onChange={e => setSelectedCommune(e.target.value)}>
-            <option key="default-commune" value="" disabled>Selecciona una comuna</option>
-            {communes.map((commune) => (
-              <option key={commune.commune_id} value={commune.commune_id}>{commune.commune_name}</option>
-            ))}
-          </select>
-          {selectedCommune && (
-            <button onClick={() => setSelectedCommune('')}>Borrar</button>
-          )}
-        </div>
-
-        <div className="filters">
-          <h4>Promociones</h4>
-          <select value={selectedPromotion} onChange={e => setSelectedPromotion(e.target.value)}>
-            <option key="default-promotion" value="" disabled>Selecciona una promoción</option>
-            {promotions.map(promotion => (
-              <option key={promotion.promotion_id} value={promotion.promotion_id}>{promotion.promotion}</option>
-            ))}
-          </select>
-          {selectedPromotion && (
-            <button onClick={() => setSelectedPromotion('')}>Borrar</button>
-          )}
-        </div>
-
-    
-        <div className="filters">
-          <h4>Monto de instalación</h4>
-          <select value={selectedInstallationAmount} onChange={e => setSelectedInstallationAmount(e.target.value)}>
-            <option key="default-amount" value="" disabled>Selecciona un monto de instalación</option>
-            {installationAmounts.map((amount) => (
-              <option key={amount.installations_amount_id} value={amount.installation_amount_id}>{amount.amount}</option>
-            ))}
-          </select>
-          {selectedInstallationAmount && (
-            <button onClick={() => setSelectedInstallationAmount('')}>Borrar</button>
-          )}
-        </div>
-   
-        <div className="filters">
-          <h4>Estado de venta</h4>
-          <select value={selectedSaleStatus} onChange={e => setSelectedSaleStatus(e.target.value)}>
-            <option key="default-status" value="" disabled>Selecciona un estado de venta</option>
-            {saleStatuses.map(status => (
-              <option key={status.sale_status_id} value={status.sale_status_id}>{status.status_name}</option>
-            ))}
-          </select>
-          {selectedSaleStatus && (
-            <button onClick={() => setSelectedSaleStatus('')}>Borrar</button>
-          )}
-        </div>
-
-
-        <div className="filters">
-          <h4>Motivo de estado de venta</h4>
-          <select value={selectedSaleStatusReason} onChange={e => setSelectedSaleStatusReason(e.target.value)}>
-            <option key="default-reason" value="" disabled>Selecciona un motivo de estado de venta</option>
-            {saleStatusReasons.map(reason => (
-              <option key={reason.sale_status_reason_id} value={reason.sale_status_reason_id}>{reason.reason_name}</option>
-            ))}
-          </select>
-          {selectedSaleStatusReason && (
-            <button onClick={() => setSelectedSaleStatusReason('')}>Borrar</button>
-          )}
-        </div>
-
-
-        {roleId !== 3 && (
+        <div className='column-3'></div>
           <div className="filters">
-            <h4>Rol</h4>
-            <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)}>
-              <option key="default-role" value="" disabled>Selecciona un rol</option>
-              {roles.map(role => (
-                <option key={role.role_id} value={role.role_id}>{role.role_name}</option>
+            <h4>Estado de venta</h4>
+            <select value={selectedSaleStatus} onChange={e => setSelectedSaleStatus(e.target.value)}>
+              <option key="default-status" value="" disabled>Selecciona un estado de venta</option>
+              {saleStatuses.map(status => (
+                <option key={status.sale_status_id} value={status.sale_status_id}>{status.status_name}</option>
               ))}
             </select>
-            {selectedRole && (
-              <button onClick={() => setSelectedRole('')}>Borrar</button>
+            {selectedSaleStatus && (
+              <button onClick={() => setSelectedSaleStatus('')}>Borrar</button>
             )}
           </div>
-        )}
- 
 
-        <div className="filters">
-          <h4>Prioridad</h4>
-          <select value={selectedPriority} onChange={e => setSelectedPriority(e.target.value)}>
-            <option key="default-priority" value="" disabled>Selecciona una opción</option>
-            <option key="prioridad" value="1">Prioridad</option>
-            <option key="no-prioridad" value="0">No prioridad</option>
-          </select>
-          {selectedPriority && (
-            <button onClick={() => setSelectedPriority('')}>Borrar</button>
+
+          <div className="filters">
+            <h4>Motivo de estado de venta</h4>
+            <select value={selectedSaleStatusReason} onChange={e => setSelectedSaleStatusReason(e.target.value)}>
+              <option key="default-reason" value="" disabled>Selecciona un motivo de estado de venta</option>
+              {saleStatusReasons.map(reason => (
+                <option key={reason.sale_status_reason_id} value={reason.sale_status_reason_id}>{reason.reason_name}</option>
+              ))}
+            </select>
+            {selectedSaleStatusReason && (
+              <button onClick={() => setSelectedSaleStatusReason('')}>Borrar</button>
+            )}
+          </div>
+
+
+          {roleId !== 3 && (
+            <div className="filters">
+              <h4>Rol</h4>
+              <select value={selectedRole} onChange={e => setSelectedRole(e.target.value)}>
+                <option key="default-role" value="" disabled>Selecciona un rol</option>
+                {roles.map(role => (
+                  <option key={role.role_id} value={role.role_id}>{role.role_name}</option>
+                ))}
+              </select>
+              {selectedRole && (
+                <button onClick={() => setSelectedRole('')}>Borrar</button>
+              )}
+            </div>
           )}
+  
+
+          <div className="filters">
+            <h4>Prioridad</h4>
+            <select value={selectedPriority} onChange={e => setSelectedPriority(e.target.value)}>
+              <option key="default-priority" value="" disabled>Selecciona una opción</option>
+              <option key="prioridad" value="1">Prioridad</option>
+              <option key="no-prioridad" value="0">No prioridad</option>
+            </select>
+            {selectedPriority && (
+              <button onClick={() => setSelectedPriority('')}>Borrar</button>
+            )}
+          </div>
+
+          <button onClick={() => {
+            setFilters({
+              sales_channel_id: selectedSalesChannel,
+              region_id: selectedRegion,
+              commune_id: selectedCommune,
+              promotion_id: selectedPromotion,
+              installation_amount_id: selectedInstallationAmount,
+              sale_status_id: selectedSaleStatus,
+              sale_status_reason_id: selectedSaleStatusReason,
+              company_id: selectedCompany,
+              role_id: selectedRole,
+              is_priority: selectedPriority,
+              start_date: startDate,
+              end_date: endDate,
+            });
+          }}>Aplicar filtros</button>
+
+          <button onClick={() => {
+            // Limpiar todos los valores de los filtros
+            setFilters(originalFilters); 
+
+            // Limpiar las fechas del estado
+            setStartDate(''); 
+            setEndDate(''); 
+
+            // Limpiar los selectores y demás valores de los filtros
+            setSelectedSalesChannel('');
+            setSelectedRegion('');
+            setSelectedCommune('');
+            setSelectedPromotion('');
+            setSelectedInstallationAmount('');
+            setSelectedSaleStatus('');
+            setSelectedSaleStatusReason('');
+            setSelectedCompany('');
+            setSelectedRole('');
+            setSelectedPriority('');
+
+            // Volver a cargar todas las ventas (sin filtro)
+            fetchSales(1);
+          }}>Limpiar filtros</button>
         </div>
-
-        <button onClick={() => {
-          setFilters({
-            sales_channel_id: selectedSalesChannel,
-            region_id: selectedRegion,
-            commune_id: selectedCommune,
-            promotion_id: selectedPromotion,
-            installation_amount_id: selectedInstallationAmount,
-            sale_status_id: selectedSaleStatus,
-            sale_status_reason_id: selectedSaleStatusReason,
-            company_id: selectedCompany,
-            role_id: selectedRole,
-            is_priority: selectedPriority,
-            start_date: startDate,
-            end_date: endDate,
-          });
-        }}>Aplicar filtros</button>
-
-        <button onClick={() => {
-          // Limpiar todos los valores de los filtros
-          setFilters(originalFilters); 
-
-          // Limpiar las fechas del estado
-          setStartDate(''); 
-          setEndDate(''); 
-
-          // Limpiar los selectores y demás valores de los filtros
-          setSelectedSalesChannel('');
-          setSelectedRegion('');
-          setSelectedCommune('');
-          setSelectedPromotion('');
-          setSelectedInstallationAmount('');
-          setSelectedSaleStatus('');
-          setSelectedSaleStatusReason('');
-          setSelectedCompany('');
-          setSelectedRole('');
-          setSelectedPriority('');
-
-          // Volver a cargar todas las ventas (sin filtro)
-          fetchSales(1);
-        }}>Limpiar filtros</button>
-      </div>
 
 
 <div className="export-buttons" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 5 }}>
@@ -625,8 +623,15 @@ useEffect(() => {
                   {isUpdating && <span style={{ marginLeft: 10 }}>Actualizando...</span>}
                 </button>
               </div>
-              {filteredSales.map(sale => (
-                <SaleCard key={`${sale.sale_id}-${sale.created_at}`} sale={sale} onSaleClick={onSaleClick} getStatusColor={getStatusColor} onPriorityChange={handlePriorityChange} refreshSales={handleRefresh} />              ))}
+              {filteredSales.filter(sale => {
+                if (filters.sale_status_id === '7') { // si el filtro selecciona sale_status_id = 7
+                  return true;
+                } else { // si el filtro no selecciona sale_status_id = 7
+                  return sale.sale_status_id !== 7;
+                }
+              }).map(sale => (
+                <SaleCard key={`${sale.sale_id}-${sale.created_at}`} sale={sale} onSaleClick={onSaleClick} getStatusColor={getStatusColor} onPriorityChange={handlePriorityChange} refreshSales={handleRefresh} />
+              ))}
             </Suspense>
           </div>
         ) : (

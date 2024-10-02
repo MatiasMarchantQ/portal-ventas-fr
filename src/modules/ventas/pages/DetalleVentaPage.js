@@ -278,15 +278,28 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       updatedSale.sale_status_id = 1;
       updatedSale.sale_status_reason_id = 22;
     }
-    const formData = new FormData();
+  
+    // Verificar si los datos del formulario han cambiado
+    if (JSON.stringify(updatedSale) === JSON.stringify(sale)) {
+      alert('No se realizaron cambios');
+      return;
+    }
+    if (updatedSale.sale_status_reason_id === "") {
+      setUpdateMessage("Debe seleccionar un motivo");
+      return;
+    }
 
+    const phoneNumber = updatedSale.client_phone.replace('+56', '') || '';
+  
+    const formData = new FormData();
+  
     // Agregar todos los campos del formulario al FormData
     formData.append('sales_channel_id', updatedSale.sales_channel_id);
     formData.append('client_first_name', updatedSale.client_first_name);
     formData.append('client_last_name', updatedSale.client_last_name);
     formData.append('client_rut', updatedSale.client_rut);
     formData.append('client_email', updatedSale.client_email);
-    formData.append('client_phone', updatedSale.client_phone);
+    formData.append('client_phone', phoneNumber);
     formData.append('region_id', updatedSale.region_id);
     formData.append('commune_id', updatedSale.commune_id);
     formData.append('street', updatedSale.street);
@@ -299,21 +312,21 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
     formData.append('company_priority_id', updatedSale.company_priority_id);
     formData.append('sale_status_reason_id', updatedSale.sale_status_reason_id);
     formData.append('installation_amount_id', updatedSale.promotion_id);
-
+  
     // Agregar imágenes existentes
     formData.append("existing_images", Array.isArray(existingImages) ? existingImages.join(',') : existingImages);
     newImages.forEach((image, index) => {
       formData.append(`other_images`, image);
     });
-
+  
     if (updatedSale.service_id !== null) {
       formData.append('service_id', updatedSale.service_id);
     }
-
+  
     for (const [key, value] of formData.entries()) {
       console.log(`${key}: ${value}`);
     }
-    
+  
     try {
       const response = await fetch(`http://localhost:3001/api/sales/update/${currentSaleId}`, {
         method: 'PUT',
@@ -322,24 +335,23 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
         },
         body: formData
       });
-
+  
       console.log(formData);
   
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`Error actualizando la venta: ${response.status} ${response.statusText}. ${errorData.message}`);
+        throw new Error(errorData.message);
       }
-  
+    
       const responseData = await response.json();
       console.log(responseData);
       setSale(responseData);
       setUpdatedSale(responseData);
       setIsEditing(false);
       setUpdateMessage('Venta actualizada con éxito!');
-  
+    
       await fetchSaleDetails();
     } catch (error) {
-      console.error('Error updating:', error);
       setIsEditing(true);
       setUpdateMessage(`Error al actualizar: ${error.message}`);
     }
@@ -370,7 +382,6 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   const renderEditForm = () => (
     <div className="sale-detail-form">
       {renderFormFields()}
-      {updateMessage && <div className="update-message">{updateMessage}</div>}
     </div>
   );
 
@@ -390,14 +401,16 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       {renderTextarea("Georeferencia", "geo_reference", 2)}
       {renderSelectField("Promoción", "promotion_id", promotions, "promotion_id", "promotion")}
       {renderReadOnlyField("Monto de Instalación", installationAmount)}
-      {renderInputField("Número Orden(Wisphub)", "service_id", "text", true, updatedSale.sale_status_id === 2)}
+      <div></div>
       {[1, 2, 3, 4, 5].includes(roleId) && renderEditableSaleStatus()}
       {[1, 2, 4, 5].includes(roleId) && renderEditableReason()}
+      {renderInputField("Número Orden(Wisphub)", "service_id", "text")}
       {roleId === 3 
         ? renderImageInputs ("Archivos adjuntos", "other_images")
         : renderTextarea("Comentarios adicionales", "additional_comments")
       }
     </div>
+    
   );
 
   const renderInputField = (label, name, type = "text", editable = true, required = false) => (
@@ -488,6 +501,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       )}
     </div>
   );
+  
 
   const renderEditableReason = () => (
     <div className="sale-detail-field-group">
@@ -506,6 +520,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       </select>
     </div>
   );
+  
 
   const renderImageInputs = () => (
     <div className="sale-detail-field-group">
@@ -587,44 +602,46 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
         <p></p>
         <p></p>
         <div className="executive-info">
-          {sale.executive ? (
-            <div>
-              <strong>{sale.executive.role.role_name}</strong>
-              <ul>
-                <li>Nombre: {sale.executive.first_name} {sale.executive.last_name}</li>
-                <li>Rut: {sale.executive.rut}</li>
-                <li>Email: {sale.executive.email}</li>
-                <li>Celular: {sale.executive.phone_number}</li>
-                {sale.executive.company && <li>Empresa: {sale.executive.company.company_name}</li>}
-                {sale.executive.salesChannel && <li>Canal de ventas: {sale.executive.salesChannel.channel_name}</li>}
-              </ul>
-            </div>
-          ) : sale.admin ? (
-            <div>
-              <strong>{sale.admin.role.role_name}</strong>
-              <ul>
-                <li>Nombre: {sale.admin.first_name} {sale.admin.last_name}</li>
-                <li>Rut: {sale.admin.rut}</li>
-                <li>Email: {sale.admin.email}</li>
-                <li>Celular: {sale.admin.phone_number}</li>
-                {sale.admin.company && <li>Empresa: {sale.admin.company.company_name}</li>}
-                {sale.admin.salesChannel && <li>Canal de ventas: {sale.admin.salesChannel.channel_name}</li>}
-              </ul>
-            </div>
-          ) : (
-            <div>
-              <strong>{sale.superadmin.role.role_name}</strong>
-              <ul>
-                <li>Nombre: {sale.superadmin.first_name} {sale.superadmin.last_name}</li>
-                <li>Rut: {sale.superadmin.rut}</li>
-                <li>Email: {sale.superadmin.email}</li>
-                <li>Celular: {sale.superadmin.phone_number}</li>
-                {sale.superadmin.company && <li>Empresa: {sale.superadmin.company.company_name}</li>}
-                {sale.superadmin.salesChannel && <li>Canal de ventas: {sale.superadmin.salesChannel.channel_name}</li>}
-              </ul>
-            </div>
-          )}
-        </div>
+        {sale.executive && (
+          <div>
+            <strong>{sale.executive.role?.role_name || 'Rol no especificado'}</strong>
+            <ul>
+              <li>Nombre: {sale.executive.first_name} {sale.executive.last_name}</li>
+              <li>Rut: {sale.executive.rut}</li>
+              <li>Email: {sale.executive.email}</li>
+              <li>Celular: {sale.executive.phone_number}</li>
+              {sale.executive.company && <li>Empresa: {sale.executive.company.company_name}</li>}
+              {sale.executive.salesChannel && <li>Canal de ventas: {sale.executive.salesChannel.channel_name}</li>}
+            </ul>
+          </div>
+        )}
+        {!sale.executive && sale.admin && (
+          <div>
+            <strong>{sale.admin.role?.role_name || 'Rol no especificado'}</strong>
+            <ul>
+              <li>Nombre: {sale.admin.first_name} {sale.admin.last_name}</li>
+              <li>Rut: {sale.admin.rut}</li>
+              <li>Email: {sale.admin.email}</li>
+              <li>Celular: {sale.admin.phone_number}</li>
+              {sale.admin.company && <li>Empresa: {sale.admin.company.company_name}</li>}
+              {sale.admin.salesChannel && <li>Canal de ventas: {sale.admin.salesChannel.channel_name}</li>}
+            </ul>
+          </div>
+        )}
+        {!sale.executive && !sale.admin && sale.superadmin && (
+          <div>
+            <strong>{sale.superadmin.role?.role_name || 'Rol no especificado'}</strong>
+            <ul>
+              <li>Nombre: {sale.superadmin.first_name} {sale.superadmin.last_name}</li>
+              <li>Rut: {sale.superadmin.rut}</li>
+              <li>Email: {sale.superadmin.email}</li>
+              <li>Celular: {sale.superadmin.phone_number}</li>
+              {sale.superadmin.company && <li>Empresa: {sale.superadmin.company.company_name}</li>}
+              {sale.superadmin.salesChannel && <li>Canal de ventas: {sale.superadmin.salesChannel.channel_name}</li>}
+            </ul>
+          </div>
+        )}
+      </div>
         <p></p>
         <p></p>
   
@@ -709,7 +726,13 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       <h2>{roleId === 4 ? 'Validar venta' : 'Detalle venta'}</h2>
       {isEditing ? renderEditForm() : renderSaleDetails()}
 
-      {roleId === 3 && (
+      {(roleId === 3 && updatedSale.sale_status_id === 4) && (
+        <div className="update-message" style={{marginTop: 20}}>
+          Atención: Si deseas reingresar la venta, haz clic en el botón "Reingresar" para volver a enviar la venta. Recuerda verificar cuidadosamente los datos para evitar errores.
+        </div>
+      )}
+
+      {(roleId === 3 && updatedSale.sale_status_id === 4) && (
         <div className="update-message" style={{marginTop: 20}}>
           Atención: Si deseas reingresar la venta, haz clic en el botón "Reingresar" para volver a enviar la venta. Recuerda verificar cuidadosamente los datos para evitar errores.
         </div>

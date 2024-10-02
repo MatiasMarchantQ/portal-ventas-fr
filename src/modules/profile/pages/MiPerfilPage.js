@@ -62,7 +62,6 @@ const MiPerfilPage = () => {
                     'Content-Type': 'application/json'
                 }
             });
-
             if (!response.ok) throw new Error('Error al obtener los datos del usuario');
             const data = await response.json();
             const { user_id, ...filteredData } = data;

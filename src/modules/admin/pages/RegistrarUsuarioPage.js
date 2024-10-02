@@ -6,16 +6,14 @@ import { UserContext } from '../../../contexts/UserContext';
 import withAuthorization from '../../../contexts/withAuthorization';
 
 const RegistrarUsuarioPage = () => {
-  const { token } = useContext(UserContext);
+  const { token, roleId } = useContext(UserContext);
   
   const initialFormData = {
     first_name: '',
-    second_name: '',
     last_name: '',
-    second_last_name: '',
     rut: '',
     email: '',
-    phone_number: '+569',
+    phone_number: '+56',
     company_id: '',
     region_id: '',
     commune_id: '',
@@ -34,9 +32,11 @@ const RegistrarUsuarioPage = () => {
   const [regions, setRegions] = useState([]);
   const [communes, setCommunes] = useState([]);
   const [salesChannels, setSalesChannels] = useState([]);
+  const [companyId, setCompanyId] = useState();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [message, setMessage] = useState('');
+  
 
   useEffect(() => {
     fetchRoles();
@@ -48,6 +48,23 @@ const RegistrarUsuarioPage = () => {
   useEffect(() => {
     fetchCommunes(formData.region_id);
   }, [formData.region_id]);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/users/me', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const userData = await response.json();
+        setCompanyId(userData.company_id);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchUserData();
+  }, [token]);
 
   const fetchData = async (url, setData, errorMessage) => {
     try {
@@ -91,10 +108,18 @@ const RegistrarUsuarioPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setMessage(''); // Reiniciar el mensaje antes de la nueva solicitud
+    setMessage('');
   
     try {
-      const response = await fetch('http://localhost:3001/api/users/register', {
+      setFormData(prevState => ({
+        ...prevState,
+        phone_number: prevState.phone_number.replace('+56', ''),
+        rut: prevState.rut.replace(/\./g, ''),
+      }));
+  
+      const url = roleId === 2 ? 'http://localhost:3001/api/users/admin/register-user' : 'http://localhost:3001/api/users/register';
+  
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -103,13 +128,13 @@ const RegistrarUsuarioPage = () => {
         body: JSON.stringify(formData),
       });
   
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(`Error en el registro del usuario: ${errorData.message || 'Error desconocido'}`);
       }
   
       const result = await response.json();
-      console.log('Usuario registrado:', result);
   
       // Obtener el email y la contraseña del usuario registrado
       const userEmail = formData.email;
@@ -176,57 +201,33 @@ const RegistrarUsuarioPage = () => {
         <form onSubmit={handleSubmit}>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
-              <strong htmlFor="first_name">Primer Nombre:</strong>
+              <strong htmlFor="first_name">Nombres*</strong>
               <input
                 type="text"
                 name="first_name"
                 id="first_name"
                 value={formData.first_name}
                 onChange={handleChange}
-                placeholder="Ingresa el primer nombre"
+                placeholder="Ingresa el primer, segundo y/o tercer nombre"
                 required
               />
             </div>
             <div className="registrar-usuario-form-group">
-              <strong htmlFor="second_name">Segundo Nombre:</strong>
-              <input
-                type="text"
-                name="second_name"
-                id="second_name"
-                value={formData.second_name}
-                onChange={handleChange}
-                placeholder="Ingresa el segundo nombre"
-              />
-            </div>
-          </div>
-          <div className="registrar-usuario-form-row">
-            <div className="registrar-usuario-form-group">
-              <strong htmlFor="last_name">Primer Apellido:</strong>
+              <strong htmlFor="second_last_name">Apellidos*</strong>
               <input
                 type="text"
                 name="last_name"
                 id="last_name"
                 value={formData.last_name}
                 onChange={handleChange}
-                placeholder="Ingresa el primer apellido"
+                placeholder="Ingresa el primer y segundo apellido"
                 required
-              />
-            </div>
-            <div className="registrar-usuario-form-group">
-              <strong htmlFor="second_last_name">Segundo Apellido:</strong>
-              <input
-                type="text"
-                name="second_last_name"
-                id="second_last_name"
-                value={formData.second_last_name}
-                onChange={handleChange}
-                placeholder="Ingresa el segundo apellido"
               />
             </div>
           </div>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
-              <strong htmlFor="rut">Rut:</strong>
+              <strong htmlFor="rut">Rut*</strong>
               <input
                 type="text"
                 name="rut"
@@ -238,7 +239,7 @@ const RegistrarUsuarioPage = () => {
               />
             </div>
             <div className="registrar-usuario-form-group">
-              <strong htmlFor="email">Correo electrónico:</strong>
+              <strong htmlFor="email">Correo electrónico*</strong>
               <input
                 type="email"
                 name="email"
@@ -253,7 +254,7 @@ const RegistrarUsuarioPage = () => {
           </div>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
-              <strong htmlFor="phone_number">Número celular:</strong>
+              <strong htmlFor="phone_number">Número celular</strong>
               <input
                 type="tel"
                 name="phone_number"
@@ -261,26 +262,26 @@ const RegistrarUsuarioPage = () => {
                 value={formData.phone_number}
                 onChange={handleChange}
                 placeholder="Ingresa el número celular"
-                required
               />
             </div>
             <div className="registrar-usuario-form-group">
-              <strong htmlFor="company_id">Empresa:</strong>
-              <select
-                name="company_id"
-                id="company_id"
-                value={formData.company_id}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Selecciona una empresa</option>
-                {companies.map((company) => (
-                  <option key={company.company_id} value={company.company_id}>
-                    {company.company_name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <strong htmlFor="company_id">Empresa</strong>
+            <select
+              name="company_id"
+              id="company_id"
+              value={roleId === 2 ? companyId : formData.company_id}
+              onChange={handleChange}
+              required
+              disabled={roleId === 2} // Deshabilitar la selección solo si el rol es 2
+            >
+              <option value="">Selecciona una empresa</option>
+              {companies.map((company) => (
+                <option key={company.company_id} value={company.company_id}>
+                  {company.company_name}
+                </option>
+              ))}
+            </select>
+          </div>
           </div>
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">

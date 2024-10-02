@@ -52,7 +52,14 @@
   .ventas-page .filter-section .column-1 {
     margin-top: -20px;
 }
+  .ventas-page .filter-section .column-2 {
+    margin-top: 50px;
+  }
   
+  .ventas-page .filter-section .column-3 {
+    margin-top: 50px;
+  }
+
   .ventas-page .filter-section.active {
     display: block;
   }
@@ -298,6 +305,89 @@
     border: none
   }
 
+  .button-ver-mas {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    font-size: 14px;
+    color: #337ab7;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  
+  .button-ver-mas:hover {
+    color: #23527c;
+    text-decoration: underline;
+  }
+
+  .history-modal {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .history-modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    max-height: 80vh;
+    width: 80%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  .history-modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #99235C;
+    color: #99235C;
+  }
+  
+  .scrollable-content {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 10px;
+  }
+  
+  .history-modal-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .history-modal-content li {
+    margin-bottom: 10px;
+  }
+  
+  .history-modal-content button {
+    background-color: #99235C;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    align-self: flex-end;
+    margin-top: 20px;
+  }
+  
+  .history-modal-content button:hover {
+    background-color: #7c1c4a;
+  }
+  
+  .modal-open {
+    overflow: hidden;
+  }
 
   /* Responsive Design */
 
