@@ -19,6 +19,8 @@ const Menu = ({ role_id, onMenuClick }) => {
           { label: 'Usuarios', action: 'Usuarios' },
           { label: 'Comunas', action: 'Comunas' },
           { label: 'Tarifas', action: 'Tarifas' },
+          { label: 'Empresas', action: 'Empresas' },
+          
         ],
       },
       { label: 'Mi perfil', action: 'Mi perfil' },

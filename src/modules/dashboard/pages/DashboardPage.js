@@ -9,6 +9,7 @@ import RegistrarUsuarioPage from '../../../modules/admin/pages/RegistrarUsuarioP
 import UsuariosPage from '../../../modules/admin/pages/UsuariosPage';
 import ComunasPage from '../../../modules/admin/pages/ComunasPage';
 import TarifasPage from '../../../modules/admin/pages/TarifasPage';
+import EmpresasPage from '../../../modules/admin/pages/EmpresasPage';
 import DetalleUsuarioPage from '../../../modules/admin/pages/DetalleUsuarioPage';
 import MiPerfilPage from '../../../modules/profile/pages/MiPerfilPage';
 import IngresarVentasPage from '../../../modules/ventas/pages/IngresarVentasPage';
@@ -23,6 +24,7 @@ const accessControl = {
   'Usuarios': [1, 2],
   'Comunas': [1],
   'Tarifas': [1],
+  'Empresas': [1],
   'Mi perfil': [1, 2, 3, 4, 5, 6],
 };
 
@@ -74,6 +76,7 @@ const DashboardPage = () => {
       'Usuarios': <UsuariosPage onUserClick={handleUserClick} pagination={pagination} setPagination={setPagination} />,
       'Comunas': <ComunasPage />,
       'Tarifas': <TarifasPage />,
+      'Empresas': <EmpresasPage />,
       'Mi perfil': <MiPerfilPage />,
     };
 

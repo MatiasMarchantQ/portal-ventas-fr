@@ -183,7 +183,7 @@ const CreatePromotion = ({ token, installationAmounts }) => {
       const result = await apiCall('http://localhost:3001/api/promotions', 'POST', {
         promotion: promotionName,
         installationAmountId: selectedInstallationAmountId,
-      }, `Bearer ${token}`);
+      }, token);
       alert(`Promoción creada: ${result.message}`);
       setPromotionName('');
       setSelectedInstallationAmountId('');
@@ -244,7 +244,7 @@ const UpdatePromotion = ({ token, promotions, installationAmounts }) => {
       const result = await apiCall(`http://localhost:3001/api/promotions/${selectedPromotionId}`, 'PATCH', {
         promotion: updatedPromotionName,
         installation_amount_id: updatedInstallationAmountId,
-      }, `Bearer ${token}`);
+      }, token);
       alert('Promoción actualizada: ' + result.message);
       setUpdatedPromotionName('');
       setUpdatedInstallationAmountId('');
@@ -452,7 +452,7 @@ const AssignPromotion = ({ token, regions, promotions }) => {
     try {
       const result = await apiCall(`http://localhost:3001/api/promotions/communes/${selectedCommuneId}/promotions`, 'POST', {
         promotionIds: selectedPromotionIds,
-      }, `Bearer ${token}`);
+      }, token);
       alert(result.message);
     } catch (error) {
       console.error('Error al asignar la promoción a la comuna:', error);
@@ -537,7 +537,7 @@ const UpdateInstallationAmount = ({ token, promotions, installationAmounts }) =>
     try {
       const result = await apiCall(`http://localhost:3001/api/promotions/promotions/${selectedPromotionId}/installation-amount`, 'PATCH', {
         installation_amount_id: installationAmountId,
-      }, `Bearer ${token}`);
+      }, token);
       alert(result.message);
     } catch (error) {
       console.error('Error al actualizar el monto de instalación:', error);

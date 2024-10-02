@@ -14,7 +14,13 @@ const apiCall = async (url, method = 'GET', body = null, token = null) => {
     ...(body && { body: JSON.stringify(body) })
   };
   const response = await fetch(url, config);
-  if (!response.ok) throw new Error('API call failed');
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Error de autenticación');
+    } else {
+      throw new Error('API call failed');
+    }
+  }
   return response.json();
 };
 
@@ -175,7 +181,7 @@ const AddCommuneToRegion = ({ token, regions }) => {
     try {
       const result = await apiCall(`http://localhost:3001/api/communes/regions/${selectedRegionId}/communes`, 'POST', {
         commune_name: communeName,
-      }, `Bearer ${token}`);
+      }, token);
       alert(result.message);
       setCommuneName('');
       setIsSubmitting(false);
@@ -250,9 +256,10 @@ const UpdateCommune = ({ token, regions }) => {
     }
     setIsSubmitting(true);
     try {
+      console.log(token);
       const result = await apiCall(`http://localhost:3001/api/communes/${selectedCommuneId}`, 'PUT', {
         commune_name: communeName,
-      }, `Bearer ${token}`);
+      }, token);
       alert(result.message);
       setCommuneName('');
       setIsSubmitting(false);
@@ -299,105 +306,73 @@ const UpdateCommune = ({ token, regions }) => {
   );
 };
 
-const AssignPromotion = ({ token, regions, promotions }) => {
+const ToggleCommuneStatus = ({ token, regions }) => {
   const [selectedRegionId, setSelectedRegionId] = useState('');
   const [communes, setCommunes] = useState([]);
   const [selectedCommuneId, setSelectedCommuneId] = useState('');
-  const [selectedPromotionIds, setSelectedPromotionIds] = useState([]);
+  const [isActive, setIsActive] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (selectedRegionId) {
-      // Cargar las comunas para la región seleccionada
       apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`,'GET', null, token)
         .then(setCommunes)
-        .catch(error => console.error('Error al cargar las comunas:', error));
-    } else {
-      setCommunes([]); // Limpiar las comunas si no hay región seleccionada
+        .catch(error => console.error('Error loading communes:', error));
     }
   }, [selectedRegionId, token]);
 
-  const handleRegionChange = (event) => {
-    setSelectedRegionId(event.target.value); // Guardar el ID de la región seleccionada
-    setSelectedCommuneId(''); // Limpiar la comuna seleccionada
+  const handleRegionChange = (regionId) => {
+    setSelectedRegionId(regionId);
+    setSelectedCommuneId('');
   };
 
-  const handleCommuneChange = (event) => {
-    setSelectedCommuneId(event.target.value); // Guardar el ID de la comuna seleccionada
+  const handleCommuneChange = (communeId) => {
+    setSelectedCommuneId(communeId);
   };
 
-  const handlePromotionChange = (promotionId, isChecked) => {
-    setSelectedPromotionIds((prev) =>
-      isChecked ? [...prev, promotionId] : prev.filter((id) => id !== promotionId)
-    );
-  };
-
-  const handleAssignPromotionToCommune = async (e) => {
-    e.preventDefault();
-    if (selectedPromotionIds.length === 0 || !selectedCommuneId) {
-      alert('Debe seleccionar al menos una comuna y una promoción.');
-      return;
-    }
+  const handleToggleStatus = async () => {
+    setIsSubmitting(true);
     try {
-      const result = await apiCall(`http://localhost:3001/api/promotions/communes/${selectedCommuneId}/promotions`, 'POST', {
-        promotionIds: selectedPromotionIds,
-      }, `Bearer ${token}`);
+      const result = await apiCall(`http://localhost:3001/api/communes/${selectedCommuneId}/toggle-status`, 'PATCH', {
+        isActive: !isActive
+      }, token);
       alert(result.message);
+      setIsActive(!isActive);
+      setIsSubmitting(false);
     } catch (error) {
-      console.error('Error al asignar la promoción a la comuna:', error);
-      alert('Error al asignar la promoción a la comuna');
+      console.error('Error toggling commune status:', error);
+      alert('Error al cambiar el estado de la comuna');
+      setIsSubmitting(false);
     }
   };
 
+  
   return (
-    <form onSubmit={handleAssignPromotionToCommune}>
-      <h3 className="comunas-tarifas-header">Seleccionar Región:</h3>
-      <select
-        className="comunas-tarifas-field"
-        value={selectedRegionId}
-        onChange={handleRegionChange}
-      >
+    <form>
+      <h3>Seleccionar Región:</h3>
+      <select value={selectedRegionId} onChange={(e) => handleRegionChange(e.target.value)} className="comunas-tarifas-select">
         <option value="">Seleccione una región</option>
-        {regions.map(region => (
-          <option key={region.region_id} value={region.region_id}>
-            {region.region_name}
-          </option>
+        {regions.map((region) => (
+          <option key={region.region_id} value={region.region_id}>{region.region_name}</option>
         ))}
       </select>
 
-      <h3 className="comunas-tarifas-header">Seleccionar Comuna:</h3>
-      <select
-        className="comunas-tarifas-field"
-        value={selectedCommuneId}
-        onChange={handleCommuneChange}
-        disabled={!selectedRegionId}
-      >
+      <h3>Seleccionar Comuna:</h3>
+      <select value={selectedCommuneId} onChange={(e) => handleCommuneChange(e.target.value)} className="comunas-tarifas-select">
         <option value="">Seleccione una comuna</option>
-        {communes.map(commune => (
-          <option key={commune.commune_id} value={commune.commune_id}>
-            {commune.commune_name}
-          </option>
+        {communes.map((commune) => (
+          <option key={commune.commune_id} value={commune.commune_id}>{commune.commune_name}</option>
         ))}
       </select>
 
-      <h3 className="comunas-tarifas-header">Seleccionar Promociones:</h3>
-      {promotions.map((promotion) => (
-        <div key={promotion.promotion_id} className="comunas-tarifas-field-group">
-          <input
-            className="comunas-tarifas-field"
-            type="checkbox"
-            id={`promotion-${promotion.promotion_id}`}
-            value={promotion.promotion_id}
-            onChange={(e) => handlePromotionChange(promotion.promotion_id, e.target.checked)}
-          />
-          <label htmlFor={`promotion-${promotion.promotion_id}`} className="comunas-tarifas-field-group">
-            {promotion.promotion}
-          </label>
-        </div>
-      ))}
-
-      <button className="comunas-tarifas-submit-button" type="submit">
-        Asignar Promoción
-      </button>
+      <h3>Habilitar/Deshabilitar:</h3>
+      <select value={isActive} onChange={(e) => {
+        setIsActive(e.target.value === 'true');
+        handleToggleStatus(e.target.value === 'true');
+      }}>
+        <option value="true">Habilitado</option>
+        <option value="false">Deshabilitado</option>
+      </select>
     </form>
   );
 };
@@ -408,25 +383,24 @@ const Comunas = () => {
   const { token } = useContext(UserContext);
   const [regions, setRegions] = useState([]);
   const [setInstallationAmounts] = useState([]);
-  const [promotions, setPromotions] = useState([]);
-  
-  const [isOpenAssignPromotionToCommune, toggleAssignPromotionToCommune] = useToggleCard();
   const [isOpenAddCommuneToRegion, toggleAddCommuneToRegion] = useToggleCard();
   const [isOpenUpdateCommune, toggleUpdateCommune] = useToggleCard();
   const [isOpenViewOptions, toggleViewOptions] = useToggleCard();
+  const [isOpenToggleCommuneStatus, toggleToggleCommuneStatus] = useToggleCard();
+
+
 
   useEffect(() => {
     if (!token) return;
     const fetchData = async () => {
       try {
-        const [regionsData, installationAmountsData, promotionsData] = await Promise.all([
+        const [regionsData, installationAmountsData] = await Promise.all([
           apiCall('http://localhost:3001/api/regions','GET', null, token),
           apiCall('http://localhost:3001/api/promotions/installation-amounts','GET', null, token),
           apiCall('http://localhost:3001/api/promotions', 'GET', null, token)
         ]);
         setRegions(regionsData);
         setInstallationAmounts(installationAmountsData);
-        setPromotions(promotionsData);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -448,12 +422,8 @@ const Comunas = () => {
         <UpdateCommune token={token} regions={regions} />
       </Card>
 
-      <Card title="Asignar Promoción a Comuna" isOpen={isOpenAssignPromotionToCommune} toggle={toggleAssignPromotionToCommune}>
-        <AssignPromotion
-          token={token}
-          regions={regions}
-          promotions={promotions}
-        />
+      <Card title="Cambiar Estado de Comuna" isOpen={isOpenToggleCommuneStatus} toggle={toggleToggleCommuneStatus}>
+        <ToggleCommuneStatus token={token} regions={regions} />
       </Card>
     </div>
   );
