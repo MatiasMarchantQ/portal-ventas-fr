@@ -28,7 +28,7 @@ const ChangePasswordPage = () => {
         }
 
         try {
-            const response = await fetch(`http://localhost:3001/api/auth/changepassword/${token}`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/changepassword/${token}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

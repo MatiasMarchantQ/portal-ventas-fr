@@ -11,7 +11,7 @@ const SaleCard = ({ sale, onSaleClick, getStatusColor, onPriorityChange, refresh
 
   const getSaleHistory = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/sales/history/${sale.sale_id}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/history/${sale.sale_id}`);
       if (!response.ok) {
         throw new Error('Failed to get sale history');
       }
@@ -34,7 +34,7 @@ const SaleCard = ({ sale, onSaleClick, getStatusColor, onPriorityChange, refresh
       const newPriority = localPriority === 1 ? 0 : 1;
       setLocalPriority(newPriority); // Actualiza inmediatamente el estado local
   
-      const response = await fetch(`http://localhost:3001/api/sales/update-priority/${sale.sale_id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/update-priority/${sale.sale_id}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,

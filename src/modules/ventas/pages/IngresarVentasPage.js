@@ -63,7 +63,7 @@ const IngresarVentasPage = () => {
 
   const fetchRegions = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/regions', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/regions`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -82,7 +82,7 @@ const IngresarVentasPage = () => {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:3001/api/communes/communes/${regionId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/communes/communes/${regionId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -97,7 +97,7 @@ const IngresarVentasPage = () => {
 
   const fetchPromotions = async (communeId) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/sales/promotions/commune/${communeId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/promotions/commune/${communeId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -112,7 +112,7 @@ const IngresarVentasPage = () => {
 
   const fetchInstallationAmount = async (promotionId) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/sales/installation-amounts/promotion/${promotionId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/installation-amounts/promotion/${promotionId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -206,7 +206,7 @@ const IngresarVentasPage = () => {
     });
   
     try {
-      const response = await fetch('http://localhost:3001/api/sales/create', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/create`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

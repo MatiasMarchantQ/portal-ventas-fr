@@ -65,7 +65,7 @@ const ViewOptions = ({ token, regions }) => {
   // Cargar comunas cuando se selecciona una región
   useEffect(() => {
     if (selectedRegionId) {
-      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`,'GET', null, token)
+      apiCall(`${process.env.REACT_APP_API_URL}/communes/communes/${selectedRegionId}`,'GET', null, token)
         .then(setCommunes)
         .catch(error => console.error('Error al cargar las comunas:', error));
     } else {
@@ -77,7 +77,7 @@ const ViewOptions = ({ token, regions }) => {
   useEffect(() => {
     if (selectedCommuneId) {
       // Cambiar el endpoint para obtener promociones por comuna
-      apiCall(`http://localhost:3001/api/sales/promotions/commune/${selectedCommuneId}`,'GET', null, token)
+      apiCall(`${process.env.REACT_APP_API_URL}/sales/promotions/commune/${selectedCommuneId}`,'GET', null, token)
         .then(setPromotions)
         .catch(error => console.error('Error al cargar las promociones:', error));
     } else {
@@ -88,7 +88,7 @@ const ViewOptions = ({ token, regions }) => {
   // Cargar monto de instalación cuando se selecciona una promoción
   useEffect(() => {
     if (selectedPromotionId) {
-      apiCall(`http://localhost:3001/api/sales/installation-amounts/promotion/${selectedPromotionId}`,'GET', null, token)
+      apiCall(`${process.env.REACT_APP_API_URL}/sales/installation-amounts/promotion/${selectedPromotionId}`,'GET', null, token)
         .then(response => setInstallationAmount(response))
         .catch(error => console.error('Error al cargar el monto de instalación:', error));
     } else {
@@ -180,7 +180,7 @@ const CreatePromotion = ({ token, installationAmounts }) => {
       return;
     }
     try {
-      const result = await apiCall('http://localhost:3001/api/promotions', 'POST', {
+      const result = await apiCall(`${process.env.REACT_APP_API_URL}/promotions`, 'POST', {
         promotion: promotionName,
         installationAmountId: selectedInstallationAmountId,
       }, token);
@@ -241,7 +241,7 @@ const UpdatePromotion = ({ token, promotions, installationAmounts }) => {
       return;
     }
     try {
-      const result = await apiCall(`http://localhost:3001/api/promotions/${selectedPromotionId}`, 'PATCH', {
+      const result = await apiCall(`${process.env.REACT_APP_API_URL}/promotions/${selectedPromotionId}`, 'PATCH', {
         promotion: updatedPromotionName,
         installation_amount_id: updatedInstallationAmountId,
       }, token);
@@ -314,7 +314,7 @@ const DisablePromotions = ({ token, regions, promotions }) => {
   useEffect(() => {
     if (selectedRegionId) {
       // Cargar comunas para la región seleccionada
-      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`,'GET', null, token)
+      apiCall(`${process.env.REACT_APP_API_URL}/communes/communes/${selectedRegionId}`,'GET', null, token)
         .then(setCommunes)
         .catch(error => console.error('Error al cargar comunas:', error));
     }
@@ -344,7 +344,7 @@ const DisablePromotions = ({ token, regions, promotions }) => {
     }
     setIsSubmitting(true);
     try {
-      const result = await apiCall(`http://localhost:3001/api/promotions/communes/${selectedCommuneId}/promotions/disable`, 'PATCH', {
+      const result = await apiCall(`${process.env.REACT_APP_API_URL}/promotions/communes/${selectedCommuneId}/promotions/disable`, 'PATCH', {
         promotionIds: selectedPromotionIds,
       }, token);
       alert(result.message);
@@ -420,7 +420,7 @@ const AssignPromotion = ({ token, regions, promotions }) => {
   useEffect(() => {
     if (selectedRegionId) {
       // Cargar las comunas para la región seleccionada
-      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`,'GET', null, token)
+      apiCall(`${process.env.REACT_APP_API_URL}/communes/communes/${selectedRegionId}`,'GET', null, token)
         .then(setCommunes)
         .catch(error => console.error('Error al cargar las comunas:', error));
     } else {
@@ -450,7 +450,7 @@ const AssignPromotion = ({ token, regions, promotions }) => {
       return;
     }
     try {
-      const result = await apiCall(`http://localhost:3001/api/promotions/communes/${selectedCommuneId}/promotions`, 'POST', {
+      const result = await apiCall(`${process.env.REACT_APP_API_URL}/promotions/communes/${selectedCommuneId}/promotions`, 'POST', {
         promotionIds: selectedPromotionIds,
       }, token);
       alert(result.message);
@@ -535,7 +535,7 @@ const UpdateInstallationAmount = ({ token, promotions, installationAmounts }) =>
       return;
     }
     try {
-      const result = await apiCall(`http://localhost:3001/api/promotions/promotions/${selectedPromotionId}/installation-amount`, 'PATCH', {
+      const result = await apiCall(`${process.env.REACT_APP_API_URL}/promotions/promotions/${selectedPromotionId}/installation-amount`, 'PATCH', {
         installation_amount_id: installationAmountId,
       }, token);
       alert(result.message);
@@ -597,9 +597,9 @@ const Tarifas = () => {
     const fetchData = async () => {
       try {
         const [regionsData, installationAmountsData, promotionsData] = await Promise.all([
-          apiCall('http://localhost:3001/api/regions','GET', null, token),
-          apiCall('http://localhost:3001/api/promotions/installation-amounts','GET', null, token),
-          apiCall('http://localhost:3001/api/promotions', 'GET', null, token)
+          apiCall(`${process.env.REACT_APP_API_URL}/regions`,'GET', null, token),
+          apiCall(`${process.env.REACT_APP_API_URL}/promotions/installation-amounts`,'GET', null, token),
+          apiCall(`${process.env.REACT_APP_API_URL}/promotions`, 'GET', null, token)
         ]);
         setRegions(regionsData);
         setInstallationAmounts(installationAmountsData);

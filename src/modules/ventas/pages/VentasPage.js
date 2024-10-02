@@ -212,7 +212,7 @@ useEffect(() => {
 }, [token]);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/roles', {
+    fetch(`${process.env.REACT_APP_API_URL}/roles`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

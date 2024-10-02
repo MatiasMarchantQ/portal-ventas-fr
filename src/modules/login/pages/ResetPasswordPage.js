@@ -86,7 +86,7 @@ const ResetPasswordPage = () => {
       return;
     }
 
-    const apiUrl = `http://localhost:3001/api/auth/reset-password/${token}`;
+    const apiUrl = `${process.env.REACT_APP_API_URL}/auth/reset-password/${token}`;
     const formData = { password, confirmPassword };
   
     fetch(apiUrl, {

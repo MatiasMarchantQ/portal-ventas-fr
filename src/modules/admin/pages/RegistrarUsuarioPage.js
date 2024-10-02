@@ -52,7 +52,7 @@ const RegistrarUsuarioPage = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/api/users/me', {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/users/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -81,10 +81,10 @@ const RegistrarUsuarioPage = () => {
     }
   };
   
-  const fetchRoles = () => fetchData('http://localhost:3001/api/roles', setRoles, 'Error al obtener los roles');
-  const fetchCompanies = () => fetchData('http://localhost:3001/api/companies', setCompanies, 'Error al obtener las empresas');
-  const fetchRegions = () => fetchData('http://localhost:3001/api/regions', setRegions, 'Error al obtener las regiones');
-  const fetchSalesChannels = () => fetchData('http://localhost:3001/api/channels', setSalesChannels, 'Error al obtener los canales de venta');
+  const fetchRoles = () => fetchData(`${process.env.REACT_APP_API_URL}/roles`, setRoles, 'Error al obtener los roles');
+  const fetchCompanies = () => fetchData(`${process.env.REACT_APP_API_URL}/companies`, setCompanies, 'Error al obtener las empresas');
+  const fetchRegions = () => fetchData(`${process.env.REACT_APP_API_URL}/regions`, setRegions, 'Error al obtener las regiones');
+  const fetchSalesChannels = () => fetchData(`${process.env.REACT_APP_API_URL}/channels`, setSalesChannels, 'Error al obtener los canales de venta');
 
   const fetchCommunes = async (regionId) => {
     if (!regionId) {
@@ -94,7 +94,7 @@ const RegistrarUsuarioPage = () => {
     const headers = {
       Authorization: `Bearer ${token}`,
     };
-    await fetchData(`http://localhost:3001/api/communes/communes/${regionId}`, setCommunes, 'Error al obtener las comunas', headers);
+    await fetchData(`${process.env.REACT_APP_API_URL}/communes/communes/${regionId}`, setCommunes, 'Error al obtener las comunas', headers);
   };
 
   const handleChange = (e) => {
@@ -117,7 +117,7 @@ const RegistrarUsuarioPage = () => {
         rut: prevState.rut.replace(/\./g, ''),
       }));
   
-      const url = roleId === 2 ? 'http://localhost:3001/api/users/admin/register-user' : 'http://localhost:3001/api/users/register';
+      const url = roleId === 2 ? `${process.env.REACT_APP_API_URL}/users/admin/register-user` : `${process.env.REACT_APP_API_URL}/api/users/register`;
   
       const response = await fetch(url, {
         method: 'POST',

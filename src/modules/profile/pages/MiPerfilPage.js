@@ -55,7 +55,7 @@ const MiPerfilPage = () => {
 
     const fetchUserData = useCallback(async () => {
         try {
-            const response = await fetch('http://localhost:3001/api/users/me', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/users/me`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -79,7 +79,7 @@ const MiPerfilPage = () => {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           };
-          const response = await fetch('http://localhost:3001/api/roles', { headers });
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/roles`, { headers });
           if (!response.ok) throw new Error('Error al obtener los roles');
           const data = await response.json();
           setRoles(data);
@@ -94,7 +94,7 @@ const MiPerfilPage = () => {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
               };
-            const response = await fetch('http://localhost:3001/api/regions/', { headers });
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/regions/`, { headers });
             if (!response.ok) throw new Error('Error al obtener las regiones');
             const data = await response.json();
             setRegions(data);
@@ -109,7 +109,7 @@ const MiPerfilPage = () => {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
               };
-            const response = await fetch('http://localhost:3001/api/companies', { headers });
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/companies`, { headers });
             if (!response.ok) throw new Error('Error al obtener las empresas');
             const data = await response.json();
             setCompanies(data);
@@ -124,7 +124,7 @@ const MiPerfilPage = () => {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
               };
-            const response = await fetch('http://localhost:3001/api/channels', { headers });
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/channels`, { headers });
             if (!response.ok) throw new Error('Error al obtener los canales de venta');
             const data = await response.json();
             setSalesChannels(data);
@@ -139,7 +139,7 @@ const MiPerfilPage = () => {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
               };
-            const response = await fetch(`http://localhost:3001/api/communes/communes/${regionId}`, { headers });
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/communes/communes/${regionId}`, { headers });
             if (!response.ok) throw new Error('Error al obtener las comunas');
             const data = await response.json();
             setCommunes(data);
@@ -193,7 +193,7 @@ const MiPerfilPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:3001/api/users/update', {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/users/update`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -215,7 +215,7 @@ const MiPerfilPage = () => {
         e.preventDefault();
         if (validatePassword()) {
             try {
-                const response = await fetch('http://localhost:3001/api/users/users/me/password', {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/users/users/me/password`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`,

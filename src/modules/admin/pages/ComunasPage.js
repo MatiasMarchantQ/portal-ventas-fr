@@ -51,7 +51,7 @@ const ViewOptions = ({ token, regions }) => {
   // Cargar comunas cuando se selecciona una región
   useEffect(() => {
     if (selectedRegionId) {
-      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`,'GET', null, token)
+      apiCall(`${process.env.REACT_APP_API_URL}/communes/communes/${selectedRegionId}`,'GET', null, token)
         .then(setCommunes)
         .catch(error => console.error('Error al cargar las comunas:', error));
     } else {
@@ -63,7 +63,7 @@ const ViewOptions = ({ token, regions }) => {
   useEffect(() => {
     if (selectedCommuneId) {
       // Cambiar el endpoint para obtener promociones por comuna
-      apiCall(`http://localhost:3001/api/sales/promotions/commune/${selectedCommuneId}`,'GET', null, token)
+      apiCall(`${process.env.REACT_APP_API_URL}/sales/promotions/commune/${selectedCommuneId}`,'GET', null, token)
         .then(setPromotions)
         .catch(error => console.error('Error al cargar las promociones:', error));
     } else {

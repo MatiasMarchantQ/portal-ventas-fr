@@ -60,7 +60,7 @@ const SwapCompanyPriority = ({ token, companies }) => {
     }
     setIsSubmitting(true);
     try {
-      const result = await apiCall(`http://localhost:3001/api/companies/swap-priority-levels`, 'POST', {
+      const result = await apiCall(`${process.env.REACT_APP_API_URL}/companies/swap-priority-levels`, 'POST', {
         companyId1,
         companyId2,
       }, token);
@@ -111,7 +111,7 @@ const Empresas = () => {
     const fetchData = async () => {
       try {
         const [companiesData] = await Promise.all([
-          apiCall('http://localhost:3001/api/companies', 'GET', null, token)
+          apiCall(`${process.env.REACT_APP_API_URL}/companies`, 'GET', null, token)
         ]);
         setCompanies(companiesData);
         console.log(companiesData);

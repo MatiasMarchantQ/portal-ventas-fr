@@ -17,7 +17,7 @@ const ForgotPasswordPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setEmailSent(null);
-    const apiUrl = 'http://localhost:3001/api/auth/forgot-password';
+    const apiUrl = `${process.env.REACT_APP_API_URL}/auth/forgot-password`;
     const formData = { email };
 
     if (!email) {

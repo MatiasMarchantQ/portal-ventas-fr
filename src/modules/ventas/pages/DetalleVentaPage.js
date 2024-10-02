@@ -85,7 +85,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   const handlePriorityToggle = async () => {
     try {
       const newPriorityValue = sale.is_priority === 1 ? 0 : 1;
-      const response = await fetch(`http://localhost:3001/api/sales/update-priority/${currentSaleId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/update-priority/${currentSaleId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -112,7 +112,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   // Fetch functions
   const fetchSaleDetails = useCallback(async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/sales/${currentSaleId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/${currentSaleId}`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -137,7 +137,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
 
   const fetchSaleStatuses = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/sale-statuses', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sale-statuses`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -158,7 +158,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       const headers = {
         'Authorization': `Bearer ${token}`,
       };
-      const response = await fetch(`http://localhost:3001/api/sale-statuses/reasons/${updatedSale.sale_status_id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sale-statuses/reasons/${updatedSale.sale_status_id}`, {
         method: 'GET',
         headers: headers,
       });
@@ -175,7 +175,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       const headers = {
         'Authorization': `Bearer ${token}`,
       };
-      const response = await fetch('http://localhost:3001/api/regions', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/regions`, {
         method: 'GET',
         headers: headers,
       });
@@ -196,7 +196,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       const headers = {
         'Authorization': `Bearer ${token}`,
       };
-      const response = await fetch(`http://localhost:3001/api/communes/communes/${regionId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/communes/communes/${regionId}`, {
         method: 'GET',
         headers: headers,
       });
@@ -213,7 +213,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       const headers = {
         'Authorization': `Bearer ${token}`,
       };
-      const response = await fetch(`http://localhost:3001/api/sales/promotions/commune/${updatedSale.commune_id}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/promotions/commune/${updatedSale.commune_id}`, {
         method: 'GET',
         headers: headers,
       });
@@ -230,7 +230,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       const headers = {
         'Authorization': `Bearer ${token}`,
       };
-      const response = await fetch(`http://localhost:3001/api/sales/installation-amounts/promotion/${promotionId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/installation-amounts/promotion/${promotionId}`, {
         method: 'GET',
         headers: headers,
       });
@@ -328,7 +328,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
     }
   
     try {
-      const response = await fetch(`http://localhost:3001/api/sales/update/${currentSaleId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/update/${currentSaleId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
