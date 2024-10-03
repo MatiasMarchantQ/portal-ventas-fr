@@ -169,10 +169,8 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
         },
         body: JSON.stringify(dataToSend),
       });
-      console.log(dataToSend);
       if (response.ok) {
         setIsUpdated(true);
-        alert('Usuario actualizado con éxito');
       } else {
         alert('Error al actualizar el usuario');
       }

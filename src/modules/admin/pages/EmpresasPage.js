@@ -228,7 +228,6 @@ const ToggleCompanyStatus = ({ token }) => {
         });
         const data = await response.json();
         setCompanies(data);
-        console.log(data);
       } catch (error) {
         console.error('Error al obtener las empresas:', error);
       }

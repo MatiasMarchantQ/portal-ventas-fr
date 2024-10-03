@@ -322,11 +322,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
     if (updatedSale.service_id !== null) {
       formData.append('service_id', updatedSale.service_id);
     }
-  
-    for (const [key, value] of formData.entries()) {
-      console.log(`${key}: ${value}`);
-    }
-  
+    
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/update/${currentSaleId}`, {
         method: 'PUT',
@@ -336,15 +332,12 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
         body: formData
       });
   
-      console.log(formData);
-  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message);
       }
     
       const responseData = await response.json();
-      console.log(responseData);
       setSale(responseData);
       setUpdatedSale(responseData);
       setIsEditing(false);

@@ -161,64 +161,69 @@ const SaleCard = ({ sale, onSaleClick, getStatusColor, onPriorityChange, refresh
         </div>
       </div>
       {showHistoryModal && (
-        <div className="history-modal">
-            <div className="history-modal-content">
-              <h2>Historial completo</h2>
-              <div class="scrollable-content">
-                <ul>
-                {saleHistory.history.map((history) => (
-                <li key={history.id}>
-                  <p>
-                    {`${new Date(history.date).toLocaleString("es-CL", {
-                      year: "numeric", month: "2-digit", day: "2-digit",
-                      hour: "2-digit", minute: "2-digit", second: "2-digit",
-                      hour12: false
-                    }).replace(/,/g, ' a las ')}`} 
-                    {history.eventType === "Prioridad" && (
-                      <span>
-                        {' se cambió la '}
-                        <span style={{ fontStyle: 'italic', color: 'orange' }}>
-                          Prioridad
+        <div className="history-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="history-modal-content">
+            <h2>Historial completo</h2>
+            <div class="scrollable-content">
+              <ul>
+                {saleHistory.history.map((history, index) => (
+                  <li key={history.id}>
+                    <p>
+                      El {`${new Date(history.date).toLocaleString("es-CL", {
+                        year: "numeric", month: "2-digit", day: "2-digit",
+                        hour: "2-digit", minute: "2-digit", second: "2-digit",
+                        hour12: false
+                      }).replace(/,/g, ' a las ')}`} 
+                      {index === 0 && (
+                        <span>
+                          {' se ingresó'}
                         </span>
-                        {' por '}
-                        {history.priorityModifiedBy}
-                      </span>
-                    )}
-                    {history.eventType !== "Prioridad" && (
-                      <span>
-                        {history.previousStatus && history.newStatus && (
-                          <span>
-                            {' de '}
-                            <span style={{ textDecoration: 'line-through' }}>
-                              {history.previousStatus}
-                            </span>
-                            {' a '}
-                            <span style={{ color: 'green' }}>
-                              {history.newStatus}
-                            </span>
+                      )}
+                      {history.eventType === "Prioridad" && (
+                        <span>
+                          {' se cambió por '}
+                          <span style={{ fontStyle: 'italic', color: 'orange' }}>
+                            Prioridad
                           </span>
-                        )}
-                        {history.reason && (
-                          <span>
-                            {' por '}
-                            <span style={{ fontStyle: 'italic' }}>
-                              {history.reason}
+                          {' por '}
+                          {history.priorityModifiedBy}
+                        </span>
+                      )}
+                      {history.eventType !== "Prioridad" && (
+                        <span>
+                          {history.previousStatus && history.newStatus && (
+                            <span>
+                              {' se actualizó de '}
+                              <span style={{ textDecoration: 'line-through' }}>
+                                {history.previousStatus}
+                              </span>
+                              {' a '}
+                              <span style={{ color: 'green' }}>
+                                {history.newStatus}
+                              </span>
                             </span>
-                          </span>
-                        )}
-                         {' por '}
-                         {history.eventType === "Prioridad" ? history.priorityModifiedBy : history.user}
-                      </span>
-                    )}
-                  </p>
-                </li>
-              ))}
-                </ul>
-                <button onClick={(e) => {
-                  e.stopPropagation();
-                  handleHideHistoryModal();
-                }}>Cerrar</button>
-              </div>
+                          )}
+                          {history.reason && (
+                            <span>
+                              {' por el motivo '}
+                              <span style={{ fontStyle: 'italic' }}>
+                                {history.reason}
+                              </span>
+                            </span>
+                          )}
+                          {' por '}
+                          {history.eventType === "Prioridad" ? history.priorityModifiedBy : history.user}
+                        </span>
+                      )}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+              <button onClick={(e) => {
+                e.stopPropagation();
+                handleHideHistoryModal();
+              }}>Cerrar</button>
+            </div>
           </div>
         </div>
       )}

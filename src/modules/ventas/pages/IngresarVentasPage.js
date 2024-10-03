@@ -32,6 +32,8 @@ const IngresarVentasPage = () => {
   const [loading, setLoading] = useState(false);
   const [isForeignPhone, setIsForeignPhone] = useState(false);
   const [isForeignSecondaryPhone, setIsForeignSecondaryPhone] = useState(false);
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
 
   useEffect(() => {
     const allowedRoles = [1, 2, 3];
@@ -146,7 +148,7 @@ const IngresarVentasPage = () => {
     const { name, value } = e.target;
     if ((name === 'client_phone' || name === 'client_secondary_phone') && !isForeignPhone && !isForeignSecondaryPhone) {
       if (value === '') {
-        setFormValues({ ...formValues, [name]: '+56' });
+        setFormValues({ ...formValues, [name]: '' });
       } else if (!value.startsWith('+56')) {
         setFormValues({ ...formValues, [name]: '+56' + value });
       } else {
@@ -163,7 +165,7 @@ const IngresarVentasPage = () => {
     const data = {
       client_first_name: formValues.client_first_name,
       client_last_name: formValues.client_last_name,
-      client_rut: formValues.client_rut.replace(/\D+/g, ''),
+      client_rut: formValues.client_rut.replace(/\./g, ''),
       client_email: formValues.client_email,
       client_phone: isForeignPhone ? (formValues.client_phone || null) : (formValues.client_phone.replace('+56', '') || null),
       client_secondary_phone: isForeignSecondaryPhone ? (formValues.client_secondary_phone || null) : (formValues.client_secondary_phone.replace('+56', '') || null),    
@@ -201,10 +203,6 @@ const IngresarVentasPage = () => {
       });
     }
   
-    formData.forEach((value, key) => {
-      console.log(key, value);
-    });
-  
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/create`, {
         method: 'POST',
@@ -220,8 +218,8 @@ const IngresarVentasPage = () => {
       }
   
       const responseData = await response.json();
-      console.log(responseData);
       setSuccessMessage('Venta enviada con éxito');
+      setShowSuccessMessage(true);
       setErrorMessage('');
       setFormValues({
         client_first_name: '',
@@ -257,9 +255,9 @@ const IngresarVentasPage = () => {
   const handleRutChange = (e) => {
     const rut = e.target.value;
     if (isForeignRut) {
-      setFormValues({ ...formValues, client_rut: rut.replace(/\D+/g, '') });
+      setFormValues({ ...formValues, client_rut: rut.replace(/[^0-9K]/g, '') });
     } else {
-      const formattedRut = rut.replace(/\D+/g, '').replace(/^(\d{1,2})(\d{3})(\d{3})(\w{1})$/, '$1.$2.$3-$4');
+      const formattedRut = rut.replace(/[^0-9K]/g, '').replace(/(\d{2})(\d{3})(\d{3})(\w{1})$/, '$1.$2.$3-$4');
       setFormValues({ ...formValues, client_rut: formattedRut });
     }
   };
@@ -567,13 +565,13 @@ const IngresarVentasPage = () => {
                   />
                 </div>
             </div>
-            <button type="submit" className="ingresar-venta-submit-button">Enviar venta</button>
-            {successMessage && (
+            <button type="submit" className="ingresar-venta-submit-button" style={{ display: showSuccessMessage ? 'none' : 'block' }}>Enviar venta</button>
+            {showSuccessMessage && (
               <div>
                 <div className="success-message">{successMessage}</div>
                 <a href="/dashboard" className="link-to-dashboard">Ir a ventas</a><br/><br/>
                 <button onClick={() => {
-                  setSuccessMessage('');
+                  setShowSuccessMessage(false);
                   window.scrollTo(0, 0);
                 }} className="link-to-new-sale">Ingresar otra venta</button>
               </div>

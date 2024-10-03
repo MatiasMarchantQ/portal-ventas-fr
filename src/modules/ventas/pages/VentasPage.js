@@ -101,11 +101,8 @@ const VentasPage = ({ onSaleClick }) => {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/all?${queryString}`, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
-      console.log('URL:', `${process.env.REACT_APP_API_URL}/sales/all?${queryString}`);
-      console.log('Respuesta:', response);
 
       if (!response.ok) throw new Error(`Error fetching sales: ${response.status} ${response.statusText}`);
-      console.log('Q', queryString);
       const { sales: fetchedSales, totalPages: fetchedTotalPages } = await response.json();
       setSales(fetchedSales.map(cleanSaleData));
       setFilteredSales(fetchedSales.map(cleanSaleData));
@@ -613,23 +610,23 @@ useEffect(() => {
         </div>
 
 
-<div className="export-buttons" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 5 }}>
-  <select value={exportFormat} onChange={e => setExportFormat(e.target.value)}>
-    <option value="excel">Exportar Excel</option>
-    <option value="csv">Exportar CSV</option>
-    <option value="word">Exportar Word</option>
-  </select>
-  <button onClick={() => handleExport(exportFormat)}>Exportar</button>
-</div>
+      <div className="export-buttons" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 5 }}>
+        <select value={exportFormat} onChange={e => setExportFormat(e.target.value)}>
+          <option value="excel">Exportar Excel</option>
+          <option value="csv">Exportar CSV</option>
+          <option value="word">Exportar Word</option>
+        </select>
+        <button onClick={() => handleExport(exportFormat)}>Exportar</button>
+      </div>
 
 
 
       <div className="sales-container">
         {loading ? (
-          <div>Loading sales...</div>
+          <div>Cargando ventas...</div>
         ) : filteredSales.length > 0 ? (
           <div className="sales-list">
-            <Suspense fallback={<div>Loading sales...</div>}>
+            <Suspense>
               <div style={{ display: 'flex', justifyContent: 'flex-start', margin: '10px' }}>
                 <button onClick={() => {
                   setIsUpdating(true);
@@ -639,9 +636,9 @@ useEffect(() => {
                 </button>
               </div>
               {filteredSales.filter(sale => {
-                if (filters.sale_status_id === '7') { // si el filtro selecciona sale_status_id = 7
+                if (filters.sale_status_id === '7') {
                   return true;
-                } else { // si el filtro no selecciona sale_status_id = 7
+                } else {
                   return sale.sale_status_id !== 7;
                 }
               }).map(sale => (
@@ -654,7 +651,7 @@ useEffect(() => {
         )}
       </div>
 
-      <Suspense fallback={<div>Loading pagination...</div>}>
+      <Suspense fallback={<div>Cargando página...</div>}>
         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
       </Suspense>
     </div>

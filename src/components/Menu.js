@@ -32,6 +32,7 @@ const Menu = ({ role_id, onMenuClick }) => {
   } else if (role_id === 2) {
     menuOptions = [
       { label: 'Ventas', action: 'Ventas' },
+      { label: 'Ingresar venta', action: 'Ingresar venta' },
       {
         label: 'Gestión de administración',
         submenu: [

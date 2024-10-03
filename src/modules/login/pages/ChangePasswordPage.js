@@ -63,7 +63,6 @@ const ChangePasswordPage = () => {
                 </div>
                 <div className="right-section">
                     <div className="login-box">
-                        <h2>Cambiar contraseña</h2>
                         <form onSubmit={handleSubmit}>
                             <div className="form-group">
                                 <label htmlFor="new-password">Contraseña nueva</label>
@@ -77,8 +76,8 @@ const ChangePasswordPage = () => {
                             </div>
                             <p className="password-instructions">
                                 Tu contraseña debe tener al menos:<br />
-                                x 8 caracteres (20 max.)<br />
-                                x Mayúscula, minúscula y un número
+                                8 caracteres (20 max.)<br />
+                                1 Mayúscula, minúscula y un número
                             </p>
                             <div className="form-group">
                                 <label htmlFor="confirm-password">Repetir contraseña</label>

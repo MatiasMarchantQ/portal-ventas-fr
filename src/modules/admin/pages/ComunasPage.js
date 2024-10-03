@@ -18,7 +18,7 @@ const apiCall = async (url, method = 'GET', body = null, token = null) => {
     if (response.status === 401) {
       throw new Error('Error de autenticación');
     } else {
-      throw new Error('API call failed');
+      throw new Error('Fallo en la solicitud');
     }
   }
   return response.json();
@@ -257,7 +257,6 @@ const UpdateCommune = ({ token, regions }) => {
     }
     setIsSubmitting(true);
     try {
-      console.log(token);
       const result = await apiCall(`${process.env.REACT_APP_API_URL}/communes/${selectedCommuneId}`, 'PUT', {
         commune_name: communeName,
       }, token);
@@ -336,7 +335,6 @@ const ToggleCommuneStatus = ({ token, regions }) => {
 
   const handleToggleStatus = async () => {
     setIsSubmitting(true);
-    console.log(isActive);
     try {
       const result = await apiCall(`${process.env.REACT_APP_API_URL}/communes/${selectedCommuneId}/toggle-status`, 'PATCH', {
         isActive

@@ -18,7 +18,7 @@ const apiCall = async (url, method = 'GET', body = null, token = null) => {
     if (response.status === 401) {
       throw new Error('Error de autenticación');
     } else {
-      throw new Error('API call failed');
+      throw new Error('Fallo en la solicitud');
     }
   }
   return response.json();

@@ -182,12 +182,12 @@ const ResetPasswordPage = () => {
               <button type="submit" className="submit-button">
                 Cambiar contraseña
               </button>
+              <p className="signup">
+                <Link to="/" onClick={handleGoToHome} className="link-button">
+                  Ir al Inicio
+                </Link>
+              </p>
             </form>
-            <p className="signup">
-              <Link to="/" onClick={handleGoToHome} className="link-button">
-                Ir al Inicio
-              </Link>
-            </p>
           </div>
         </div>
       </div>
