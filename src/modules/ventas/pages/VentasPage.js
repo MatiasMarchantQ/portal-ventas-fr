@@ -412,7 +412,7 @@ useEffect(() => {
         </button>
       </div>
 
-      <div className={`filter-section ${isFilterVisible ? 'active' : ''}`}>
+      <div className={`filter-section ${isFilterVisible ? 'active' : 'inactive'}`}>
         <div className='column-1'>
           <div className="filters">
             <h4>Fecha</h4>

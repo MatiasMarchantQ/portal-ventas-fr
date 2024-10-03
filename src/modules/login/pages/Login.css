@@ -8,6 +8,7 @@
 .login-container {
     display: flex;
     flex: 1;
+    flex-direction: row;
 }
 
 .left-section {
@@ -118,16 +119,16 @@
     font-size: 0.9rem;
 }
 
-.signup a{
+.signup a {
     color: #ffffff;
 }
 
 .password-input {
     position: relative;
-  }
-  
-  
-  .password-input .fa-eye, .password-input .fa-eye-slash {
+}
+
+.password-input .fa-eye,
+.password-input .fa-eye-slash {
     color: #99235C;
     position: absolute;
     top: 50%;
@@ -136,22 +137,79 @@
     transform: translateY(-50%);
     cursor: pointer;
     z-index: 1;
-  }
-  
+}
+
+/* RESPONSIVE DESIGN */
+
+/* Para pantallas pequeñas: celulares */
 @media (max-width: 768px) {
+    .login-container {
+        flex-direction: column; /* Cambiamos el diseño a columna para mejor visualización */
+    }
+
+    .left-section, .right-section {
+        width: 100%; /* Ambos lados tomarán el 100% del ancho */
+        flex: none; /* No permitirá que crezcan más de lo que es necesario */
+    }
+
+    .left-section img {
+        display: none; 
+    }
+
+    .right-section {
+        margin: 10px; /* Reducimos el margen en dispositivos móviles */
+        padding: 15px;
+        border-radius: 20px; /* Simplificamos el border-radius */
+    }
+
+    .login-box {
+        padding: 20px;
+        max-width: 100%; /* Ocupa el 100% del espacio disponible */
+        height: auto; /* Permite que la altura se ajuste según el contenido */
+    }
+
+    .login-box h2 {
+        font-size: 1.5rem; /* Reducimos el tamaño de la fuente */
+    }
+
+    .login-box .submit-button {
+        width: 100%; /* Botón se expande al 100% en pantallas pequeñas */
+    }
+}
+
+/* Para pantallas medianas: tablets */
+@media (max-width: 1024px) {
+    .login-container {
+        flex-direction: column; /* Cambiamos a disposición en columna */
+    }
+
+    .left-section, .right-section {
+        width: 100%;
+        flex: none;
+    }
+
     .left-section img {
         display: none;
     }
 
     .right-section {
-        margin: 10;
+        width: 95%;
+        margin: 1;
         padding: 20px;
-        border-radius: 20px 0;
-        width: 100%;
-        max-width: none;
+        border-radius: 20px;
     }
 
     .login-box {
-        padding: 20px;
+        padding: 30px;
+        max-width: 100%;
+        height: auto;
+    }
+
+    .login-box h2 {
+        font-size: 1.75rem;
+    }
+
+    .login-box .submit-button {
+        width: 70%; /* Un poco más grande que en celulares */
     }
 }

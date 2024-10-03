@@ -10,6 +10,7 @@ import UsuariosPage from '../../../modules/admin/pages/UsuariosPage';
 import ComunasPage from '../../../modules/admin/pages/ComunasPage';
 import TarifasPage from '../../../modules/admin/pages/TarifasPage';
 import EmpresasPage from '../../../modules/admin/pages/EmpresasPage';
+import CanalesVentaPage from '../../admin/pages/CanalesVentaPage';
 import DetalleUsuarioPage from '../../../modules/admin/pages/DetalleUsuarioPage';
 import MiPerfilPage from '../../../modules/profile/pages/MiPerfilPage';
 import IngresarVentasPage from '../../../modules/ventas/pages/IngresarVentasPage';
@@ -25,6 +26,7 @@ const accessControl = {
   'Comunas': [1],
   'Tarifas': [1],
   'Empresas': [1],
+  'Canales de venta': [1],
   'Mi perfil': [1, 2, 3, 4, 5, 6],
 };
 
@@ -131,6 +133,7 @@ const DashboardPage = () => {
       'Comunas': <ComunasPage />,
       'Tarifas': <TarifasPage />,
       'Empresas': <EmpresasPage />,
+      'Canales de venta': <CanalesVentaPage />,
       'Mi perfil': <MiPerfilPage />,
     };
 

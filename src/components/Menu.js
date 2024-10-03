@@ -22,6 +22,7 @@ const Menu = ({ role_id, onMenuClick }) => {
           { label: 'Comunas', action: 'Comunas' },
           { label: 'Tarifas', action: 'Tarifas' },
           { label: 'Empresas', action: 'Empresas' },
+          { label: 'Canales de venta', action: 'Canales de venta' },
           
         ],
       },
