@@ -120,18 +120,29 @@ const MiPerfilPage = () => {
 
     const fetchSalesChannels = async () => {
         try {
-            const headers = {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              };
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/channels`, { headers });
-            if (!response.ok) throw new Error('Error al obtener los canales de venta');
+          const headers = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          };
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/channels`, { headers });
+          if (!response.ok) {
+            if (response.status === 500) {
+              setError('Error interno del servidor. Por favor, inténtelo de nuevo más tarde.');
+            } else {
+              setError('Error al obtener los canales de venta');
+            }
+          } else {
             const data = await response.json();
-            setSalesChannels(data);
+            if (Array.isArray(data)) {
+              setSalesChannels(data);
+            } else {
+              console.error('La respuesta no es un arreglo');
+            }
+          }
         } catch (error) {
-            setError(error.message);
+          setError(error.message);
         }
-    };
+      };
 
     const fetchCommunes = async (regionId) => {
         try {

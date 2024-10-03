@@ -24,9 +24,9 @@ const isTokenExpired = (token) => {
 };
 
 const clearToken = () => {
-  localStorage.removeItem('token');  // Limpiar localStorage
-  sessionStorage.removeItem('token');  // Limpiar sessionStorage
-  document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';  // Limpiar cookies
+  localStorage.removeItem('token');
+  sessionStorage.removeItem('token');
+  document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
 };
 
 const UserProvider = ({ children }) => {
@@ -79,7 +79,7 @@ const UserProvider = ({ children }) => {
       setRoleId(null);
       setUserId(null);
       if (!isPublicRoute) {
-        navigate('/'); // Redirigir a la página principal si no es una ruta pública
+        navigate('/');
       }
     }
   }, [navigate, location]);

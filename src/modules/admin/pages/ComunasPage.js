@@ -74,7 +74,7 @@ const ViewOptions = ({ token, regions }) => {
   // Cargar monto de instalación cuando se selecciona una promoción
   useEffect(() => {
     if (selectedPromotionId) {
-      apiCall(`http://localhost:3001/api/sales/installation-amounts/promotion/${selectedPromotionId}`,'GET', null, token)
+      apiCall(`${process.env.REACT_APP_API_URL}/sales/installation-amounts/promotion/${selectedPromotionId}`,'GET', null, token)
         .then(response => setInstallationAmount(response))
         .catch(error => console.error('Error al cargar el monto de instalación:', error));
     } else {
@@ -179,12 +179,13 @@ const AddCommuneToRegion = ({ token, regions }) => {
     }
     setIsSubmitting(true);
     try {
-      const result = await apiCall(`http://localhost:3001/api/communes/regions/${selectedRegionId}/communes`, 'POST', {
+      const result = await apiCall(`${process.env.REACT_APP_API_URL}/communes/regions/${selectedRegionId}/communes`, 'POST', {
         commune_name: communeName,
       }, token);
       alert(result.message);
       setCommuneName('');
       setIsSubmitting(false);
+      window.location.reload();
     } catch (error) {
       console.error('Error al agregar la comuna a la región:', error);
       alert('Error al agregar comuna a la región');
@@ -229,7 +230,7 @@ const UpdateCommune = ({ token, regions }) => {
 
   useEffect(() => {
     if (selectedRegionId) {
-      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`,'GET', null, token)
+      apiCall(`${process.env.REACT_APP_API_URL}/communes/region/${selectedRegionId}`,'GET', null, token)
         .then(setCommunes)
         .catch(error => console.error('Error loading communes:', error));
     }
@@ -257,12 +258,13 @@ const UpdateCommune = ({ token, regions }) => {
     setIsSubmitting(true);
     try {
       console.log(token);
-      const result = await apiCall(`http://localhost:3001/api/communes/${selectedCommuneId}`, 'PUT', {
+      const result = await apiCall(`${process.env.REACT_APP_API_URL}/communes/${selectedCommuneId}`, 'PUT', {
         commune_name: communeName,
       }, token);
       alert(result.message);
       setCommuneName('');
       setIsSubmitting(false);
+      window.location.reload();
     } catch (error) {
       console.error('Error updating commune:', error);
       alert('Error al actualizar la comuna');
@@ -284,7 +286,9 @@ const UpdateCommune = ({ token, regions }) => {
       <select value={selectedCommuneId} onChange={(e) => handleCommuneChange(e.target.value)} className="comunas-tarifas-select">
         <option value="">Seleccione una comuna</option>
         {communes.map((commune) => (
-          <option key={commune.commune_id} value={commune.commune_id}>{commune.commune_name}</option>
+          <option key={commune.commune_id} value={commune.commune_id}>
+            {commune.commune_name} ({commune.is_active ? 'Habilitada' : 'Deshabilitada'})
+          </option>
         ))}
       </select>
 
@@ -310,12 +314,12 @@ const ToggleCommuneStatus = ({ token, regions }) => {
   const [selectedRegionId, setSelectedRegionId] = useState('');
   const [communes, setCommunes] = useState([]);
   const [selectedCommuneId, setSelectedCommuneId] = useState('');
-  const [isActive, setIsActive] = useState(true);
+  const [isActive, setIsActive] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (selectedRegionId) {
-      apiCall(`http://localhost:3001/api/communes/communes/${selectedRegionId}`,'GET', null, token)
+      apiCall(`${process.env.REACT_APP_API_URL}/communes/region/${selectedRegionId}`,'GET', null, token)
         .then(setCommunes)
         .catch(error => console.error('Error loading communes:', error));
     }
@@ -332,21 +336,21 @@ const ToggleCommuneStatus = ({ token, regions }) => {
 
   const handleToggleStatus = async () => {
     setIsSubmitting(true);
+    console.log(isActive);
     try {
-      const result = await apiCall(`http://localhost:3001/api/communes/${selectedCommuneId}/toggle-status`, 'PATCH', {
-        isActive: !isActive
+      const result = await apiCall(`${process.env.REACT_APP_API_URL}/communes/${selectedCommuneId}/toggle-status`, 'PATCH', {
+        isActive
       }, token);
       alert(result.message);
-      setIsActive(!isActive);
       setIsSubmitting(false);
+      window.location.reload();
     } catch (error) {
-      console.error('Error toggling commune status:', error);
+      console.error('Error cambiando estado:', error);
       alert('Error al cambiar el estado de la comuna');
       setIsSubmitting(false);
     }
   };
 
-  
   return (
     <form>
       <h3>Seleccionar Región:</h3>
@@ -361,18 +365,20 @@ const ToggleCommuneStatus = ({ token, regions }) => {
       <select value={selectedCommuneId} onChange={(e) => handleCommuneChange(e.target.value)} className="comunas-tarifas-select">
         <option value="">Seleccione una comuna</option>
         {communes.map((commune) => (
-          <option key={commune.commune_id} value={commune.commune_id}>{commune.commune_name}</option>
+          <option key={commune.commune_id} value={commune.commune_id}>
+            {commune.commune_name} ({commune.is_active ? 'Habilitada' : 'Deshabilitada'})
+          </option>
         ))}
       </select>
 
       <h3>Habilitar/Deshabilitar:</h3>
-      <select value={isActive} onChange={(e) => {
-        setIsActive(e.target.value === 'true');
-        handleToggleStatus(e.target.value === 'true');
-      }}>
-        <option value="true">Habilitado</option>
-        <option value="false">Deshabilitado</option>
+      <select value={isActive} onChange={(e) => setIsActive(e.target.value)} className="comunas-tarifas-select">
+      <option value="">Seleccione un estado</option>
+        <option value="1">Habilitado</option>
+        <option value="0">Deshabilitado</option>
       </select>
+
+      <button type="button" onClick={handleToggleStatus} disabled={isSubmitting}>Cambiar Estado</button>
     </form>
   );
 };
@@ -382,7 +388,7 @@ const ToggleCommuneStatus = ({ token, regions }) => {
 const Comunas = () => {
   const { token } = useContext(UserContext);
   const [regions, setRegions] = useState([]);
-  const [setInstallationAmounts] = useState([]);
+  const [installationAmounts, setInstallationAmounts] = useState([]);
   const [isOpenAddCommuneToRegion, toggleAddCommuneToRegion] = useToggleCard();
   const [isOpenUpdateCommune, toggleUpdateCommune] = useToggleCard();
   const [isOpenViewOptions, toggleViewOptions] = useToggleCard();
@@ -395,9 +401,9 @@ const Comunas = () => {
     const fetchData = async () => {
       try {
         const [regionsData, installationAmountsData] = await Promise.all([
-          apiCall('http://localhost:3001/api/regions','GET', null, token),
-          apiCall('http://localhost:3001/api/promotions/installation-amounts','GET', null, token),
-          apiCall('http://localhost:3001/api/promotions', 'GET', null, token)
+          apiCall(`${process.env.REACT_APP_API_URL}/regions`,'GET', null, token),
+          apiCall(`${process.env.REACT_APP_API_URL}/promotions/installation-amounts`,'GET', null, token),
+          apiCall(`${process.env.REACT_APP_API_URL}/promotions`, 'GET', null, token)
         ]);
         setRegions(regionsData);
         setInstallationAmounts(installationAmountsData);
@@ -410,6 +416,7 @@ const Comunas = () => {
 
   return (
     <div className='card-grid'>
+      <h1 style={{textAlign: 'center', color: '#99235C'}}>Comunas</h1>
       <Card title="Ver Opciones de Promoción e Instalación" isOpen={isOpenViewOptions} toggle={toggleViewOptions}>
         <ViewOptions token={token} regions={regions} />
       </Card>
@@ -422,7 +429,7 @@ const Comunas = () => {
         <UpdateCommune token={token} regions={regions} />
       </Card>
 
-      <Card title="Cambiar Estado de Comuna" isOpen={isOpenToggleCommuneStatus} toggle={toggleToggleCommuneStatus}>
+      <Card title="Habilitar/Deshabilitar Comuna" isOpen={isOpenToggleCommuneStatus} toggle={toggleToggleCommuneStatus}>
         <ToggleCommuneStatus token={token} regions={regions} />
       </Card>
     </div>

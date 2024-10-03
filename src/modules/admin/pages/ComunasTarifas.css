@@ -149,3 +149,8 @@
     cursor: pointer;
     font-weight: bold;
   }
+
+  .card-obtener-empresas {
+    color: #fff;
+    background-color: #99235C;
+  }

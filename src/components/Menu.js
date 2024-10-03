@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom'; // Importa useNavigate
+import { UserContext } from '../contexts/UserContext';
 import './Menu.css';
 
 const Menu = ({ role_id, onMenuClick }) => {
+  const { token } = useContext(UserContext);
   const [showSubmenu, setShowSubmenu] = useState(false);
   const navigate = useNavigate(); // Inicializa useNavigate
 
@@ -107,11 +109,8 @@ const Menu = ({ role_id, onMenuClick }) => {
 
   async function handleLogout() {
     try {
-      // Obtén el token desde el localStorage o sessionStorage
-      const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-
       // Realiza la solicitud al endpoint de logout
-      const response = await fetch('http://localhost:3001/api/auth/logout', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -120,14 +119,13 @@ const Menu = ({ role_id, onMenuClick }) => {
       });
 
       if (response.ok) {
-        // Si la solicitud fue exitosa, elimina el token y redirige
         console.clear();
         localStorage.removeItem('token');
         sessionStorage.removeItem('token');
         document.cookie.split(';').forEach((c) => {
         document.cookie = c.replace(/^ +/, '').replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
         });
-        navigate('/'); // Redirige al usuario a la página de inicio
+        navigate('/');
       } else {
         console.error('Error al cerrar sesión');
       }

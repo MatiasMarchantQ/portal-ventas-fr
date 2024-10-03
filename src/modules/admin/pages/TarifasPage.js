@@ -613,6 +613,7 @@ const Tarifas = () => {
 
   return (
     <div className='card-grid'>
+      <h1 style={{textAlign: 'center', color: '#99235C'}}>Tarifas</h1>
       <Card title="Ver Opciones de Promoción e Instalación" isOpen={isOpenViewOptions} toggle={toggleViewOptions}>
         <ViewOptions token={token} regions={regions} />
       </Card>

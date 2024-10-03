@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import Header from '../../../components/Header';
 import Menu from '../../../components/Menu';
@@ -30,17 +30,67 @@ const accessControl = {
 
 const DashboardPage = () => {
   const { roleId } = useContext(UserContext);
-  const [selectedOption, setSelectedOption] = useState('Ventas');
+  const [selectedOption, setSelectedOption] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const page = params.get('page');
+    const id = params.get('id');
+    
+    if (page === 'detalle-venta' && id) {
+      return 'Detalle Venta';
+    }
+    if (page === 'detalle-usuario' && id) {
+      return 'Detalle Usuario';
+    }
+    return page || 'Ventas';
+  });
+  
   const [errorMessage, setErrorMessage] = useState('');
-  const [selectedSaleId, setSelectedSaleId] = useState(null);
-  const [selectedUserId, setSelectedUserId] = useState(null);
-  const [pagination, setPagination] = useState({}); // Add a pagination state
+  const [selectedSaleId, setSelectedSaleId] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id') || null;
+  });
+  
+  const [selectedUserId, setSelectedUserId] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('id') || null;
+  });
+  
+  const [pagination, setPagination] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return { page: parseInt(params.get('page')) || 1 };
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+    
+    if (selectedOption === 'Detalle Venta') {
+      params.set('page', 'detalle-venta');
+      if (selectedSaleId) params.set('id', selectedSaleId);
+    } else if (selectedOption === 'Detalle Usuario') {
+      params.set('page', 'detalle-usuario');
+      if (selectedUserId) params.set('id', selectedUserId);
+    } else {
+      params.set('page', selectedOption);
+    }
+    
+    if (pagination.page && pagination.page !== 1) {
+      params.set('page', pagination.page);
+    }
+    
+    window.history.replaceState(
+      {}, 
+      '', 
+      `${window.location.pathname}?${params.toString()}`
+    );
+  }, [selectedOption, selectedSaleId, selectedUserId, pagination]);
 
   const handleMenuClick = (option) => {
     if (accessControl[option]?.includes(roleId)) {
       setSelectedOption(option);
       setErrorMessage('');
-      setPagination({}); // Reset pagination when navigating to a new page
+      setPagination({ page: 1 });
+      setSelectedSaleId(null);
+      setSelectedUserId(null);
     } else {
       setErrorMessage('Acceso denegado: No tienes permisos para ver esta página.');
     }
@@ -59,12 +109,16 @@ const DashboardPage = () => {
   const handleBackToUsers = () => {
     setSelectedUserId(null);
     setSelectedOption('Usuarios');
-    setPagination({ page: pagination.page }); // Preserve pagination when navigating back
+  };
+
+  const handleBackToVentas = () => {
+    setSelectedSaleId(null);
+    setSelectedOption('Ventas');
   };
 
   const renderContent = () => {
     if (selectedOption === 'Detalle Venta' && selectedSaleId) {
-      return <DetalleVentaPage saleId={selectedSaleId} onBack={() => setSelectedOption('Ventas')} />;
+      return <DetalleVentaPage saleId={selectedSaleId} onBack={handleBackToVentas} />;
     } else if (selectedOption === 'Detalle Usuario' && selectedUserId) {
       return <DetalleUsuarioPage idUser={selectedUserId} onBack={handleBackToUsers} />;
     }

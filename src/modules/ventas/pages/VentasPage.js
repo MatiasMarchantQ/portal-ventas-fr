@@ -11,6 +11,9 @@ const Pagination = lazy(() => import('./Pagination'));
 const ITEMS_PER_PAGE = 30;
 const STATUS_COLORS = { 1: '#ffa500', 2: '#87ceeb', 3: '#ffff00', 4: '#a3d300', 5: '#4169E1', 6: '#008000', 7: '#ff0000' };
 
+const getStatusColor = (saleStatusId) => STATUS_COLORS[saleStatusId];
+
+
 const VentasPage = ({ onSaleClick }) => {
   const { token, roleId } = useContext(UserContext);
   const [sales, setSales] = useState([]);
@@ -18,7 +21,11 @@ const VentasPage = ({ onSaleClick }) => {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
+
+  const [currentPage, setCurrentPage] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return parseInt(params.get('page')) || 1;
+  });
   const [totalPages, setTotalPages] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -37,7 +44,6 @@ const VentasPage = ({ onSaleClick }) => {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [exportFormat, setExportFormat] = useState('excel');
-
 
   const [selectedSalesChannel, setSelectedSalesChannel] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('');
@@ -95,7 +101,9 @@ const VentasPage = ({ onSaleClick }) => {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/all?${queryString}`, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       });
-  
+      console.log('URL:', `${process.env.REACT_APP_API_URL}/sales/all?${queryString}`);
+      console.log('Respuesta:', response);
+
       if (!response.ok) throw new Error(`Error fetching sales: ${response.status} ${response.statusText}`);
       console.log('Q', queryString);
       const { sales: fetchedSales, totalPages: fetchedTotalPages } = await response.json();
@@ -294,6 +302,13 @@ useEffect(() => {
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
+    const params = new URLSearchParams(window.location.search);
+    params.set('page', newPage);
+    window.history.replaceState(
+      {}, 
+      '', 
+      `${window.location.pathname}?${params.toString()}`
+    );
     fetchSales(newPage);
   };
 
@@ -645,7 +660,5 @@ useEffect(() => {
     </div>
   );
 } 
-
-const getStatusColor = (saleStatusId) => STATUS_COLORS[saleStatusId] || '#ffffff';
 
 export default withAuthorization(VentasPage, [1, 2, 3, 4, 5]);

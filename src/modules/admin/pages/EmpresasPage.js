@@ -24,7 +24,6 @@ const apiCall = async (url, method = 'GET', body = null, token = null) => {
   return response.json();
 };
 
-// Custom hook for toggling card visibility
 const useToggleCard = (initialState = false) => {
   const [isOpen, setIsOpen] = useState(initialState);
   const toggle = () => setIsOpen(prev => !prev);
@@ -39,6 +38,120 @@ const Card = ({ title, children, isOpen, toggle }) => (
   </div>
 );
 
+//Obtener empresas
+const ObtenerEmpresas = ({ companies }) => {
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const handleCompanyChange = (e) => {
+    setSelectedCompany(e.target.value);
+  };
+
+  return (
+    <select value={selectedCompany} onChange={handleCompanyChange}>
+      <option value="">Seleccione una empresa</option>
+      {companies.map((company) => (
+        <option key={company.company_id} value={company.company_id}>
+          {company.company_name}
+        </option>
+      ))}
+    </select>
+  );
+};
+
+const CrearEmpresa = ({ token }) => {
+  const [companyName, setCompanyName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCompanyNameChange = (e) => {
+    setCompanyName(e.target.value);
+  };
+
+  const handleCreateCompany = async (e) => {
+    e.preventDefault();
+    if (!companyName) {
+      alert('Por favor complete todos los campos.');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const result = await apiCall(`${process.env.REACT_APP_API_URL}/companies/create`, 'POST', {
+        companyName,
+      }, token);
+      alert(result.message);
+      setIsSubmitting(false);
+    } catch (error) {
+      console.error('Error al crear empresa:', error);
+      alert(error.message);
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form className="comunas-tarifas-field-group" onSubmit={handleCreateCompany}>
+      <h3>Crear Empresa</h3>
+      <input type="text" value={companyName} onChange={handleCompanyNameChange} placeholder="Nombre de la empresa"/>
+      <button type="submit" disabled={isSubmitting}>Crear Empresa</button>
+    </form>
+  );
+};
+
+//Actualizar empresa
+const ActualizarEmpresa = ({ token, companies }) => {
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleCompanyChange = (e) => {
+    setSelectedCompany(e.target.value);
+    const selectedCompanyData = companies.find((company) => company.company_id === e.target.value);
+    if (selectedCompanyData) {
+      setCompanyName(selectedCompanyData.company_name);
+    } else {
+      setCompanyName('');
+    }
+  };
+
+  const handleCompanyNameChange = (e) => {
+    setCompanyName(e.target.value);
+  };
+
+  const handleUpdateCompany = async (e) => {
+    e.preventDefault();
+    if (!selectedCompany || !companyName) {
+      alert('Por favor complete todos los campos.');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const result = await apiCall(`${process.env.REACT_APP_API_URL}/companies/${selectedCompany}`, 'PUT', {
+        companyName,
+      }, token);
+      alert(result.message);
+      setIsSubmitting(false);
+    } catch (error) {
+      console.error('Error al actualizar empresa:', error);
+      alert('Error al actualizar empresa');
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <form className="comunas-tarifas-field-group" onSubmit={handleUpdateCompany}>
+      <h3>Actualizar Empresa</h3>
+      <select value={selectedCompany} onChange={handleCompanyChange}>
+        <option value="">Seleccione una empresa</option>
+        {companies.map((company) => (
+          <option key={company.company_id} value={company.company_id}>
+            {company.company_name}
+          </option>
+        ))}
+      </select>
+      <input type="text" value={companyName} onChange={handleCompanyNameChange} placeholder="Nombre de la empresa"/>
+      <button type="submit" disabled={isSubmitting}>Actualizar Empresa</button>
+    </form>
+  );
+};
+
+//Cambiar posicion
 const SwapCompanyPriority = ({ token, companies }) => {
   const [companyId1, setCompanyId1] = useState('');
   const [companyId2, setCompanyId2] = useState('');
@@ -97,13 +210,90 @@ const SwapCompanyPriority = ({ token, companies }) => {
   );
 };
 
-// Main ComunasTarifas component
+
+// Habilitar/Deshabilitar empresa
+const ToggleCompanyStatus = ({ token }) => {
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [isActive, setIsActive] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [companies, setCompanies] = useState([]);
+
+  useEffect(() => {
+    const getCompanies = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/companies/all`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        setCompanies(data);
+        console.log(data);
+      } catch (error) {
+        console.error('Error al obtener las empresas:', error);
+      }
+    };
+    getCompanies();
+  }, [token]);
+
+  const handleCompanyChange = (e) => {
+    setSelectedCompany(e.target.value);
+  };
+
+  const handleIsActiveChange = (e) => {
+    setIsActive(e.target.value);
+  };
+
+  const handleToggleStatus = async (e) => {
+    e.preventDefault();
+    if (!selectedCompany || isActive === '') {
+      alert('Por favor seleccione una empresa y especifique el estado.');
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      const result = await apiCall(`${process.env.REACT_APP_API_URL}/companies/${selectedCompany}/toggle-status`, 'PATCH', {
+        is_active: isActive === '1',
+      }, token);
+      alert(result.message);
+      setIsSubmitting(false);
+      window.location.reload();
+    } catch (error) {
+      console.error('Error al habilitar/deshabilitar empresa:', error);
+      alert('Error al habilitar/deshabilitar empresa');
+      setIsSubmitting(false);
+    }
+  };
+  return (
+    <form onSubmit={handleToggleStatus}>
+      <h3>Habilitar/Deshabilitar empresa</h3>
+      <select value={selectedCompany} onChange={handleCompanyChange}>
+        <option value="">Seleccione una empresa</option>
+        {Array.isArray(companies) && companies.map((company) => (
+          <option key={company.company_id} value={company.company_id}>
+            {company.company_name} (Estado: {company.is_active === true ? 'Habilitada' : 'Deshabilitada'})
+          </option>
+        ))}
+      </select>
+      <select value={isActive} onChange={handleIsActiveChange}>
+        <option value="">Seleccione el estado</option>
+        <option value="1">Habilitar</option>
+        <option value="0">Deshabilitar</option>
+      </select>
+      <button type="submit" disabled={isSubmitting}>Habilitar/Deshabilitar</button>
+    </form>
+  );
+};
+
+// Main component
 const Empresas = () => {
   const { token } = useContext(UserContext);
   const [isOpenSwapPriority, toggleSwapPriority] = useToggleCard();
-  const [companies,setCompanies] = useState([]);
-
-
+  const [isOpenObtenerEmpresas, toggleObtenerEmpresas] = useToggleCard();
+  const [companies, setCompanies] = useState([]);
+  const [isOpenCrearEmpresa, toggleCrearEmpresa] = useToggleCard();
+  const [isOpenUpdateCompany, toggleUpdateCompany] = useToggleCard();
+  const [isOpenToggleCompanyStatus, toggleToggleCompanyStatus] = useToggleCard();
 
 
   useEffect(() => {
@@ -114,7 +304,6 @@ const Empresas = () => {
           apiCall(`${process.env.REACT_APP_API_URL}/companies`, 'GET', null, token)
         ]);
         setCompanies(companiesData);
-        console.log(companiesData);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -124,8 +313,25 @@ const Empresas = () => {
 
   return (
     <div className='card-grid'>
+      <h1 style={{textAlign: 'center', color: '#99235C'}}>Empresas</h1>
+      <Card title="Obtener Empresas" isOpen={isOpenObtenerEmpresas} toggle={toggleObtenerEmpresas}  className="card-obtener-empresas">
+        <ObtenerEmpresas token={token} companies={companies} />
+      </Card>
+
+      <Card title="Crear Empresa" isOpen={isOpenCrearEmpresa} toggle={toggleCrearEmpresa}>
+        <CrearEmpresa token={token} />
+      </Card>
+
+      <Card title="Actualizar Empresa" isOpen={isOpenUpdateCompany} toggle={toggleUpdateCompany}>
+        <ActualizarEmpresa token={token} companies={companies} />
+      </Card>
+
       <Card title="Intercambiar prioridad de empresas" isOpen={isOpenSwapPriority} toggle={toggleSwapPriority}>
         <SwapCompanyPriority token={token} companies={companies} />
+      </Card>
+
+      <Card title="Habilitar/Deshabilitar empresa" isOpen={isOpenToggleCompanyStatus} toggle={toggleToggleCompanyStatus}>
+        <ToggleCompanyStatus token={token} companies={companies} />
       </Card>
     </div>
   );

@@ -308,7 +308,7 @@
   .button-ver-mas {
     background-color: transparent;
     border: none;
-    padding: 0;
+    padding: 10px;
     font-size: 14px;
     color: #337ab7;
     cursor: pointer;
