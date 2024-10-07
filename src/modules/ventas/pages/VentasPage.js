@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext, useCallback, lazy, Suspense } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faTimes, faFilter, faSyncAlt } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faTimes, faFilter, faSyncAlt, faSortUp, faSortDown } from '@fortawesome/free-solid-svg-icons';
 import withAuthorization from '../../../contexts/withAuthorization';
 import './Ventas.css';
 
@@ -29,7 +29,23 @@ const VentasPage = ({ onSaleClick }) => {
   const [totalPages, setTotalPages] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [sortField, setSortField] = useState('');
+  const [sortOrder, setSortOrder] = useState('');
 
+  const sortOptions = [
+    { value: 'created_at', label: 'Fecha de creación' },
+    { value: 'sale_id', label: 'ID de venta' },
+    { value: 'service_id', label: 'ID de servicio' },
+    { value: 'client_first_name', label: 'Nombre del cliente' },
+    { value: 'client_last_name', label: 'Apellido del cliente' },
+    { value: 'client_rut', label: 'RUT del cliente' },
+    { value: 'region_id', label: 'Región' },
+    { value: 'commune_id', label: 'Comuna' },
+    { value: 'promotion_id', label: 'Promoción' },
+    { value: 'sale_status_reason_id', label: 'Razón de estado' },
+    { value: 'company_id', label: 'Empresa' }
+  ];
+  
   
   // Listados de los select
   const [salesChannels, setSalesChannels] = useState([]);
@@ -54,6 +70,8 @@ const VentasPage = ({ onSaleClick }) => {
   const [selectedCompany, setSelectedCompany] = useState('');
   const [selectedPromotion, setSelectedPromotion] = useState('');  const [selectedPriority, setSelectedPriority] = useState('');
   const [selectedRole, setSelectedRole] = useState('');
+  const [isSearchActive, setIsSearchActive] = useState(false);
+
 
   const [filters, setFilters] = useState({
     sales_channel_id: '',
@@ -65,6 +83,8 @@ const VentasPage = ({ onSaleClick }) => {
     sale_status_reason_id: '',
     company_id: '',
   });
+  
+  const [pendingFilters, setPendingFilters] = useState(filters);
   
   const [originalFilters] = useState({
     sales_channel_id: '',
@@ -87,6 +107,8 @@ const VentasPage = ({ onSaleClick }) => {
         ...filters,
         start_date: startDate,
         end_date: endDate,
+        sortField,
+        sortOrder,
       };
   
       const filteredParams = Object.entries(filtersWithDates)
@@ -97,6 +119,7 @@ const VentasPage = ({ onSaleClick }) => {
         ]);
   
       const queryString = new URLSearchParams(filteredParams).toString();
+      console.log(queryString);
   
       const response = await fetch(`${process.env.REACT_APP_API_URL}/sales/all?${queryString}`, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
@@ -115,8 +138,8 @@ const VentasPage = ({ onSaleClick }) => {
     } finally {
       setLoading(false);
     }
-  }, [token, filters, cleanSaleData, endDate, startDate]);
-  
+  }, [token, filters, cleanSaleData, endDate, startDate, sortField, sortOrder]);
+
   const handleRefresh = () => {
     setIsUpdating(true);
     fetchSales().finally(() => {
@@ -277,6 +300,32 @@ useEffect(() => {
         });
     }
   }, [selectedSaleStatus, token]);
+
+  const handleSortFieldChange = (e) => {
+    setSortField(e.target.value);
+    fetchSales(1);
+  };
+
+  const handleSortOrderChange = (e) => {
+    setSortOrder(e.target.value);
+    fetchSales(1);
+  };
+
+  const applyFilters = () => {
+    setFilters({
+      ...pendingFilters,
+      sortField: sortField,
+      sortOrder: sortOrder,
+    });
+    setCurrentPage(1);
+    setIsSearchActive(true);
+    fetchSales(1);
+  };
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setPendingFilters((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSearch = async () => {
     setLoading(true);
@@ -566,6 +615,20 @@ useEffect(() => {
               <button onClick={() => setSelectedPriority('')}>Borrar</button>
             )}
           </div>
+
+          <div className="filters">
+          <h4>Ordenamiento</h4>
+          <select value={sortField} onChange={handleSortFieldChange}>
+            <option value="">Seleccionar campo</option>
+            {sortOptions.map(option => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
+          </select>
+          <select value={sortOrder} onChange={handleSortOrderChange}>
+            <option value="ASC">Ascendente</option>
+            <option value="DESC">Descendente</option>
+          </select>
+        </div>
 
           <button onClick={() => {
             setFilters({

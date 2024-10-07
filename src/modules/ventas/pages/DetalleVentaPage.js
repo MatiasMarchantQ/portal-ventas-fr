@@ -398,7 +398,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       {[1, 2, 3, 4, 5].includes(roleId) && renderEditableSaleStatus()}
       {[1, 2, 4, 5].includes(roleId) && renderEditableReason()}
       {renderInputField("Número Orden(Wisphub)", "service_id", "text")}
-      {roleId === 3 
+      {(roleId === 1 || roleId === 2 || roleId === 3) 
         ? renderImageInputs ("Archivos adjuntos", "other_images")
         : renderTextarea("Comentarios adicionales", "additional_comments")
       }
@@ -489,7 +489,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
           </select>
         </>
       )}
-      {roleId === 3 && (
+      {(roleId === 1 || roleId === 2 || roleId === 3)  && (
         renderTextarea("Comentarios adicionales:", "additional_comments")
       )}
     </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useCallback, lazy, Suspense } f
 import { UserContext } from '../../../contexts/UserContext';
 import withAuthorization from '../../../contexts/withAuthorization';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faFilter, faTimes, faSearch } from '@fortawesome/free-solid-svg-icons';
 import './Usuarios.css';
 
 const UserRow = lazy(() => import('./UserRow'));
@@ -14,6 +14,7 @@ const UsuariosPage = ({ onUserClick }) => {
   const { token, roleId } = useContext(UserContext);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
   const limit = 18;
 
   const [isFilterVisible, setIsFilterVisible] = useState(false);
@@ -25,8 +26,15 @@ const UsuariosPage = ({ onUserClick }) => {
     company_id: '',
     sales_channel_id: '',
     role_id: '',
-    status: ''
+    status: '',
+    search: '',
+    sort: 'user_id',
+    order: 'asc',
   });
+
+  const [pendingFilters, setPendingFilters] = useState(filters);
+  const [isSearchActive, setIsSearchActive] = useState(false);
+
 
   const fetchUsers = useCallback(async () => {
     if (!token) return;
@@ -35,7 +43,7 @@ const UsuariosPage = ({ onUserClick }) => {
       const queryParams = new URLSearchParams({
         page: currentPage,
         limit,
-        ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== ''))
+        ...Object.fromEntries(Object.entries(filters).filter(([_, v]) => v !== '')),
       }).toString();
 
       const response = await fetch(`${process.env.REACT_APP_API_URL}/users?${queryParams}`, {
@@ -47,6 +55,7 @@ const UsuariosPage = ({ onUserClick }) => {
       const data = await response.json();
       setUsers(data.users);
       setTotalPages(data.totalPages);
+      setTotalUsers(data.totalUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {
@@ -59,19 +68,18 @@ const UsuariosPage = ({ onUserClick }) => {
   }, [fetchUsers]);
 
   useEffect(() => {
-    // Fetch companies, sales channels, and roles for filters
     const fetchFilterData = async () => {
       try {
         const [companiesRes, channelsRes, rolesRes] = await Promise.all([
-          fetch(`${process.env.REACT_APP_API_URL}/companies`, { headers: { 'Authorization': `Bearer ${token}` } }),
-          fetch(`${process.env.REACT_APP_API_URL}/channels`, { headers: { 'Authorization': `Bearer ${token}` } }),
-          fetch(`${process.env.REACT_APP_API_URL}/roles`, { headers: { 'Authorization': `Bearer ${token}` } })
+          fetch(`${process.env.REACT_APP_API_URL}/companies`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${process.env.REACT_APP_API_URL}/channels`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${process.env.REACT_APP_API_URL}/roles`, { headers: { Authorization: `Bearer ${token}` } }),
         ]);
 
         const [companiesData, channelsData, rolesData] = await Promise.all([
           companiesRes.json(),
           channelsRes.json(),
-          rolesRes.json()
+          rolesRes.json(),
         ]);
 
         setCompanies(companiesData);
@@ -93,63 +101,115 @@ const UsuariosPage = ({ onUserClick }) => {
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
+    setPendingFilters((prev) => ({ ...prev, [name]: value }));
   };
+  
+  const handleSearchChange = (e) => {
+    setPendingFilters((prev) => ({ ...prev, search: e.target.value }));
+  };
+  
 
   const applyFilters = () => {
+    setFilters(pendingFilters);
     setCurrentPage(1);
-    fetchUsers();
+    setIsSearchActive(true);
   };
+  
 
   const clearFilters = () => {
+    setPendingFilters((prev) => ({ ...prev, search: '' }));
+    resetFiltersAndSearch();
+    setIsSearchActive(false);
+    fetchUsers(); 
+  };
+  
+  const resetFiltersAndSearch = () => {
     setFilters({
       company_id: '',
       sales_channel_id: '',
       role_id: '',
-      status: ''
+      status: '',
+      search: '',
+      sort: 'user_id',
+      order: 'asc',
     });
     setCurrentPage(1);
-    fetchUsers();
   };
-
+  
   return (
     <div className="usuarios-page">
       <h1>Lista de Usuarios</h1>
-      
-      <div className="filter-section">
-        <button className="filter-button" onClick={() => setIsFilterVisible(!isFilterVisible)}>
-          <FontAwesomeIcon icon={faFilter} /> Filtros
-        </button>
 
+      <div className="ventas-page">
+        <div className="search-bar">
+          <input
+            type="text"
+            placeholder="Buscar usuarios..."
+            value={pendingFilters.search}
+            onChange={handleSearchChange}
+          />
+          <button className='search-button' onClick={applyFilters}>
+            <FontAwesomeIcon icon={faSearch} /> Buscar
+          </button>
+          {isSearchActive && (
+            <button className='search-button' onClick={clearFilters}>
+            <FontAwesomeIcon icon={faTimes} /> Limpiar búsqueda
+          </button>
+          )}
+          <button className="filter-button" onClick={() => setIsFilterVisible(!isFilterVisible)}>
+            <FontAwesomeIcon icon={faFilter} /> Filtros
+          </button>
+        </div>
+      </div>
+
+      <div className="filter-section">
         {isFilterVisible && (
           <div className="filters">
-           {roleId === 1 && (
-              <select name="company_id" value={filters.company_id} onChange={handleFilterChange}>
+            {roleId === 1 && (
+              <select name="company_id" value={pendingFilters.company_id} onChange={handleFilterChange}>
                 <option value="">Todas las empresas</option>
-                {companies.map(company => (
-                  <option key={company.company_id} value={company.company_id}>{company.company_name}</option>
+                {companies.map((company) => (
+                  <option key={company.company_id} value={company.company_id}>
+                    {company.company_name}
+                  </option>
                 ))}
               </select>
             )}
 
-            <select name="sales_channel_id" value={filters.sales_channel_id} onChange={handleFilterChange}>
+            <select name="sales_channel_id" value={pendingFilters.sales_channel_id} onChange={handleFilterChange}>
               <option value="">Todos los canales de venta</option>
-              {salesChannels.map(channel => (
-                <option key={channel.sales_channel_id} value={channel.sales_channel_id}>{channel.channel_name}</option>
+              {salesChannels.map((channel) => (
+                <option key={channel.sales_channel_id} value={channel.sales_channel_id}>
+                  {channel.channel_name}
+                </option>
               ))}
             </select>
 
-            <select name="role_id" value={filters.role_id} onChange={handleFilterChange}>
+            <select name="role_id" value={pendingFilters.role_id} onChange={handleFilterChange}>
               <option value="">Todos los roles</option>
-              {roles.map(role => (
-                <option key={role.role_id} value={role.role_id}>{role.role_name}</option>
+              {roles.map((role) => (
+                <option key={role.role_id} value={role.role_id}>
+                  {role.role_name}
+                </option>
               ))}
             </select>
 
-            <select name="status" value={filters.status} onChange={handleFilterChange}>
+            <select name="status" value={pendingFilters.status} onChange={handleFilterChange}>
               <option value="">Todos los estados</option>
-              <option value='1'>Activo</option>
-              <option value='0'>Inactivo</option>
+              <option value="1">Activo</option>
+              <option value="0">Inactivo</option>
+            </select>
+
+            <select name="sort" value={pendingFilters.sort} onChange={handleFilterChange}>
+              <option value="first_name">Ordenar por Nombre</option>
+              <option value="last_name">Ordenar por Apellido</option>
+              <option value="email">Ordenar por Email</option>
+              <option value="created_at">Ordenar por Fecha de Creación</option>
+            </select>
+
+            <select name="order" value={pendingFilters.order} onChange={handleFilterChange}>
+              <option value="asc">Ascendente</option>
+              <option value="desc">Descendente</option>
             </select>
 
             <button onClick={applyFilters}>Aplicar filtros</button>
@@ -177,19 +237,20 @@ const UsuariosPage = ({ onUserClick }) => {
           </thead>
           <tbody>
             <Suspense fallback={<tr><td colSpan="9">Cargando usuarios...</td></tr>}>
-              {users.map(user => (
+              {users.map((user) => (
                 <UserRow key={user.user_id} user={user} onUserClick={onUserClick} />
               ))}
             </Suspense>
           </tbody>
         </table>
       </div>
-      {loading && <p className="loading">Cargando...</p>}
+
       <Suspense fallback={<div>Cargando paginación...</div>}>
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
+          totalUsers={totalUsers}
         />
       </Suspense>
     </div>
