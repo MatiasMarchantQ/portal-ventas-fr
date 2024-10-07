@@ -31,6 +31,8 @@ const VentasPage = ({ onSaleClick }) => {
   const [isUpdating, setIsUpdating] = useState(false);
   const [sortField, setSortField] = useState('');
   const [sortOrder, setSortOrder] = useState('');
+  const [pendingSortField, setPendingSortField] = useState('');
+  const [pendingSortOrder, setPendingSortOrder] = useState('');
 
   const sortOptions = [
     { value: 'created_at', label: 'Fecha de creación' },
@@ -301,32 +303,28 @@ useEffect(() => {
     }
   }, [selectedSaleStatus, token]);
 
-  const handleSortFieldChange = (e) => {
-    setSortField(e.target.value);
-    fetchSales(1);
-  };
-
-  const handleSortOrderChange = (e) => {
-    setSortOrder(e.target.value);
-    fetchSales(1);
-  };
-
   const applyFilters = () => {
     setFilters({
-      ...pendingFilters,
-      sortField: sortField,
-      sortOrder: sortOrder,
+      sales_channel_id: selectedSalesChannel,
+      region_id: selectedRegion,
+      commune_id: selectedCommune,
+      promotion_id: selectedPromotion,
+      installation_amount_id: selectedInstallationAmount,
+      sale_status_id: selectedSaleStatus,
+      sale_status_reason_id: selectedSaleStatusReason,
+      company_id: selectedCompany,
+      role_id: selectedRole,
+      is_priority: selectedPriority,
+      start_date: startDate,
+      end_date: endDate,
     });
+    setSortField(pendingSortField);
+    setSortOrder(pendingSortOrder);
     setCurrentPage(1);
     setIsSearchActive(true);
     fetchSales(1);
   };
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setPendingFilters((prev) => ({ ...prev, [name]: value }));
-  };
-
+  
   const handleSearch = async () => {
     setLoading(true);
     try {
@@ -488,23 +486,6 @@ useEffect(() => {
               )}
             </div>
           )}
-
-          {![2, 3].includes(roleId) && (
-            <div className="filters">
-              <h4>Empresas</h4>
-              <select value={selectedCompany} onChange={e => setSelectedCompany(e.target.value)}>
-                <option key="default-company" value="" disabled>Selecciona una empresa</option>
-                {companies.map((company) => (
-                  <option key={company.company_id} value={company.company_id}>{company.company_name}</option>
-                ))}
-              </select>
-              {selectedCompany && (
-                <button onClick={() => setSelectedCompany('')}>Borrar</button>
-              )}
-            </div>
-          )}
-        </div>
-        <div className='column-2'>
           <div className='='filter-section>
             <div className="filters">
               <h4>Regiones</h4>
@@ -533,6 +514,23 @@ useEffect(() => {
               <button onClick={() => setSelectedCommune('')}>Borrar</button>
             )}
           </div>
+        </div>
+
+        <div className='column-2'>
+        {![2, 3].includes(roleId) && (
+            <div className="filters">
+              <h4>Empresas</h4>
+              <select value={selectedCompany} onChange={e => setSelectedCompany(e.target.value)}>
+                <option key="default-company" value="" disabled>Selecciona una empresa</option>
+                {companies.map((company) => (
+                  <option key={company.company_id} value={company.company_id}>{company.company_name}</option>
+                ))}
+              </select>
+              {selectedCompany && (
+                <button onClick={() => setSelectedCompany('')}>Borrar</button>
+              )}
+            </div>
+          )}
 
           <div className="filters">
             <h4>Promociones</h4>
@@ -560,8 +558,6 @@ useEffect(() => {
               <button onClick={() => setSelectedInstallationAmount('')}>Borrar</button>
             )}
           </div>
-        </div>
-        <div className='column-3'></div>
           <div className="filters">
             <h4>Estado de venta</h4>
             <select value={selectedSaleStatus} onChange={e => setSelectedSaleStatus(e.target.value)}>
@@ -588,8 +584,8 @@ useEffect(() => {
               <button onClick={() => setSelectedSaleStatusReason('')}>Borrar</button>
             )}
           </div>
-
-
+        </div>
+        <div className='column-3'></div>
           {roleId !== 3 && (
             <div className="filters">
               <h4>Rol</h4>
@@ -619,35 +615,21 @@ useEffect(() => {
           </div>
 
           <div className="filters">
-          <h4>Ordenamiento</h4>
-          <select value={sortField} onChange={handleSortFieldChange}>
-            <option value="">Seleccionar campo</option>
-            {sortOptions.map(option => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
-          <select value={sortOrder} onChange={handleSortOrderChange}>
-            <option value="ASC">Ascendente</option>
-            <option value="DESC">Descendente</option>
-          </select>
-        </div>
+            <h4>Ordenamiento</h4>
+            <select value={pendingSortField} onChange={e => setPendingSortField(e.target.value)}>
+              <option value="">Seleccionar campo</option>
+              {sortOptions.map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+            <select value={pendingSortOrder} onChange={e => setPendingSortOrder(e.target.value)}>
+              <option value="ASC">Ascendente</option>
+              <option value="DESC">Descendente</option>
+            </select>
+          </div>
 
-          <button onClick={() => {
-            setFilters({
-              sales_channel_id: selectedSalesChannel,
-              region_id: selectedRegion,
-              commune_id: selectedCommune,
-              promotion_id: selectedPromotion,
-              installation_amount_id: selectedInstallationAmount,
-              sale_status_id: selectedSaleStatus,
-              sale_status_reason_id: selectedSaleStatusReason,
-              company_id: selectedCompany,
-              role_id: selectedRole,
-              is_priority: selectedPriority,
-              start_date: startDate,
-              end_date: endDate,
-            });
-          }}>Aplicar filtros</button>
+          {/* Botón de aplicar filtros */}
+          <button onClick={applyFilters}>Aplicar filtros</button>
 
           <button onClick={() => {
             // Limpiar todos los valores de los filtros
@@ -668,6 +650,8 @@ useEffect(() => {
             setSelectedCompany('');
             setSelectedRole('');
             setSelectedPriority('');
+            setSortField('');
+            setSortOrder('');
 
             // Volver a cargar todas las ventas (sin filtro)
             fetchSales(1);

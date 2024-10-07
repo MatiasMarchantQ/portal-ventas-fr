@@ -274,7 +274,7 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
             {renderInput('number', 'text', 'Número')}
             {renderSelect('sales_channel_id', formattedChannels, 'Canal de Venta')}
             <div style={{ marginBottom: '6.3rem' }} />
-            <div>
+            <div className='password-section'>
               <label className="detalle-usuario-label" htmlFor="password">Contraseña:</label>
               <div className="password-input-container">
                 <input

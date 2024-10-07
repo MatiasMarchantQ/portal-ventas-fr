@@ -1,137 +1,169 @@
 /* Global Styles for DetalleUsuario */
 
 .detalle-usuario-page {
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
-    height: auto;
-    max-width: auto;
-    font-family: Montserrat;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  height: auto;
+  max-width: 100%; /* Ajustar a 100% para pantallas más pequeñas */
+  font-family: Montserrat;
+}
+
+.detalle-usuario-header {
+  text-align: center;
+  font-weight: bold;
+  font-size: 2rem;
+  color: #99235C;
+}
+
+.detalle-usuario-container {
+  background-color: #fff;
+  padding: 20px;
+  margin: 0 auto;
+  color: #333;
+  max-width: 100%; /* Asegurarse de que se ajuste en pantallas pequeñas */
+}
+
+.detalle-usuario-button {
+  background-color: #99235C;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 15%; /* Ocupa el 100% del ancho en pantallas pequeñas */
+}
+
+.detalle-usuario-button:hover {
+  background-color: #b93775;
+}
+
+#update-user {
+  background-color: #99235C;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  width: 100%;
+}
+
+#update-user:hover {
+  background-color: #b93775;
+}
+
+.detalle-usuario-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Dos columnas en pantallas más grandes */
+  gap: 4rem;
+}
+
+.detalle-usuario-label {
+  margin-bottom: 5px;
+  color: #99235C;
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.detalle-usuario-value {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: #fff;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.editable {
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+/* Checkbox specific styles */
+input[type="checkbox"] {
+  margin-left: 10px;
+}
+
+.password-input-container {
+  position: relative;
+}
+
+.password-input-container .password-visibility-button {
+  position: absolute;
+  color: #99235C;
+  right: 0;
+  top: 45%;
+  transform: translateY(-50%);
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.password-input-container .password-visibility-button:hover {
+  border: none;
+  background-color: transparent;
+}
+
+.detalle-usuario-submit {
+  background-color: #99235C;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+/* Responsive styles for tablets */
+@media (max-width: 1024px) {
+  .detalle-usuario-info {
+    grid-template-columns: 1fr; /* Una columna para tablets */
+    gap: 2rem;
   }
-  
+
   .detalle-usuario-header {
-    text-align: center;
-    font-weight: bold;
-    font-size: 2rem;
-    color: #99235C;
-  }
-  
-  .detalle-usuario-container {
-    background-color: #fff;
-    padding: 20px;
-    margin: 0 auto;
-    color: #333;
+    font-size: 1.8rem; /* Ajusta el tamaño del encabezado */
   }
 
   .detalle-usuario-button {
-    background-color: #99235C;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 10px;
-    width: 15%;
+    width: 100%; /* Botones ocupan el 100% del ancho en tablets */
   }
+}
 
-  .detalle-usuario-button:hover {
-    background-color: #b93775;
-  }
-
-  #update-user{
-    background-color: #99235C;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 10px;
-    width: 100%;
-  }
-
-  #update-user:hover {
-    background-color: #b93775;
-  }
-
+/* Responsive styles for mobile devices */
+@media (max-width: 768px) {
   .detalle-usuario-info {
-    display: grid;
-    grid-template-columns: repeat(2, 2fr); /* Dos columnas */
-    gap: 4rem; /* Espacio entre columnas similar a ingresar-venta-fields-group */
+    grid-template-columns: 1fr; /* Una columna para móviles */
+    gap: 1.5rem;
   }
-  
-  .detalle-usuario-label {
-    margin-bottom: 5px;
-    color: #99235C; /* Color del label */
-    font-size: 0.9rem;
-    font-weight: bold;
+
+  .detalle-usuario-header {
+    font-size: 1.6rem; /* Ajusta el tamaño del encabezado */
   }
-  
+
+  .detalle-usuario-button {
+    width: 100%; /* Botones ocupan todo el ancho en móviles */
+    font-size: 14px; /* Reducir el tamaño del texto en botones para móviles */
+    padding: 10px 15px; /* Ajustar el padding */
+  }
+
+  .detalle-usuario-submit {
+    font-size: 14px; /* Reducir el tamaño del texto */
+    padding: 10px 15px; /* Ajustar el padding */
+  }
+
   .detalle-usuario-value {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 16px;
-    background-color: #fff;
-    margin-bottom: 10px;
-    width: 100%;
-  }
-  
-  .detalle-usuario-info {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 4rem;
+    font-size: 14px; /* Reducir el tamaño de las entradas */
+    
   }
 
-  .editable {
-    border: 1px solid #ccc;
-    padding: 5px;
-    border-radius: 5px;
+  .detalle-usuario-label {
+    font-size: 0.85rem; /* Ajustar el tamaño de los labels */
   }
-  
-  /* Checkbox specific styles */
-  input[type="checkbox"] {
-    margin-left: 10px;
-  }
-  
-  .password-input-container {
-    position: relative;
-  }
-  
-  .password-visibility-button {
-    position: absolute;
-    color: #99235C;
-    right: 10px;
-    top: 45%;
-    transform: translateY(-50%);
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
-  }
+}
 
-  .detalle-usuario-button {
-    margin-top: 20px;
-  }
-  
-  .detalle-usuario-button:hover {
-    background-color: #b93775;
-  }
-
-  .detalle-usuario-submit{
-    background-color: #99235C;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    font-weight: bold;
-  }
-  
-  /* Responsiveness for small screens */
-  @media (max-width: 768px) {
-    .detalle-usuario-info {
-      grid-template-columns: 1fr; /* Pasa a una sola columna en pantallas pequeñas */
-      gap: 2rem;
-    }
-  }
-  

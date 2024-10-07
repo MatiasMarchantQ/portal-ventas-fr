@@ -183,18 +183,34 @@
   .user-info strong {
     margin-bottom: 5px;
   }
+
   
   /* Responsive design para pantallas más pequeñas */
-  @media (max-width: 768px) {
-    .mi-perfil-container {
-      padding: 2 rem;
-    }
-  
-    .mi-perfil-container .user-details {
-      grid-template-columns: 1fr; /* Cambiar a una columna en pantallas pequeñas */
-    }
-  
-    .input-container {
-      width: 100%;
-    }
+@media (max-width: 768px) {
+  .mi-perfil-container {
+      padding: 1.5rem; /* Ajustar el padding para pantallas pequeñas */
   }
+
+  .mi-perfil-container .user-details {
+      grid-template-columns: 1fr; /* Cambiar a una columna en pantallas pequeñas */
+  }
+
+  .input-container {
+      width: 100%; /* Asegurar que los contenedores ocupen el 100% */
+  }
+
+  /* Ajustar tamaño de fuente de títulos y botones para pantallas pequeñas */
+  .mi-perfil-container h1 {
+      font-size: 2rem;
+  }
+
+  .mi-perfil-container button {
+      width: 100%; /* Botones a ancho completo en pantallas pequeñas */
+      margin-left: 0; /* Quitar margen en pantallas pequeñas */
+      margin-top: 1rem; /* Espacio entre botones */
+  }
+
+  .input-wrapper input {
+      width: 150%; /* Cambiar a 100% para responsividad */
+  }
+}

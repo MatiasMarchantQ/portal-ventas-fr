@@ -394,7 +394,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
       {renderTextarea("Georeferencia", "geo_reference", 2)}
       {renderSelectField("Promoción", "promotion_id", promotions, "promotion_id", "promotion")}
       {renderReadOnlyField("Monto de Instalación", installationAmount)}
-      <div></div>
+      <div className='space'></div>
       {[1, 2, 3, 4, 5].includes(roleId) && renderEditableSaleStatus()}
       {[1, 2, 4, 5].includes(roleId) && renderEditableReason()}
       {renderInputField("Número Orden(Wisphub)", "service_id", "text")}
@@ -441,7 +441,7 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
   );
 
   const renderTextarea = (label, name, rows = 2) => (
-    <div className="sale-detail-field-group">
+    <div className="sale-detail-field-group comentarios-adicionales">
       <label>{label}:</label>
       <textarea
         name={name}
@@ -592,8 +592,8 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
             hour12: false
           })}</p>
         </div>
-        <p></p>
-        <p></p>
+        <div className='space'></div>
+        <div className='space'></div>
         <div className="executive-info">
         {sale.executive && (
           <div>
@@ -635,8 +635,8 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
           </div>
         )}
       </div>
-        <p></p>
-        <p></p>
+      <div className='space'></div>
+      <div className='space'></div>
   
         {renderDetailField("Nombres", sale.client_first_name)}
         {renderDetailField("Apellidos", sale.client_last_name)}
@@ -646,24 +646,24 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
         {renderDetailField("Número Secundario (Opcional)", sale.client_secondary_phone)}
         {renderDetailField("Región", sale.region?.region_name)}
         {renderDetailField("Comuna", sale.commune?.commune_name)}
-        <p></p>
+        <div className='space'></div>
         {renderDetailField("Calle/Avenida", sale.street)}
         {renderDetailField("Número casa", sale.number)}
         {renderDetailField("Departamento/Oficina/Piso", sale.department_office_floor)}
         {renderDetailField("Geo Referencia", sale.geo_reference, true)}
-        <p></p>
-        <p></p>
+        <div className='space'></div>
+        <div className='space'></div>
         {renderDetailField("Promoción", sale.promotion?.promotion)}
         {renderDetailField("Monto de Instalación", sale.installationAmount?.amount)}
         {renderDetailField("Número de Orden", sale.order_number)}
         {renderDetailField("Estado de la Venta", sale.saleStatus?.status_name)}
         {renderDetailField("Motivo", sale.reason?.reason_name)}
-        <p></p>
+        <div className='space'></div>
         {renderDetailField("Comentarios Adicionales", sale.additional_comments)}
       </div>
     
       <div className="sale-detail-field-group">
-        <div className="sale-detail-images" style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-end', marginTop: '-4rem', marginRight: '9rem'}}>
+      <div className="sale-detail-images">
           <strong>Imágenes:</strong>
           {sale.other_images_url && sale.other_images_url.length > 0 ? (
             <>

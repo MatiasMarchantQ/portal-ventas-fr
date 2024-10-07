@@ -408,6 +408,7 @@ const RegistrarUsuarioPage = () => {
                       onChange={handleChange}
                       placeholder="Ingresa la contraseña"
                       required
+                      autoComplete='new-password'
                     />
                     <FontAwesomeIcon
                       icon={faRandom}

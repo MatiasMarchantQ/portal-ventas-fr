@@ -43,7 +43,8 @@
 .registrar-usuario-form-group input,
 .registrar-usuario-form-group textarea,
 .registrar-usuario-form-group input[type="number"],
-.registrar-usuario-form-group input[type="email"]{
+.registrar-usuario-form-group input[type="email"],
+.registrar-usuario-form-group select {
     width: 100%;
     padding: 0.75rem;
     font-size: 1rem;
@@ -53,18 +54,6 @@
     box-sizing: border-box;
     margin-bottom: 1rem;
 }
-
-.registrar-usuario-form-group select{
-    width: 100%;
-    padding: 0.75rem;
-    font-size: 1rem;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-    margin-bottom: 1rem;
-}
-
 
 .checkbox-group {
     display: flex;
@@ -94,25 +83,25 @@
     position: relative;
     width: 100%;
 }
-  
+
 .password-container input[type="password"] {
     padding-right: 2.5rem;
-  }
-  
-  .password-container input[type="password"],
-  .password-container input[type="text"] {
+}
+
+.password-container input[type="password"],
+.password-container input[type="text"] {
     width: 45%;
-  }
-  
-  .password-random-icon {
+}
+
+.password-random-icon {
     margin-left: 5px;
     margin-bottom: 0.9rem;
     color: #99235C;
     font-size: 1.2rem;
     cursor: pointer;
-  }
-  
-  .password-visibility-icon {
+}
+
+.password-visibility-icon {
     position: relative;
     margin-bottom: 1rem;
     right: 3.5rem;
@@ -120,8 +109,7 @@
     font-size: 1.2rem;
     cursor: pointer;
     z-index: 1;
-  }
-  
+}
 
 .registrar-usuario-submit-button {
     background-color: #99235C;
@@ -139,12 +127,96 @@
     background-color: #8b2353;
 }
 
-
 .auto-expand {
     display: inline-block;
     width: auto;
-    min-width: 100%; /* Mantener el ancho mínimo del input */
-    max-width: 100%; /* Limitar el ancho máximo al 100% */
-    box-sizing: border-box; /* Incluir padding en el tamaño total */
-  }
-  
+    min-width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Media queries para responsividad */
+
+/* Tablets */
+@media (max-width: 1024px) {
+    .registrar-usuario-form-box {
+        padding: 3rem;
+    }
+
+    .registrar-usuario-form-row {
+        gap: 2rem;
+    }
+
+    .registrar-usuario-form-box h2 {
+        font-size: 1.8rem;
+    }
+
+    .password-container input[type="password"],
+    .password-container input[type="text"] {
+        width: 100%;
+    }
+
+    .registrar-usuario-submit-button {
+        width: 100%;
+    }
+}
+
+/* Celulares */
+@media (max-width: 768px) {
+    .registrar-usuario-form-box {
+        padding: 2rem;
+    }
+
+    .registrar-usuario-form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .registrar-usuario-form-box h2 {
+        font-size: 1.5rem;
+        margin-top: -2rem;
+    }
+
+    .registrar-usuario-form-group.full-width {
+        grid-column: span 1;
+    }
+
+    .password-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .password-visibility-icon {
+        left: 17rem;
+        top: -3rem;
+    }
+
+    .password-random-icon {
+        position: absolute;
+        left: 19.5rem;
+        top: 0.7rem;
+    }
+}
+
+/* Ajustes adicionales para pantallas muy pequeñas */
+@media (max-width: 480px) {
+    .registrar-usuario-form-box {
+        padding: 1rem;
+    }
+
+    .registrar-usuario-form-group strong {
+        font-size: 0.8rem;
+    }
+
+    .registrar-usuario-form-group input,
+    .registrar-usuario-form-group textarea,
+    .registrar-usuario-form-group input[type="number"],
+    .registrar-usuario-form-group input[type="email"],
+    .registrar-usuario-form-group select {
+        font-size: 0.9rem;
+    }
+
+    .registrar-usuario-submit-button {
+        font-size: 0.9rem;
+    }
+}

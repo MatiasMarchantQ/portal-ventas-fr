@@ -444,7 +444,7 @@ const MiPerfilPage = () => {
                                 </div>
                             </div>
                         ))}
-                        <button type="submit" style={{ marginLeft: 0, width: '26%' }}>Actualizar Contraseña</button>
+                        <button type="submit" className='update-button'>Actualizar Contraseña</button>
                         {passwordError && <div className="error" style={{ textAlign: 'flex-start' }}>{passwordError}</div>}
                     </div>
                 </form>
