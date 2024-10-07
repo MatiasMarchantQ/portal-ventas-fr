@@ -386,6 +386,8 @@ useEffect(() => {
       company_id: selectedCompany,
       start_date: startDate,
       end_date: endDate,
+      sortField: sortField,
+      sortOrder: sortOrder,
     };
   
     const queryString = Object.keys(filters)
