@@ -19,6 +19,7 @@ const Menu = ({ role_id, onMenuClick }) => {
         submenu: [
           { label: 'Registrar usuario', action: 'Registrar usuario' },
           { label: 'Usuarios', action: 'Usuarios' },
+          { label: 'Tabla promociones por zona', action: 'Datos' },
           { label: 'Comunas', action: 'Comunas' },
           { label: 'Tarifas', action: 'Tarifas' },
           { label: 'Empresas', action: 'Empresas' },
@@ -81,11 +82,11 @@ const Menu = ({ role_id, onMenuClick }) => {
           <button
             onClick={() => {
               if (option.label === 'Cerrar sesión') {
-                handleLogout(); // Llama a la función de logout si corresponde
+                handleLogout();
               } else if (option.submenu) {
                 setShowSubmenu(!showSubmenu);
               } else {
-                onMenuClick(option.action); // Cambia el contenido según la acción
+                onMenuClick(option.action);
               }
             }}
           >

@@ -15,6 +15,7 @@ import DetalleUsuarioPage from '../../../modules/admin/pages/DetalleUsuarioPage'
 import MiPerfilPage from '../../../modules/profile/pages/MiPerfilPage';
 import IngresarVentasPage from '../../../modules/ventas/pages/IngresarVentasPage';
 import DetalleVentaPage from '../../../modules/ventas/pages/DetalleVentaPage';
+import TablaDatosPage from '../../admin/pages/TablaDatosPage';
 import withAuthorization from '../../../contexts/withAuthorization';
 import './Dashboard.css';
 
@@ -23,6 +24,7 @@ const accessControl = {
   'Ingresar venta': [1, 2, 3],
   'Registrar usuario': [1, 2],
   'Usuarios': [1, 2],
+  'Datos': [1],
   'Comunas': [1],
   'Tarifas': [1],
   'Empresas': [1],
@@ -130,6 +132,7 @@ const DashboardPage = () => {
       'Ingresar venta': <IngresarVentasPage />,
       'Registrar usuario': <RegistrarUsuarioPage />,
       'Usuarios': <UsuariosPage onUserClick={handleUserClick} pagination={pagination} setPagination={setPagination} />,
+      'Datos': <TablaDatosPage />,
       'Comunas': <ComunasPage />,
       'Tarifas': <TarifasPage />,
       'Empresas': <EmpresasPage />,
