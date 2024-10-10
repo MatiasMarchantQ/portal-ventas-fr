@@ -5,7 +5,7 @@
     font-family: Montserrat, sans-serif;
   }
 
-  .ventas-page h1 {
+  .ventas-page h1, .ventas-page h2 {
     text-align: center;
     color: #99235C;
   }
@@ -643,6 +643,9 @@
 
   /* Responsive Design */
   @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
     .ventas-page input[type="text"] {
       width: 100%;
     }
@@ -680,6 +683,7 @@
       width: 100%;
     }
     
+    
     /* Nuevos estilos para hacer responsiva la sección de filtros */
     .ventas-page .filter-section {
       column-count: 1;
@@ -701,6 +705,30 @@
   }
   
   @media (max-width: 480px) {
+    .stats-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .stats-grid .card {
+      padding: 10px;
+    }
+    
+    .stats-grid .card h3 {
+      font-size: 0.9rem;
+    }
+    
+    .stats-grid .card h4 {
+      font-size: 1rem;
+    }
+    
+    .stats-grid .card p {
+      font-size: 0.8rem;
+    }
+    
+    .ver-mas-btn {
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
     .ventas-page .search-bar .clear-button {
       position: absolute;
       color: #99235C;

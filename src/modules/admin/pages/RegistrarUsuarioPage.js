@@ -117,7 +117,7 @@ const RegistrarUsuarioPage = () => {
         rut: prevState.rut.replace(/\./g, ''),
       }));
   
-      const url = roleId === 2 ? `${process.env.REACT_APP_API_URL}/users/admin/register-user` : `${process.env.REACT_APP_API_URL}/api/users/register`;
+      const url = roleId === 2 ? `${process.env.REACT_APP_API_URL}/users/admin/register-user` : `${process.env.REACT_APP_API_URL}/users/register`;
   
       const response = await fetch(url, {
         method: 'POST',
@@ -198,7 +198,7 @@ const RegistrarUsuarioPage = () => {
     <div className="registrar-usuario-page">
       <div className="registrar-usuario-form-box">
         <h2>Registrar Usuario</h2>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <div className="registrar-usuario-form-row">
             <div className="registrar-usuario-form-group">
               <strong htmlFor="first_name">Nombres*</strong>
@@ -428,7 +428,7 @@ const RegistrarUsuarioPage = () => {
             <button type="submit" className="registrar-usuario-submit-button" disabled={isSubmitting}>
               {isSubmitting ? 'Registrando...' : 'Registrar Nuevo Usuario'}
             </button>
-            {message && <div style={{'margin-top': '2rem'}} className="message">{message}</div>}
+            {message && <div style={{marginTop: '2rem'}} className="message">{message}</div>}
           
         </form>
       </div>

@@ -253,7 +253,7 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
       <button className="detalle-usuario-button" onClick={onBack}>Volver a atrás</button>
       <div className="detalle-usuario-container">
         <h1 className="detalle-usuario-header">Detalle de Usuario</h1>
-        <form onSubmit={handleSubmit} className="detalle-usuario-info">
+        <form onSubmit={handleSubmit} className="detalle-usuario-info" autoComplete="off">
           <div>
             {renderInput('first_name', 'text', 'Nombre')}
             {renderInput('rut', 'text', 'RUT')}
@@ -285,6 +285,9 @@ const DetalleUsuarioPage = ({ onBack, idUser }) => {
                   value={editableFields.password || ''}
                   onChange={handleInputChange}
                   autoComplete="off"
+                  autoCorrect="off"
+                    autoCapitalize="off"
+                    spellCheck="false"
                 />
                 <button type="button" onClick={togglePasswordVisibility} className="password-visibility-button">
                   <FontAwesomeIcon icon={passwordVisible ? faEyeSlash : faEye} />

@@ -96,10 +96,25 @@ const CrearCanalDeVenta = ({ token }) => {
 };
 
 //Actualizar canal de venta
-const ActualizarCanalDeVenta = ({ token, channels }) => {
+const ActualizarCanalDeVenta = ({ token }) => {
   const [selectedChannel, setSelectedChannel] = useState('');
   const [newChannelName, setNewChannelName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [channels, setChannels] = useState([]);
+
+  useEffect(() => {
+    const fetchChannels = async () => {
+      try {
+        const result = await apiCall(`${process.env.REACT_APP_API_URL}/channels/all`, 'GET', null, token);
+        setChannels(result);
+      } catch (error) {
+        console.error('Error al obtener canales de venta:', error);
+        alert('Error al obtener canales de venta');
+      }
+    };
+
+    fetchChannels();
+  }, [token]);
 
   const handleChannelChange = (e) => {
     setSelectedChannel(e.target.value);
@@ -117,7 +132,7 @@ const ActualizarCanalDeVenta = ({ token, channels }) => {
     }
     setIsSubmitting(true);
     try {
-      const result = await apiCall( `${process.env.REACT_APP_API_URL}/channels/${selectedChannel}`, 'PUT', {
+      const result = await apiCall(`${process.env.REACT_APP_API_URL}/channels/${selectedChannel}`, 'PUT', {
         salesChannelName: newChannelName,
       }, token);
       alert(result.message);
@@ -148,7 +163,6 @@ const ActualizarCanalDeVenta = ({ token, channels }) => {
 };
 
 
-// Habilitar/Deshabilitar canal de venta
 // Habilitar/Deshabilitar canal de venta
 const ToggleCanalDeVentaStatus = ({ token }) => {
   const [channels, setChannels] = useState([]); // Para almacenar los canales de venta
@@ -216,7 +230,7 @@ const ToggleCanalDeVentaStatus = ({ token }) => {
         <option value="">Seleccione un canal de venta</option>
         {channels.map((channel) => (
           <option key={channel.sales_channel_id} value={channel.sales_channel_id}>
-            {channel.channel_name} {channel.channel_name} ({channel.is_active ? 'Habilitado' : 'Deshabilitado'})
+            {channel.channel_name} ({channel.is_active ? 'Habilitado' : 'Deshabilitado'})
           </option>
         ))}
       </select>

@@ -187,6 +187,7 @@ const CreatePromotion = ({ token, installationAmounts }) => {
       alert(`Promoción creada: ${result.message}`);
       setPromotionName('');
       setSelectedInstallationAmountId('');
+      window.location.reload();
     } catch (error) {
       alert('Error al crear la promoción');
     }
@@ -249,6 +250,7 @@ const UpdatePromotion = ({ token, promotions, installationAmounts }) => {
       setUpdatedPromotionName('');
       setUpdatedInstallationAmountId('');
       setSelectedPromotionId('');
+      window.location.reload();
     } catch (error) {
       console.error('Error updating promotion:', error);
       alert('Error al actualizar la promoción');
@@ -349,6 +351,7 @@ const DisablePromotions = ({ token, regions, promotions }) => {
       }, token);
       alert(result.message);
       setIsSubmitting(false);
+      window.location.reload();
     } catch (error) {
       console.error('Error al deshabilitar promociones:', error);
       alert('Error al deshabilitar promociones');
@@ -453,7 +456,8 @@ const AssignPromotion = ({ token, regions, promotions }) => {
       const result = await apiCall(`${process.env.REACT_APP_API_URL}/promotions/communes/${selectedCommuneId}/promotions`, 'POST', {
         promotionIds: selectedPromotionIds,
       }, token);
-      alert(result.message);
+      alert('Promoción asignada exitosamente:',result.message);
+      window.location.reload();
     } catch (error) {
       console.error('Error al asignar la promoción a la comuna:', error);
       alert('Error al asignar la promoción a la comuna');
@@ -539,6 +543,7 @@ const UpdateInstallationAmount = ({ token, promotions, installationAmounts }) =>
         installation_amount_id: installationAmountId,
       }, token);
       alert(result.message);
+      window.location.reload();
     } catch (error) {
       console.error('Error al actualizar el monto de instalación:', error);
       alert('Error al actualizar el monto de instalación');

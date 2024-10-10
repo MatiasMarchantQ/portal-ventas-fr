@@ -10,7 +10,7 @@ const Header = () => {
                 </div>
                 <div className="header-right">
                     <img src="/images/logo-fondomorado.png" alt="Logo" className="header-logo" />
-                    <span className="header-ingbell">Ingbell</span>
+                    <span className="header-ingbell">Ingbell Chile SpA.</span>
                 </div>
             </div>
         </header>

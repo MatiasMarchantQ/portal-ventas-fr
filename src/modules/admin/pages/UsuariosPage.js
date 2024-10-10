@@ -15,7 +15,7 @@ const UsuariosPage = ({ onUserClick }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
-  const limit = 18;
+  const limit = 15;
 
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [companies, setCompanies] = useState([]);

@@ -1,12 +1,12 @@
 import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom'; // Importa useNavigate
+import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../contexts/UserContext';
 import './Menu.css';
 
 const Menu = ({ role_id, onMenuClick }) => {
   const { token } = useContext(UserContext);
   const [showSubmenu, setShowSubmenu] = useState(false);
-  const navigate = useNavigate(); // Inicializa useNavigate
+  const navigate = useNavigate();
 
   let menuOptions = [];
 
@@ -24,6 +24,7 @@ const Menu = ({ role_id, onMenuClick }) => {
           { label: 'Tarifas', action: 'Tarifas' },
           { label: 'Empresas', action: 'Empresas' },
           { label: 'Canales de venta', action: 'Canales de venta' },
+          { label: 'Motivos', action: 'Motivos' },
           
         ],
       },

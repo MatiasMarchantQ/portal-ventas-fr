@@ -78,6 +78,7 @@ const CrearEmpresa = ({ token }) => {
       }, token);
       alert(result.message);
       setIsSubmitting(false);
+      window.location.reload();
     } catch (error) {
       console.error('Error al crear empresa:', error);
       alert(error.message);
@@ -95,14 +96,36 @@ const CrearEmpresa = ({ token }) => {
 };
 
 //Actualizar empresa
-const ActualizarEmpresa = ({ token, companies }) => {
+const ActualizarEmpresa = ({ token }) => {
   const [selectedCompany, setSelectedCompany] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [companies, setCompanies] = useState([]);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/companies/all`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch companies');
+        }
+        const data = await response.json();
+        setCompanies(data);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    };
+
+    fetchCompanies();
+  }, [token]);
 
   const handleCompanyChange = (e) => {
     setSelectedCompany(e.target.value);
-    const selectedCompanyData = companies.find((company) => company.company_id === e.target.value);
+    const selectedCompanyData = companies.find((company) => company.company_id === parseInt(e.target.value));
     if (selectedCompanyData) {
       setCompanyName(selectedCompanyData.company_name);
     } else {
@@ -127,6 +150,7 @@ const ActualizarEmpresa = ({ token, companies }) => {
       }, token);
       alert(result.message);
       setIsSubmitting(false);
+      window.location.reload();
     } catch (error) {
       console.error('Error al actualizar empresa:', error);
       alert('Error al actualizar empresa');
@@ -151,11 +175,33 @@ const ActualizarEmpresa = ({ token, companies }) => {
   );
 };
 
-//Cambiar posicion
-const SwapCompanyPriority = ({ token, companies }) => {
+//Campiar prioridad empresa
+const SwapCompanyPriority = ({ token }) => {
   const [companyId1, setCompanyId1] = useState('');
   const [companyId2, setCompanyId2] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [companies, setCompanies] = useState([]);
+
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/companies/all`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch companies');
+        }
+        const data = await response.json();
+        setCompanies(data);
+      } catch (error) {
+        console.error('Error fetching companies:', error);
+      }
+    };
+
+    fetchCompanies();
+  }, [token]);
 
   const handleCompanyId1Change = (e) => {
     setCompanyId1(e.target.value);
@@ -179,6 +225,7 @@ const SwapCompanyPriority = ({ token, companies }) => {
       }, token);
       alert(result.message);
       setIsSubmitting(false);
+      window.location.reload();
     } catch (error) {
       console.error('Error al intercambiar prioridad de empresas:', error);
       alert('Error al intercambiar prioridad de empresas');

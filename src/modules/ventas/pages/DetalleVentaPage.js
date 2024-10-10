@@ -538,7 +538,9 @@ const DetalleVentaPage = ({ saleId, onBack }) => {
             color: 'white',
             border: 'none',
             borderRadius: '4px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            position: 'relative',
+            zIndex: 10
           }}
         >
           Elegir archivos

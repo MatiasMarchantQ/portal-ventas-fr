@@ -2,10 +2,10 @@ import React, { useState, useEffect, useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
 import withAuthorization from '../../../contexts/withAuthorization';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFilter, faTimes, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faEdit } from '@fortawesome/free-solid-svg-icons';
 import './TablaDatos.css';
 
-const TablaDatos = () => {
+const TablaDatosPage = ({ onCommuneClick }) => {
   const { token } = useContext(UserContext);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +20,7 @@ const TablaDatos = () => {
   const [communes, setCommunes] = useState([]);
   const [promotions, setPromotions] = useState([]);
   const [installationAmounts, setInstallationAmounts] = useState([]);
-  const limit = 100;
+  const limit = 4;
 
   useEffect(() => {
     fetchData();
@@ -43,11 +43,11 @@ const TablaDatos = () => {
         installation_amount_id: installationAmountId
       });
   
-      const response = await fetch(`http://localhost:3003/api/promotions/all?${params.toString()}`, { headers });
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/promotions/all?${params.toString()}`, { headers });
       const jsonData = await response.json();
       
       setData(jsonData.data);
-      setTotalPages(Math.ceil(jsonData.pagination.total / limit));
+      setTotalPages(jsonData.pagination.totalPages);
       setTotalItems(jsonData.pagination.total);
       setLoading(false);
     } catch (error) {
@@ -118,7 +118,7 @@ const TablaDatos = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         };
-        const response = await fetch('http://localhost:3003/api/promotions/installation-amounts', { headers });
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/promotions/installation-amounts`, { headers });
         const jsonData = await response.json();
         setInstallationAmounts(jsonData);
       } catch (error) {
@@ -133,7 +133,7 @@ const TablaDatos = () => {
       setCurrentPage(newPage);
     }
   };
-
+ 
   const handleRegionChange = (event) => {
     setRegionId(event.target.value);
     setCommuneId('');
@@ -173,7 +173,7 @@ const TablaDatos = () => {
         <h1 style={{ color: '#99235C', textAlign: 'center' }}>Promociones Internet por Zona</h1>
         <div className="filters">
           <label>Región:</label>
-          <select value={regionId} onChange={handleRegionChange}>
+          <select id='region-select' name='region' value={regionId} onChange={handleRegionChange}>
             <option value="">Todas las regiones</option>
             {regions.map((region) => (
               <option key={region.region_id} value={region.region_id}>
@@ -183,7 +183,7 @@ const TablaDatos = () => {
           </select>
     
           <label>Comuna:</label>
-          <select value={communeId} onChange={handleCommuneChange}>
+          <select id='commune-select' name='commune' value={communeId} onChange={handleCommuneChange}>
             <option value="">Todas las comunas</option>
             {communes.map((commune) => (
               <option key={commune.commune_id} value={commune.commune_id}>
@@ -193,7 +193,7 @@ const TablaDatos = () => {
           </select>
     
           <label>Promoción:</label>
-          <select value={promotionId} onChange={handlePromotionChange}>
+          <select id='promotion-select' name='promotion' value={promotionId} onChange={handlePromotionChange}>
             <option value="">Todas las promociones</option>
             {promotions.map((promotion) => (
               <option key={promotion.promotion_id} value={promotion.promotion_id}>
@@ -203,15 +203,14 @@ const TablaDatos = () => {
           </select>
     
           <label>Monto Instalación:</label>
-          <select value={installationAmountId} onChange={handleInstallationAmountChange}>
+          <select id='installation-amount-select' name='installationAmount' value={installationAmountId} onChange={handleInstallationAmountChange}>
             <option value="">Todas las instalaciones</option>
             {installationAmounts.map((installationAmount) => (
               <option key={installationAmount.installation_amount_id} value={installationAmount.installation_amount_id}>
                 {installationAmount.amount}
               </option>
             ))}
-          </select>
-    
+          </select>          
           <button onClick={handleClearFilters}>Limpiar filtros</button>
         </div>
       </div>
@@ -222,29 +221,81 @@ const TablaDatos = () => {
             <tr>
               <th>Región</th>
               <th>Comuna</th>
+              <th>Estado Comuna</th>
               <th>Promoción</th>
               <th>Monto de instalación</th>
               <th>Estado promoción</th>
+              <th>Acción</th>
             </tr>
           </thead>
           <tbody>
             {data ? (
-              data.map((region) =>
-                region.communes.map((commune) =>
-                  commune.promotions.map((promotion) => (
-                    <tr key={`${region.region_id}-${commune.commune_id}-${promotion.promotion_id}`}>
-                      <td>{region.region_name}</td>
-                      <td>{commune.commune_name}</td>
-                      <td>{promotion.promotion}</td>
-                      <td>{promotion.installation_amount}</td>
-                      <td>{promotion.is_active === 1 ? 'Activo' : 'Inactivo'}</td>
-                    </tr>
-                  ))
-                )
+              data.flatMap((region) =>
+                region.communes.map((commune) => {
+                  if (commune.promotions.length === 0) {
+                    return (
+                      <tr key={`${region.region_id}-${commune.commune_id}`}>
+                        <td>{region.region_name}</td>
+                        <td>{commune.commune_name}</td>
+                        <td>
+                          <span className={`status-badge ${commune.is_active ? 'active' : 'inactive'}`}>
+                            {commune.is_active ? 'Activo' : 'Inactivo'}
+                          </span>
+                        </td>
+                        <td>Sin promoción</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>
+                          <button 
+                            onClick={() => onCommuneClick(commune.commune_id)}
+                            className="edit-button"
+                          >
+                            <FontAwesomeIcon icon={faEdit} /> Editar
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  } else {
+                    return commune.promotions.map((promotion) => (
+                      <tr key={`${region.region_id}-${commune.commune_id}-${promotion.promotion_id}`}>
+                        <td>{region.region_name}</td>
+                        <td>{commune.commune_name}</td>
+                        <td>
+                          <span className={`status-badge ${commune.is_active ? 'active' : 'inactive'}`}>
+                            {commune.is_active ? 'Activo' : 'Inactivo'}
+                          </span>
+                        </td>
+                        <td>{promotion.promotion}</td>
+                        <td>{promotion.installation_amount}</td>
+                        <td>
+                          <span className={`status-badge ${promotion.is_active === 1 ? 'active' : 'inactive'}`}>
+                            {promotion.is_active === 1 ? 'Activo' : 'Inactivo'}
+                          </span>
+                        </td>
+                        <td>
+                        <button 
+                          onClick={() => onCommuneClick(commune.commune_id)}
+                          className="edit-button"
+                          style={{
+                            backgroundColor: '#99235C',
+                            color: '#ffffff',
+                            border: 'none',
+                            padding: '5px 10px',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faEdit} /> Editar
+                        </button>
+                        </td>
+                      </tr>
+                    ));
+                  }
+                })
               )
             ) : (
               <tr>
-                <td colSpan="4">Cargando...</td>
+                <td colSpan="7">Cargando...</td>
               </tr>
             )}
           </tbody>
@@ -282,4 +333,4 @@ const TablaDatos = () => {
   );
 };  
 
-export default TablaDatos;
+export default TablaDatosPage;

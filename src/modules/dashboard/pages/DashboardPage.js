@@ -16,6 +16,8 @@ import MiPerfilPage from '../../../modules/profile/pages/MiPerfilPage';
 import IngresarVentasPage from '../../../modules/ventas/pages/IngresarVentasPage';
 import DetalleVentaPage from '../../../modules/ventas/pages/DetalleVentaPage';
 import TablaDatosPage from '../../admin/pages/TablaDatosPage';
+import DetalleComunaPage from '../../admin/pages/DetalleComunaPage';
+import MotivosPage from '../../admin/pages/MotivosPage';
 import withAuthorization from '../../../contexts/withAuthorization';
 import './Dashboard.css';
 
@@ -25,6 +27,8 @@ const accessControl = {
   'Registrar usuario': [1, 2],
   'Usuarios': [1, 2],
   'Datos': [1],
+  'Detalle Comuna': [1],
+  'Motivos': [1],
   'Comunas': [1],
   'Tarifas': [1],
   'Empresas': [1],
@@ -38,12 +42,16 @@ const DashboardPage = () => {
     const params = new URLSearchParams(window.location.search);
     const page = params.get('page');
     const id = params.get('id');
+    const communeId = params.get('communeId');
     
     if (page === 'detalle-venta' && id) {
       return 'Detalle Venta';
     }
     if (page === 'detalle-usuario' && id) {
       return 'Detalle Usuario';
+    }
+    if (page === 'detalle-comuna' && communeId) {
+      return 'Detalle Comuna';
     }
     return page || 'Ventas';
   });
@@ -57,6 +65,11 @@ const DashboardPage = () => {
   const [selectedUserId, setSelectedUserId] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('id') || null;
+  });
+
+  const [selectedCommuneId, setSelectedCommuneId] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('communeId') || null;
   });
   
   const [pagination, setPagination] = useState(() => {
@@ -73,6 +86,9 @@ const DashboardPage = () => {
     } else if (selectedOption === 'Detalle Usuario') {
       params.set('page', 'detalle-usuario');
       if (selectedUserId) params.set('id', selectedUserId);
+    } else if (selectedOption === 'Detalle Comuna') {
+      params.set('page', 'detalle-comuna');
+      if (selectedCommuneId) params.set('communeId', selectedCommuneId);
     } else {
       params.set('page', selectedOption);
     }
@@ -86,7 +102,7 @@ const DashboardPage = () => {
       '', 
       `${window.location.pathname}?${params.toString()}`
     );
-  }, [selectedOption, selectedSaleId, selectedUserId, pagination]);
+  }, [selectedOption, selectedSaleId, selectedUserId, selectedCommuneId, pagination]);
 
   const handleMenuClick = (option) => {
     if (accessControl[option]?.includes(roleId)) {
@@ -98,6 +114,11 @@ const DashboardPage = () => {
     } else {
       setErrorMessage('Acceso denegado: No tienes permisos para ver esta página.');
     }
+  };
+
+  const handleCommuneClick = (communeId) => {
+    setSelectedCommuneId(communeId);
+    setSelectedOption('Detalle Comuna');
   };
 
   const handleSaleClick = (saleId) => {
@@ -120,26 +141,34 @@ const DashboardPage = () => {
     setSelectedOption('Ventas');
   };
 
+  const handleBackToTablaDatos = () => {
+    setSelectedCommuneId(null);
+    setSelectedOption('Datos');
+  };
+
   const renderContent = () => {
     if (selectedOption === 'Detalle Venta' && selectedSaleId) {
       return <DetalleVentaPage saleId={selectedSaleId} onBack={handleBackToVentas} />;
     } else if (selectedOption === 'Detalle Usuario' && selectedUserId) {
       return <DetalleUsuarioPage idUser={selectedUserId} onBack={handleBackToUsers} />;
+    } else if (selectedOption === 'Detalle Comuna' && selectedCommuneId) {
+      return <DetalleComunaPage communeId={selectedCommuneId} onBack={handleBackToTablaDatos} />;
     }
-
+  
     const components = {
       'Ventas': <VentasPage onSaleClick={handleSaleClick} pagination={pagination} setPagination={setPagination} />,
       'Ingresar venta': <IngresarVentasPage />,
       'Registrar usuario': <RegistrarUsuarioPage />,
       'Usuarios': <UsuariosPage onUserClick={handleUserClick} pagination={pagination} setPagination={setPagination} />,
-      'Datos': <TablaDatosPage />,
+      'Datos': <TablaDatosPage onCommuneClick={handleCommuneClick} />,
       'Comunas': <ComunasPage />,
       'Tarifas': <TarifasPage />,
       'Empresas': <EmpresasPage />,
       'Canales de venta': <CanalesVentaPage />,
+      'Motivos': <MotivosPage />,
       'Mi perfil': <MiPerfilPage />,
     };
-
+  
     return components[selectedOption] || <VentasPage onSaleClick={handleSaleClick} pagination={pagination} setPagination={setPagination} />;
   };
 

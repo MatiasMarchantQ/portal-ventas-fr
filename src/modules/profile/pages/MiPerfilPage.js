@@ -279,7 +279,7 @@ const MiPerfilPage = () => {
                             <input
                                 type="text"
                                 name={field}
-                                value={formValues[field]}
+                                value={formValues[field] || ''}
                                 onChange={handleInputChange}
                             />
                             ) : (
@@ -298,7 +298,7 @@ const MiPerfilPage = () => {
                             field === 'email' ? (
                                 <textarea
                                 name={field}
-                                value={formValues[field]}
+                                value={formValues[field] || ''}
                                 onChange={handleInputChange}
                                 rows={2}
                                 style={{ width: '100%', resize: 'none' }}
@@ -307,7 +307,7 @@ const MiPerfilPage = () => {
                                 <input
                                 type={field === 'email' ? 'email' : 'text'}
                                 name={field}
-                                value={formValues[field]}
+                                value={formValues[field] || ''}
                                 onChange={handleInputChange}
                                 />
                             )
@@ -322,7 +322,7 @@ const MiPerfilPage = () => {
                         {isEditing ? (
                             <select
                                 name="region_id"
-                                value={formValues.region_id}
+                                value={formValues.region_id || ''}
                                 onChange={handleInputChange}
                             >
                                 <option value="">Seleccione una región</option>
@@ -339,7 +339,7 @@ const MiPerfilPage = () => {
                         {isEditing ? (
                             <select
                                 name="commune_id"
-                                value={formValues.commune_id}
+                                value={formValues.commune_id || ''}
                                 onChange={handleInputChange}
                                 disabled={!formValues.region_id}
                             >
@@ -359,7 +359,7 @@ const MiPerfilPage = () => {
                         <input
                             type="text"
                             name="street"
-                            value={formValues.street}
+                            value={formValues.street || ''}
                             onChange={handleInputChange}
                         />
                         ) : (
@@ -372,7 +372,7 @@ const MiPerfilPage = () => {
                         <input
                             type="text"
                             name="number"
-                            value={formValues.number}
+                            value={formValues.number || ''}
                             onChange={handleInputChange}
                         />
                         ) : (
@@ -385,7 +385,7 @@ const MiPerfilPage = () => {
                             <input
                                 type="text"
                                 name="department_office_floor"
-                                value={formValues.department_office_floor}
+                                value={formValues.department_office_floor || ''}
                                 onChange={handleInputChange}
                             />
                             ) : (

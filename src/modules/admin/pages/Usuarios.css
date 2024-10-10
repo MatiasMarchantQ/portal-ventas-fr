@@ -11,6 +11,24 @@
   color: #99235C;
 }
 
+/* UserRow.css */
+.status-badge {
+  padding: 1px 5px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: bold;
+}
+
+.status-badge.active {
+  background-color: #d4edda;
+  color: #000000;
+}
+
+.status-badge.inactive {
+  background-color: #f8d7da;
+  color: #000000;
+}
+
 /* Estilos para la sección de filtros */
 .usuarios-page .filter-section {
   margin-bottom: 20px;

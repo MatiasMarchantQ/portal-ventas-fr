@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { UserContext } from '../../../contexts/UserContext';
-import './ComunasTarifas.css'
+import './ComunasTarifas.css';
 
-// Utility function for API calls
 const apiCall = async (url, method = 'GET', body = null, token = null) => {
   const headers = {
     'Content-Type': 'application/json',
@@ -24,14 +23,12 @@ const apiCall = async (url, method = 'GET', body = null, token = null) => {
   return response.json();
 };
 
-// Custom hook for toggling card visibility
 const useToggleCard = (initialState = false) => {
   const [isOpen, setIsOpen] = useState(initialState);
   const toggle = () => setIsOpen(prev => !prev);
   return [isOpen, toggle];
 };
 
-// Card component
 const Card = ({ title, children, isOpen, toggle }) => (
   <div className="card" onClick={toggle}>
     <h2>{title}</h2>
